@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 
-import evlib.driverstation.Telem;
+import ftc.evlib.driverstation.Telem;
 import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.ResultReceiver;
 

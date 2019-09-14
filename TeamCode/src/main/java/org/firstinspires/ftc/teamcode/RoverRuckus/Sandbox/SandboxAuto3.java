@@ -11,12 +11,12 @@ import org.firstinspires.ftc.teamcode.RoverRuckus.RoverRuckusRobotCfg;
 
 import java.util.List;
 
-import evlib.hardware.control.MecanumControl;
-import evlib.hardware.sensors.Gyro;
-import evlib.opmodes.AbstractAutoOp;
-import evlib.statemachine.EVStateMachineBuilder;
-import evlib.util.EVConverters;
-import evlib.util.FileUtil;
+import ftc.evlib.hardware.control.MecanumControl;
+import ftc.evlib.hardware.sensors.Gyro;
+import ftc.evlib.opmodes.AbstractAutoOp;
+import ftc.evlib.statemachine.EVStateMachineBuilder;
+import ftc.evlib.util.EVConverters;
+import ftc.evlib.util.FileUtil;
 import ftc.electronvolts.statemachine.BasicAbstractState;
 import ftc.electronvolts.statemachine.StateMachine;
 import ftc.electronvolts.statemachine.StateName;

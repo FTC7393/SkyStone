@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.RoverRuckus;
 
-import evlib.hardware.motors.Motor;
-import evlib.hardware.sensors.DigitalSensor;
-import evlib.hardware.servos.ServoControl;
+import ftc.evlib.hardware.motors.Motor;
+import ftc.evlib.hardware.sensors.DigitalSensor;
+import ftc.evlib.hardware.servos.ServoControl;
 import ftc.electronvolts.util.DigitalInputEdgeDetector;
 
 //import evlib.hardware.motors.MotorEnc;

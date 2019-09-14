@@ -6,14 +6,14 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import java.util.List;
 
-import evlib.hardware.config.RobotCfg;
-import evlib.hardware.control.MecanumControl;
-import evlib.hardware.motors.MecanumMotors;
-import evlib.hardware.motors.MotorEnc;
-import evlib.hardware.motors.Motors;
-import evlib.hardware.sensors.Gyro;
-import evlib.hardware.sensors.IMUGyro;
-import evlib.statemachine.EVEndConditions;
+import ftc.evlib.hardware.config.RobotCfg;
+import ftc.evlib.hardware.control.MecanumControl;
+import ftc.evlib.hardware.motors.MecanumMotors;
+import ftc.evlib.hardware.motors.MotorEnc;
+import ftc.evlib.hardware.motors.Motors;
+import ftc.evlib.hardware.sensors.Gyro;
+import ftc.evlib.hardware.sensors.IMUGyro;
+import ftc.evlib.statemachine.EVEndConditions;
 import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.units.Distance;

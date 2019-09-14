@@ -12,8 +12,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import evlib.util.EVConverters;
-import evlib.util.FileUtil;
+import ftc.evlib.util.EVConverters;
+import ftc.evlib.util.FileUtil;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.files.OptionsFile;
 

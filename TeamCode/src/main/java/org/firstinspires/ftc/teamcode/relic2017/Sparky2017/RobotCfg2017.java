@@ -14,21 +14,21 @@ import org.firstinspires.ftc.teamcode.relic2017.Mechanisms.Relic;
 import java.util.List;
 import java.util.Map;
 
-import evlib.hardware.config.RobotCfg;
-import evlib.hardware.control.MecanumControl;
-import evlib.hardware.motors.MecanumMotors;
-import evlib.hardware.motors.Motors;
-import evlib.hardware.sensors.AnalogSensor;
-import evlib.hardware.sensors.IMUGyro;
-import evlib.hardware.sensors.Sensors;
-import evlib.hardware.servos.ServoCfg;
-import evlib.hardware.servos.ServoControl;
-import evlib.hardware.servos.ServoName;
-import evlib.hardware.servos.Servos;
-import evlib.statemachine.EVStateMachineBuilder;
-import evlib.util.EVConverters;
-import evlib.util.FileUtil;
-import evlib.util.StepTimer;
+import ftc.evlib.hardware.config.RobotCfg;
+import ftc.evlib.hardware.control.MecanumControl;
+import ftc.evlib.hardware.motors.MecanumMotors;
+import ftc.evlib.hardware.motors.Motors;
+import ftc.evlib.hardware.sensors.AnalogSensor;
+import ftc.evlib.hardware.sensors.IMUGyro;
+import ftc.evlib.hardware.sensors.Sensors;
+import ftc.evlib.hardware.servos.ServoCfg;
+import ftc.evlib.hardware.servos.ServoControl;
+import ftc.evlib.hardware.servos.ServoName;
+import ftc.evlib.hardware.servos.Servos;
+import ftc.evlib.statemachine.EVStateMachineBuilder;
+import ftc.evlib.util.EVConverters;
+import ftc.evlib.util.FileUtil;
+import ftc.evlib.util.StepTimer;
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.TeamColor;
@@ -40,7 +40,7 @@ import ftc.electronvolts.util.units.Distance;
 import ftc.electronvolts.util.units.Time;
 import ftc.electronvolts.util.units.Velocity;
 
-import static evlib.vision.framegrabber.GlobalFrameGrabber.frameGrabber;
+import static ftc.evlib.vision.framegrabber.GlobalFrameGrabber.frameGrabber;
 
 /**
  * This file was made by the electronVolts, FTC team 7393

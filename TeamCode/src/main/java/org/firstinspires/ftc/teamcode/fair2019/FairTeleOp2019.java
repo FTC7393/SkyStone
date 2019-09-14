@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.fair2019;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import evlib.opmodes.AbstractTeleOp;
+import ftc.evlib.opmodes.AbstractTeleOp;
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
 import ftc.electronvolts.util.files.Logger;

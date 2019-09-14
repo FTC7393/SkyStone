@@ -7,9 +7,9 @@ package org.firstinspires.ftc.teamcode.fair2019;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import evlib.hardware.config.RobotCfg;
-import evlib.hardware.motors.Motors;
-import evlib.hardware.motors.TwoMotors;
+import ftc.evlib.hardware.config.RobotCfg;
+import ftc.evlib.hardware.motors.Motors;
+import ftc.evlib.hardware.motors.TwoMotors;
 import ftc.electronvolts.util.units.Distance;
 import ftc.electronvolts.util.units.Time;
 import ftc.electronvolts.util.units.Velocity;

@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.RoverRuckus.RoverRuckusRobotCfg;
 
 import java.util.List;
 
-import evlib.opmodes.AbstractTeleOp;
+import ftc.evlib.opmodes.AbstractTeleOp;
 import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;

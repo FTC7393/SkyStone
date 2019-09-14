@@ -2,14 +2,14 @@ package org.firstinspires.ftc.teamcode.RoverRuckus;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import evlib.hardware.control.MecanumControl;
-import evlib.hardware.control.RotationControl;
-import evlib.hardware.control.RotationControls;
-import evlib.hardware.control.TranslationControl;
-import evlib.hardware.control.TranslationControls;
-import evlib.hardware.motors.MecanumMotors;
-import evlib.hardware.sensors.Gyro;
-import evlib.opmodes.AbstractOp;
+import ftc.evlib.hardware.control.MecanumControl;
+import ftc.evlib.hardware.control.RotationControl;
+import ftc.evlib.hardware.control.RotationControls;
+import ftc.evlib.hardware.control.TranslationControl;
+import ftc.evlib.hardware.control.TranslationControls;
+import ftc.evlib.hardware.motors.MecanumMotors;
+import ftc.evlib.hardware.sensors.Gyro;
+import ftc.evlib.opmodes.AbstractOp;
 import ftc.electronvolts.util.Vector2D;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.units.Angle;

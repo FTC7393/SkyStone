@@ -8,11 +8,11 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.teamcode.relic2017.Mechanisms.VuMarkFinder;
 
-import evlib.opmodes.AbstractAutoOp;
-import evlib.statemachine.EVEndConditions;
-import evlib.statemachine.EVStateMachineBuilder;
-import evlib.util.EVConverters;
-import evlib.util.FileUtil;
+import ftc.evlib.opmodes.AbstractAutoOp;
+import ftc.evlib.statemachine.EVEndConditions;
+import ftc.evlib.statemachine.EVStateMachineBuilder;
+import ftc.evlib.util.EVConverters;
+import ftc.evlib.util.FileUtil;
 import ftc.electronvolts.statemachine.BasicAbstractState;
 import ftc.electronvolts.statemachine.EndCondition;
 import ftc.electronvolts.statemachine.EndConditions;

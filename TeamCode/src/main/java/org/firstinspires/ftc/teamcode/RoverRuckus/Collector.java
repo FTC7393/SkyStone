@@ -2,8 +2,8 @@ package org.firstinspires.ftc.teamcode.RoverRuckus;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 
-import evlib.hardware.motors.Motor;
-import evlib.hardware.servos.ServoControl;
+import ftc.evlib.hardware.motors.Motor;
+import ftc.evlib.hardware.servos.ServoControl;
 
 /**
  * Created by ftc7393 on 10/27/2018.

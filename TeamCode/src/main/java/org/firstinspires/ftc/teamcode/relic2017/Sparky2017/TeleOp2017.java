@@ -9,10 +9,10 @@ import com.qualcomm.robotcore.exception.RobotCoreException;
 
 import org.firstinspires.ftc.teamcode.relic2017.TeleOpPlayback;
 
-import evlib.hardware.control.RotationControls;
-import evlib.hardware.control.TranslationControls;
-import evlib.opmodes.AbstractTeleOp;
-import evlib.util.StepTimer;
+import ftc.evlib.hardware.control.RotationControls;
+import ftc.evlib.hardware.control.TranslationControls;
+import ftc.evlib.opmodes.AbstractTeleOp;
+import ftc.evlib.util.StepTimer;
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
 import ftc.electronvolts.util.InputExtractor;

@@ -3,10 +3,10 @@ package org.firstinspires.ftc.teamcode.kidFest2018;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import evlib.hardware.config.RobotCfg;
-import evlib.hardware.control.MecanumControl;
-import evlib.hardware.motors.MecanumMotors;
-import evlib.hardware.motors.Motors;
+import ftc.evlib.hardware.config.RobotCfg;
+import ftc.evlib.hardware.control.MecanumControl;
+import ftc.evlib.hardware.motors.MecanumMotors;
+import ftc.evlib.hardware.motors.Motors;
 import ftc.electronvolts.util.units.Distance;
 import ftc.electronvolts.util.units.Time;
 import ftc.electronvolts.util.units.Velocity;

@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode.kidFest2018;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import evlib.hardware.control.RotationControls;
-import evlib.hardware.control.TranslationControls;
-import evlib.opmodes.AbstractTeleOp;
+import ftc.evlib.hardware.control.RotationControls;
+import ftc.evlib.hardware.control.TranslationControls;
+import ftc.evlib.opmodes.AbstractTeleOp;
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
 import ftc.electronvolts.util.InputExtractor;

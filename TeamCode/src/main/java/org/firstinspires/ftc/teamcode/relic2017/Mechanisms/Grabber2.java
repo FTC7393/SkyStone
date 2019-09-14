@@ -4,10 +4,10 @@ import android.util.Log;
 
 import org.firstinspires.ftc.teamcode.relic2017.Sparky2017.RobotCfg2017;
 
-import evlib.hardware.motors.MotorEnc;
-import evlib.hardware.sensors.DigitalSensor;
-import evlib.hardware.servos.ServoControl;
-import evlib.util.StepTimer;
+import ftc.evlib.hardware.motors.MotorEnc;
+import ftc.evlib.hardware.sensors.DigitalSensor;
+import ftc.evlib.hardware.servos.ServoControl;
+import ftc.evlib.util.StepTimer;
 import ftc.electronvolts.util.DigitalInputEdgeDetector;
 import ftc.electronvolts.util.PIDController;
 

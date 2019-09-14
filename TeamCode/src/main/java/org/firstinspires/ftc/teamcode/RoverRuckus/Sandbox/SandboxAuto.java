@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.RoverRuckus.RoverRuckusRobotCfg;
 
-import evlib.opmodes.AbstractAutoOp;
-import evlib.statemachine.EVStateMachineBuilder;
-import evlib.vision.framegrabber.FrameGrabber;
+import ftc.evlib.opmodes.AbstractAutoOp;
+import ftc.evlib.statemachine.EVStateMachineBuilder;
+import ftc.evlib.vision.framegrabber.FrameGrabber;
 import ftc.electronvolts.statemachine.StateMachine;
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.TeamColor;

@@ -5,8 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import evlib.hardware.sensors.Gyro;
-import evlib.hardware.sensors.IMUGyro;
+import ftc.evlib.hardware.sensors.Gyro;
+import ftc.evlib.hardware.sensors.IMUGyro;
 
 
 /**

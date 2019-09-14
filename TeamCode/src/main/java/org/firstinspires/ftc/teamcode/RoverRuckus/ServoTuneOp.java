@@ -2,8 +2,8 @@ package org.firstinspires.ftc.teamcode.RoverRuckus;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import evlib.hardware.config.RobotCfg;
-import evlib.opmodes.AbstractServoTuneOp;
+import ftc.evlib.hardware.config.RobotCfg;
+import ftc.evlib.opmodes.AbstractServoTuneOp;
 
 /**
  * Created by ftc7393 on 12/3/2017.

@@ -2,9 +2,9 @@ package org.firstinspires.ftc.teamcode.relic2017.Mechanisms;
 
 import org.firstinspires.ftc.teamcode.relic2017.Sparky2017.RobotCfg2017;
 
-import evlib.hardware.motors.MotorEnc;
-import evlib.hardware.sensors.DigitalSensor;
-import evlib.hardware.servos.ServoControl;
+import ftc.evlib.hardware.motors.MotorEnc;
+import ftc.evlib.hardware.sensors.DigitalSensor;
+import ftc.evlib.hardware.servos.ServoControl;
 import ftc.electronvolts.util.DigitalInputEdgeDetector;
 
 /**

@@ -7,12 +7,12 @@ import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.relic2017.Mechanisms.VuMarkFinder;
 import org.firstinspires.ftc.teamcode.relic2017.Sparky2017.RobotCfg2017;
 
-import evlib.driverstation.Telem;
-import evlib.opmodes.AbstractAutoOp;
-import evlib.statemachine.EVStateMachineBuilder;
-import evlib.statemachine.EVStates;
-import evlib.vision.framegrabber.VuforiaFrameFeeder;
-import evlib.vision.processors.Particles;
+import ftc.evlib.driverstation.Telem;
+import ftc.evlib.opmodes.AbstractAutoOp;
+import ftc.evlib.statemachine.EVStateMachineBuilder;
+import ftc.evlib.statemachine.EVStates;
+import ftc.evlib.vision.framegrabber.VuforiaFrameFeeder;
+import ftc.evlib.vision.processors.Particles;
 import ftc.electronvolts.statemachine.EndConditions;
 import ftc.electronvolts.statemachine.StateMachine;
 import ftc.electronvolts.statemachine.StateName;

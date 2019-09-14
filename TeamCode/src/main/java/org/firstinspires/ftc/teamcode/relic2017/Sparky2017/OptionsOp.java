@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.util.Locale;
 
-import evlib.opmodes.AbstractOptionsOp;
+import ftc.evlib.opmodes.AbstractOptionsOp;
 import ftc.electronvolts.util.DigitalInputEdgeDetector;
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;

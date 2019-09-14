@@ -7,8 +7,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
 
-import evlib.opmodes.AbstractOptionsOp;
-import evlib.util.FileUtil;
+import ftc.evlib.opmodes.AbstractOptionsOp;
+import ftc.evlib.util.FileUtil;
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
 
