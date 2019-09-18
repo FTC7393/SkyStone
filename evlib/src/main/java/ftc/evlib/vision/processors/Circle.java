@@ -1,6 +1,6 @@
 package ftc.evlib.vision.processors;
 
-import android.support.annotation.NonNull;
+//import android.support.annotation.NonNull;
 
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
@@ -49,7 +49,8 @@ public class Circle implements Comparable<Circle> {
      * @return an integer that represents the comparison result
      */
     @Override
-    public int compareTo(@NonNull Circle another) {
+    public int compareTo(// @NonNull
+                         Circle another) {
         return Double.compare(another.area, this.area);
 //    return Double.compare(this.ratio, another.ratio);
     }

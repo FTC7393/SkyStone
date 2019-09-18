@@ -16,7 +16,7 @@ import ftc.electronvolts.util.units.Time;
 /**
  * Created by ftc7393 on 9/22/2018.
  */
-@TeleOp(name = "KidFest")
+//@TeleOp(name = "KidFest")
 public class kidFestTeleOp extends AbstractTeleOp<kidFestRobotCfg> {
     private DcMotor dump = null;
     private DcMotor collector = null;

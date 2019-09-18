@@ -1,6 +1,6 @@
 package ftc.evlib.vision.processors;
 
-import android.support.annotation.NonNull;
+//import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.opencv.core.RotatedRect;
@@ -101,7 +101,8 @@ public class CircleMatch implements Comparable<CircleMatch> {
      * @return the comparison result
      */
     @Override
-    public int compareTo(@NonNull CircleMatch another) {
+    public int compareTo(//@NonNull
+                                     CircleMatch another) {
         return Double.compare(this.score, another.score);
     }
 

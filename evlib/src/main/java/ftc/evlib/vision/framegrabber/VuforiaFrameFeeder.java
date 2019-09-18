@@ -1,7 +1,7 @@
 package ftc.evlib.vision.framegrabber;
 
 import android.graphics.Bitmap;
-import android.support.annotation.IdRes;
+//import android.support.annotation.IdRes;
 
 import com.google.common.collect.ImmutableList;
 import com.qualcomm.robotcore.util.RobotLog;
@@ -75,7 +75,8 @@ public class VuforiaFrameFeeder extends VuforiaLocalizerImpl {
      * @param heightRequest             the height to scale the image to for the FrameGrabber
      * @return the ResultReceiver that will contain the VuforiaFrameFeeder object
      */
-    public static ResultReceiver<VuforiaFrameFeeder> initInNewThread(final String licenseKey, final @IdRes int cameraMonitorViewIdParent, final int widthRequest, final int heightRequest) {
+    public static ResultReceiver<VuforiaFrameFeeder> initInNewThread(final String licenseKey, final // @IdRes
+            int cameraMonitorViewIdParent, final int widthRequest, final int heightRequest) {
         //create the ResultReceiver that will store the VuforiaFrameFeeder
         final ResultReceiver<VuforiaFrameFeeder> receiver = new BasicResultReceiver<>();
 
@@ -101,7 +102,8 @@ public class VuforiaFrameFeeder extends VuforiaLocalizerImpl {
      * @param heightRequest             the height to scale the image to for the FrameGrabber
      * @return the VuforiaFrameFeeder object
      */
-    public static VuforiaFrameFeeder init(String licenseKey, @IdRes int cameraMonitorViewIdParent, int widthRequest, int heightRequest) {
+    public static VuforiaFrameFeeder init(String licenseKey, // @IdRes
+            int cameraMonitorViewIdParent, int widthRequest, int heightRequest) {
         //display the camera on the screen
         Parameters params = new Parameters(cameraMonitorViewIdParent);
 

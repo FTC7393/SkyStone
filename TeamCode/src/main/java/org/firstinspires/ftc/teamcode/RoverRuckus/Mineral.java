@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.RoverRuckus;
 
-import android.support.annotation.NonNull;
+//import android.support.annotation.NonNull;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -85,7 +85,8 @@ public class Mineral implements Comparable<Mineral> {
                 this.type,this.confidence,this.x,this.y,isInsideFilterBox?1:0,this.width,widthOk?1:0,this.height,heightOk?1:0,this.radius);
     };
     @Override
-    public int compareTo(@NonNull Mineral another) {
+    public int compareTo(// @NonNull
+                                     Mineral another) {
         if(this.radius<another.radius){
             return -1;
         }
