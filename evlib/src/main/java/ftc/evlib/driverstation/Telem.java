@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.hardware.GyroSensor;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.opmode.TelemetryImpl;
 
-import ftc.evlib.vision.framegrabber.VuforiaFrameFeeder;
 import ftc.electronvolts.util.ResultReceiver;
 
 //import org.firstinspires.ftc.robotcore.internal.TelemetryImpl;
@@ -47,14 +46,14 @@ public class Telem {
         }
     }
 
-    /**
-     * Display whether or not a Vuforia ResultReceiver is ready on the driver station telemetry
-     *
-     * @param receiver the ResultReceiver of the VuforiaFrameFeeder type
-     */
-    public static void displayVuforiaReadiness(ResultReceiver<VuforiaFrameFeeder> receiver) {
-        displayReceiverReadiness(receiver, "vuforia", "ready", "NOT INITIALIZED!!!");
-    }
+//    /**
+//     * Display whether or not a Vuforia ResultReceiver is ready on the driver station telemetry
+//     *
+//     * @param receiver the ResultReceiver of the VuforiaFrameFeeder type
+//     */
+//    public static void displayVuforiaReadiness(ResultReceiver<VuforiaFrameFeeder> receiver) {
+//        displayReceiverReadiness(receiver, "vuforia", "ready", "NOT INITIALIZED!!!");
+//    }
 
     /**
      * Display a BeaconColorResult on the telemetry

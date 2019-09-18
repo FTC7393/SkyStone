@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.RoverRuckus.RoverRuckusRobotCfg;
 
 import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
-import ftc.evlib.vision.framegrabber.FrameGrabber;
+//import ftc.evlib.vision.framegrabber.FrameGrabber;
 import ftc.electronvolts.statemachine.StateMachine;
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.TeamColor;
@@ -30,9 +30,10 @@ public class SandboxAuto extends AbstractAutoOp<RoverRuckusRobotCfg> {
 
     @Override
     public StateMachine buildStates() {
-        FrameGrabber fg = null;
-        EVStateMachineBuilder b = new EVStateMachineBuilder(S.DRIVE1, TeamColor.RED, Angle.fromRadians(0.05),
-                robotCfg.getGyro(), fg, servos, robotCfg.getMecanumControl());
+//        FrameGrabber fg = null;
+        EVStateMachineBuilder b = null;
+        // new EVStateMachineBuilder(S.DRIVE1, TeamColor.RED, Angle.fromRadians(0.05),
+        //         robotCfg.getGyro(), fg, servos, robotCfg.getMecanumControl());
         Distance dist;
         b.addDrive(S.DRIVE1, S.STOP,Distance.fromFeet(.5),.5,270,0);
 

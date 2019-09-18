@@ -22,17 +22,17 @@ import ftc.evlib.hardware.sensors.DoubleLineSensor;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.hardware.servos.ServoControl;
 import ftc.evlib.hardware.servos.Servos;
-import ftc.evlib.vision.framegrabber.VuforiaFrameFeeder;
-import ftc.evlib.vision.processors.BeaconColorResult;
-import ftc.evlib.vision.processors.BeaconName;
-import ftc.evlib.vision.processors.CloseUpColorProcessor;
-import ftc.evlib.vision.processors.ImageProcessor;
-import ftc.evlib.vision.processors.ImageProcessorResult;
-import ftc.evlib.vision.processors.Particle;
-import ftc.evlib.vision.processors.ParticleFinder;
-import ftc.evlib.vision.processors.Particles;
-import ftc.evlib.vision.processors.RGBBeaconProcessor;
-import ftc.evlib.vision.processors.VuforiaBeaconColorProcessor;
+//import ftc.evlib.vision.framegrabber.VuforiaFrameFeeder;
+//import ftc.evlib.vision.processors.BeaconColorResult;
+//import ftc.evlib.vision.processors.BeaconName;
+//import ftc.evlib.vision.processors.CloseUpColorProcessor;
+//import ftc.evlib.vision.processors.ImageProcessor;
+//import ftc.evlib.vision.processors.ImageProcessorResult;
+//import ftc.evlib.vision.processors.Particle;
+//import ftc.evlib.vision.processors.ParticleFinder;
+//import ftc.evlib.vision.processors.Particles;
+//import ftc.evlib.vision.processors.RGBBeaconProcessor;
+//import ftc.evlib.vision.processors.VuforiaBeaconColorProcessor;
 import ftc.electronvolts.statemachine.AbstractState;
 import ftc.electronvolts.statemachine.BasicAbstractState;
 import ftc.electronvolts.statemachine.EndCondition;
@@ -52,8 +52,8 @@ import ftc.electronvolts.util.units.Distance;
 import ftc.electronvolts.util.units.Time;
 
 import static ftc.evlib.driverstation.Telem.telemetry;
-import static ftc.evlib.vision.framegrabber.GlobalFrameGrabber.frameGrabber;
-import static ftc.evlib.vision.framegrabber.VuforiaFrameFeeder.beacons;
+//import static ftc.evlib.vision.framegrabber.GlobalFrameGrabber.frameGrabber;
+//import static ftc.evlib.vision.framegrabber.VuforiaFrameFeeder.beacons;
 
 /**
  * This file was made by the electronVolts, FTC team 7393
@@ -63,252 +63,225 @@ import static ftc.evlib.vision.framegrabber.VuforiaFrameFeeder.beacons;
  * @see EVStateMachineBuilder
  */
 public class EVStates extends States {
-    public static State findParticlesState(final StateName nextStateName, final StateName timeoutState, Time timeout, final Particles particles, final boolean saveImages, final ServoControl phoneServo, final Function degreesFromServoPos) {
-        final EndCondition timeoutEC = EVEndConditions.timed(timeout);
-
-        return new BasicAbstractState() {
-            private boolean timedOut = false;
-
-            @Override
-            public void init() {
-                frameGrabber.setImageProcessor(new ParticleFinder());
-                frameGrabber.setSaveImages(saveImages);
-                frameGrabber.grabSingleFrame();
-                timeoutEC.init();
-            }
-
-            @Override
-            public boolean isDone() {
-                if (frameGrabber.isResultReady()) {
-                    return true;
-                }
-
-                timedOut = timeoutEC.isDone();
-                return timedOut;
-            }
-
-            @Override
-            public StateName getNextStateName() {
-                if (timedOut) {
-                    return timeoutState;
-                } else {
-                    List<Particle> results = (List<Particle>) frameGrabber.getResult().getResult();
-                    Log.i("Particle", "servo: " + degreesFromServoPos.f(phoneServo.getCurrentPosition()) + " degrees");
-                    particles.add(results, Angle.fromDegrees(degreesFromServoPos.f(phoneServo.getCurrentPosition())));
-                    return nextStateName;
-                }
-            }
-        };
-    }
-    public static State findParticlesState(final StateName nextStateName, final StateName timeoutState, Time timeout, final Particles particles, final boolean saveImages) {
-        final EndCondition timeoutEC = EVEndConditions.timed(timeout);
-
-        return new BasicAbstractState() {
-            private boolean timedOut = false;
-
-            @Override
-            public void init() {
-                frameGrabber.setImageProcessor(new ParticleFinder());
-                frameGrabber.setSaveImages(saveImages);
-                frameGrabber.grabSingleFrame();
-                timeoutEC.init();
-            }
-
-            @Override
-            public boolean isDone() {
-                if (frameGrabber.isResultReady()) {
-                    return true;
-                }
-
-                timedOut = timeoutEC.isDone();
-                return timedOut;
-            }
-
-            @Override
-            public StateName getNextStateName() {
-                if (timedOut) {
-                    return timeoutState;
-                } else {
-                    List<Particle> results = (List<Particle>) frameGrabber.getResult().getResult();
-                    return nextStateName;
-                }
-            }
-        };
-    }
-
-    public static State turnToFaceParticle(final StateName successState, final StateName noParticlesFoundState, final TeamColor teamColor, final Particles particles, final MecanumControl mecanumControl, final Gyro gyro, final Angle tolerance, final double maxAngularSpeed) {
-        return new State() {
-            boolean first = true;
-            private EndCondition gyroEC;
-
-            @Override
-            public StateName act() {
-                if (first) {
-                    List<Vector2D> movements = particles.getMovementsToParticle(teamColor);
-                    if (movements.isEmpty()) {
-                        return noParticlesFoundState;
-                    }
-                    first = false;
-
-                    Angle direction = movements.get(0).getDirection();
-
-                    //add a certain amount to the direction based on the team color because they have different starting directions
-                    direction = Angle.add(direction, teamColor == TeamColor.RED ? Angle.fromDegrees(90) : Angle.fromDegrees(180));
-
-                    mecanumControl.setControl(
-                            TranslationControls.ZERO,
-                            RotationControls.gyro(gyro, direction, tolerance, maxAngularSpeed)
-                    );
-                    gyroEC = EVEndConditions.gyroCloseTo(gyro, direction, tolerance);
-                    gyroEC.init();
-                }
-                if (gyroEC.isDone()) {
-                    mecanumControl.stop();
-                    first = true;
-                    return successState;
-                }
-                return null;
-            }
-        };
-    }
-
-
-    public static State collectParticle(final StateName successState, final StateName noParticlesFoundState, final TeamColor teamColor, final Particles particles, final MecanumControl mecanumControl, final Motor collector, final Gyro gyro, final Angle tolerance, final boolean turnCollectorOff, final double maxAngularSpeed) {
-        final double velocity = 1;
-        final double collectorPower = 1;
-        final Angle largeTolerance = Angle.fromDegrees(15);
-
-        return new State() {
-            boolean newMovement = true;
-            boolean first = true;
-
-            List<Vector2D> movements;
-            int movementIndex = 0;
-            Angle direction;
-            Distance distance;
-//            EndCondition timeEC;
-
-            Distance distanceTravelled = Distance.zero();
-            long lastTime = 0;
-
-            @Override
-            public StateName act() {
-                if (first) {
-                    movements = particles.getMovementsToParticle(teamColor);
-                    if (movements.size() == 0) {
-                        return noParticlesFoundState;
-                    }
-                    collector.setPower(-collectorPower);
-                    first = false;
-                    newMovement = true;
-                }
-                if (newMovement) {
-                    newMovement = false;
-                    direction = movements.get(movementIndex).getDirection();
-                    distance = Distance.fromInches(movements.get(movementIndex).getLength());
-//                    double speedMetersPerMillisecond = mecanumControl.getMaxRobotSpeed(Angle.zero()).metersPerMillisecond() * velocity;
-//                    double durationMillis = Math.abs(distance.meters() / speedMetersPerMillisecond);
-//                    timeEC = EVEndConditions.timed((long) durationMillis);
-
-                    distanceTravelled = Distance.zero();
-                    lastTime = System.currentTimeMillis();
-
-//                    timeEC.init();
-                    mecanumControl.setControl(
+//    public static State findParticlesState(final StateName nextStateName, final StateName timeoutState, Time timeout, final Particles particles, final boolean saveImages, final ServoControl phoneServo, final Function degreesFromServoPos) {
+//        final EndCondition timeoutEC = EVEndConditions.timed(timeout);
+//
+//        return new BasicAbstractState() {
+//            private boolean timedOut = false;
+//
+//            @Override
+//            public void init() {
+//                frameGrabber.setImageProcessor(new ParticleFinder());
+//                frameGrabber.setSaveImages(saveImages);
+//                frameGrabber.grabSingleFrame();
+//                timeoutEC.init();
+//            }
+//
+//            @Override
+//            public boolean isDone() {
+//                if (frameGrabber.isResultReady()) {
+//                    return true;
+//                }
+//
+//                timedOut = timeoutEC.isDone();
+//                return timedOut;
+//            }
+//
+//            @Override
+//            public StateName getNextStateName() {
+//                if (timedOut) {
+//                    return timeoutState;
+//                } else {
+//                    List<Particle> results = (List<Particle>) frameGrabber.getResult().getResult();
+//                    Log.i("Particle", "servo: " + degreesFromServoPos.f(phoneServo.getCurrentPosition()) + " degrees");
+//                    particles.add(results, Angle.fromDegrees(degreesFromServoPos.f(phoneServo.getCurrentPosition())));
+//                    return nextStateName;
+//                }
+//            }
+//        };
+//    }
+//    public static State findParticlesState(final StateName nextStateName, final StateName timeoutState, Time timeout, final Particles particles, final boolean saveImages) {
+//        final EndCondition timeoutEC = EVEndConditions.timed(timeout);
+//
+//        return new BasicAbstractState() {
+//            private boolean timedOut = false;
+//
+//            @Override
+//            public void init() {
+//                frameGrabber.setImageProcessor(new ParticleFinder());
+//                frameGrabber.setSaveImages(saveImages);
+//                frameGrabber.grabSingleFrame();
+//                timeoutEC.init();
+//            }
+//
+//            @Override
+//            public boolean isDone() {
+//                if (frameGrabber.isResultReady()) {
+//                    return true;
+//                }
+//
+//                timedOut = timeoutEC.isDone();
+//                return timedOut;
+//            }
+//
+//            @Override
+//            public StateName getNextStateName() {
+//                if (timedOut) {
+//                    return timeoutState;
+//                } else {
+//                    List<Particle> results = (List<Particle>) frameGrabber.getResult().getResult();
+//                    return nextStateName;
+//                }
+//            }
+//        };
+//    }
+//
+//    public static State turnToFaceParticle(final StateName successState, final StateName noParticlesFoundState, final TeamColor teamColor, final Particles particles, final MecanumControl mecanumControl, final Gyro gyro, final Angle tolerance, final double maxAngularSpeed) {
+//        return new State() {
+//            boolean first = true;
+//            private EndCondition gyroEC;
+//
+//            @Override
+//            public StateName act() {
+//                if (first) {
+//                    List<Vector2D> movements = particles.getMovementsToParticle(teamColor);
+//                    if (movements.isEmpty()) {
+//                        return noParticlesFoundState;
+//                    }
+//                    first = false;
+//
+//                    Angle direction = movements.get(0).getDirection();
+//
+//                    //add a certain amount to the direction based on the team color because they have different starting directions
+//                    direction = Angle.add(direction, teamColor == TeamColor.RED ? Angle.fromDegrees(90) : Angle.fromDegrees(180));
+//
+//                    mecanumControl.setControl(
 //                            TranslationControls.ZERO,
-                            TranslationControls.constant(velocity, direction),
-                            RotationControls.gyro(gyro, direction, tolerance, maxAngularSpeed)
-                    );
-                    if (movementIndex == movements.size() - 1) {
-                        collector.setPower(collectorPower);
-                    }
-                }
-
-                Angle signedAngularSeparation = Vector2D.signedAngularSeparation(
-                        new Vector2D(1, Angle.fromDegrees(gyro.getHeading())),
-                        new Vector2D(1, direction)
-                );
-                if (signedAngularSeparation.abs().radians() <= largeTolerance.radians()) {
-                    mecanumControl.setTranslationControl(TranslationControls.constant(velocity, direction));
-                }
-
-                long now = System.currentTimeMillis();
-                Time deltaTime = Time.fromMilliseconds(lastTime - now);
-                lastTime = now;
-                distanceTravelled = Distance.add(
-                        distanceTravelled,
-                        Distance.multiply(
-                                mecanumControl.getMaxRobotSpeed(Angle.subtract(direction, Angle.fromDegrees(gyro.getHeading()))).getDistance(deltaTime),
-                                velocity * mecanumControl.getMecanumMotors().getScaleFactor()
-                        ).abs()
-                );
-                if (distanceTravelled.meters() >= distance.meters()) {
-//                if (timeEC.isDone()) {
-                    newMovement = true;
-                    movementIndex++;
-                    if (movementIndex >= movements.size()) {
-                        if (turnCollectorOff) {
-                            collector.setPower(0);
-                        }
-                        mecanumControl.stop();
-                        first = true;
-                        return successState;
-                    }
-                }
-                return null;
-            }
-        };
-    }
-
-    public static State displayParticles(final Particles particles) {
-        return new State() {
-            @Override
-            public StateName act() {
-                StringBuilder sb = new StringBuilder();
-                for (Particle particle : particles) {
-                    sb.append(particle).append(" ");
-                }
-                telemetry.addData("Particles", sb);
-                return null;
-            }
-        };
-    }
-
-    /**
-     * Displays the left and right color of a BeaconColorResult
-     *
-     * @param receiver the ResultReceiver to get the color from
-     * @return the created State
-     * @see BeaconColorResult
-     */
-    public static State displayBeaconColorResult(final ResultReceiver<BeaconColorResult> receiver) {
-        return new BasicAbstractState() {
-            @Override
-            public void init() {
-
-            }
-
-            @Override
-            public boolean isDone() {
-//                Telem.displayBeaconColorResult(receiver);
-                return false;
-            }
-
-            @Override
-            public StateName getNextStateName() {
-                return null;
-            }
-        };
-    }
-
-    /**
-     * Displays the color of a BeaconColorResult.BeaconColor
-     *
-     * @param receiver the ResultReceiver to get the color from
-     * @return the created State
-     * @see BeaconColorResult
-     */
-//    public static State displayBeaconColor(final ResultReceiver<BeaconColorResult.BeaconColor> receiver) {
+//                            RotationControls.gyro(gyro, direction, tolerance, maxAngularSpeed)
+//                    );
+//                    gyroEC = EVEndConditions.gyroCloseTo(gyro, direction, tolerance);
+//                    gyroEC.init();
+//                }
+//                if (gyroEC.isDone()) {
+//                    mecanumControl.stop();
+//                    first = true;
+//                    return successState;
+//                }
+//                return null;
+//            }
+//        };
+//    }
+//
+//
+//    public static State collectParticle(final StateName successState, final StateName noParticlesFoundState, final TeamColor teamColor, final Particles particles, final MecanumControl mecanumControl, final Motor collector, final Gyro gyro, final Angle tolerance, final boolean turnCollectorOff, final double maxAngularSpeed) {
+//        final double velocity = 1;
+//        final double collectorPower = 1;
+//        final Angle largeTolerance = Angle.fromDegrees(15);
+//
+//        return new State() {
+//            boolean newMovement = true;
+//            boolean first = true;
+//
+//            List<Vector2D> movements;
+//            int movementIndex = 0;
+//            Angle direction;
+//            Distance distance;
+////            EndCondition timeEC;
+//
+//            Distance distanceTravelled = Distance.zero();
+//            long lastTime = 0;
+//
+//            @Override
+//            public StateName act() {
+//                if (first) {
+//                    movements = particles.getMovementsToParticle(teamColor);
+//                    if (movements.size() == 0) {
+//                        return noParticlesFoundState;
+//                    }
+//                    collector.setPower(-collectorPower);
+//                    first = false;
+//                    newMovement = true;
+//                }
+//                if (newMovement) {
+//                    newMovement = false;
+//                    direction = movements.get(movementIndex).getDirection();
+//                    distance = Distance.fromInches(movements.get(movementIndex).getLength());
+////                    double speedMetersPerMillisecond = mecanumControl.getMaxRobotSpeed(Angle.zero()).metersPerMillisecond() * velocity;
+////                    double durationMillis = Math.abs(distance.meters() / speedMetersPerMillisecond);
+////                    timeEC = EVEndConditions.timed((long) durationMillis);
+//
+//                    distanceTravelled = Distance.zero();
+//                    lastTime = System.currentTimeMillis();
+//
+////                    timeEC.init();
+//                    mecanumControl.setControl(
+////                            TranslationControls.ZERO,
+//                            TranslationControls.constant(velocity, direction),
+//                            RotationControls.gyro(gyro, direction, tolerance, maxAngularSpeed)
+//                    );
+//                    if (movementIndex == movements.size() - 1) {
+//                        collector.setPower(collectorPower);
+//                    }
+//                }
+//
+//                Angle signedAngularSeparation = Vector2D.signedAngularSeparation(
+//                        new Vector2D(1, Angle.fromDegrees(gyro.getHeading())),
+//                        new Vector2D(1, direction)
+//                );
+//                if (signedAngularSeparation.abs().radians() <= largeTolerance.radians()) {
+//                    mecanumControl.setTranslationControl(TranslationControls.constant(velocity, direction));
+//                }
+//
+//                long now = System.currentTimeMillis();
+//                Time deltaTime = Time.fromMilliseconds(lastTime - now);
+//                lastTime = now;
+//                distanceTravelled = Distance.add(
+//                        distanceTravelled,
+//                        Distance.multiply(
+//                                mecanumControl.getMaxRobotSpeed(Angle.subtract(direction, Angle.fromDegrees(gyro.getHeading()))).getDistance(deltaTime),
+//                                velocity * mecanumControl.getMecanumMotors().getScaleFactor()
+//                        ).abs()
+//                );
+//                if (distanceTravelled.meters() >= distance.meters()) {
+////                if (timeEC.isDone()) {
+//                    newMovement = true;
+//                    movementIndex++;
+//                    if (movementIndex >= movements.size()) {
+//                        if (turnCollectorOff) {
+//                            collector.setPower(0);
+//                        }
+//                        mecanumControl.stop();
+//                        first = true;
+//                        return successState;
+//                    }
+//                }
+//                return null;
+//            }
+//        };
+//    }
+//
+//    public static State displayParticles(final Particles particles) {
+//        return new State() {
+//            @Override
+//            public StateName act() {
+//                StringBuilder sb = new StringBuilder();
+//                for (Particle particle : particles) {
+//                    sb.append(particle).append(" ");
+//                }
+//                telemetry.addData("Particles", sb);
+//                return null;
+//            }
+//        };
+//    }
+//
+//    /**
+//     * Displays the left and right color of a BeaconColorResult
+//     *
+//     * @param receiver the ResultReceiver to get the color from
+//     * @return the created State
+//     * @see BeaconColorResult
+//     */
+//    public static State displayBeaconColorResult(final ResultReceiver<BeaconColorResult> receiver) {
 //        return new BasicAbstractState() {
 //            @Override
 //            public void init() {
@@ -317,7 +290,7 @@ public class EVStates extends States {
 //
 //            @Override
 //            public boolean isDone() {
-//                Telem.displayBeaconColor(receiver);
+////                Telem.displayBeaconColorResult(receiver);
 //                return false;
 //            }
 //
@@ -327,260 +300,287 @@ public class EVStates extends States {
 //            }
 //        };
 //    }
-
-    /**
-     * Uses vuforia to find the beacon target image, then uses opencv to determine the beacon color
-     *
-     * @param successState      the state to go to if it succeeds
-     * @param failState         the state to go to if it fails
-     * @param timeoutState      the state to go to if it times out
-     * @param timeoutTime       the time before it will time out
-     * @param vuforiaReceiver   the ResultReceiver to get the VuforiaFramFeeder object from
-     * @param beaconColorResult the ResultReceiver to store the result in
-     * @param teamColor         your team's color to decide which beacons to look for
-     * @param numFrames         the number of frames to process
-     * @param saveImages        whether or not to save the frames for logging
-     * @return the created State
-     * @see VuforiaFrameFeeder
-     * @see VuforiaBeaconColorProcessor
-     */
-    //TODO assume that vuforia is initialized in findBeaconColorState
-    public static State findBeaconColorState(final StateName successState, final StateName failState, final StateName timeoutState, Time timeoutTime, final ResultReceiver<VuforiaFrameFeeder> vuforiaReceiver, final ResultReceiver<BeaconColorResult> beaconColorResult, TeamColor teamColor, final int numFrames, final boolean saveImages) {
-        final List<BeaconName> beaconNames = BeaconName.getNamesForTeamColor(teamColor);
-        final EndCondition timeout = EndConditions.timed(timeoutTime);
-
-        return new BasicAbstractState() {
-            private VuforiaFrameFeeder vuforia = null;
-            private VuforiaBeaconColorProcessor processor = null;
-            private BeaconName beaconName;
-            private int beaconIndex = 0; //index of the beaconNames list
-            private boolean timedOut = false;
-
-            @Override
-            public void init() {
-                timeout.init();
-                timedOut = false;
-
-                if (beaconIndex >= beaconNames.size()) {
-                    beaconIndex = 0;
-                    //we should never go here
-                }
-                beaconName = beaconNames.get(beaconIndex);
-                if (processor != null) {
-                    processor.setBeaconName(beaconName);
-                }
-            }
-
-            @Override
-            public boolean isDone() {
-                if (vuforia == null && vuforiaReceiver.isReady()) {
-                    vuforia = vuforiaReceiver.getValue();
-//                    if (vuforia == null) {
-//                        Log.e("EVStates", "vuforia is null!!!!!!!!!!!!!");
+//
+//    /**
+//     * Displays the color of a BeaconColorResult.BeaconColor
+//     *
+//     * @param receiver the ResultReceiver to get the color from
+//     * @return the created State
+//     * @see BeaconColorResult
+//     */
+////    public static State displayBeaconColor(final ResultReceiver<BeaconColorResult.BeaconColor> receiver) {
+////        return new BasicAbstractState() {
+////            @Override
+////            public void init() {
+////
+////            }
+////
+////            @Override
+////            public boolean isDone() {
+////                Telem.displayBeaconColor(receiver);
+////                return false;
+////            }
+////
+////            @Override
+////            public StateName getNextStateName() {
+////                return null;
+////            }
+////        };
+////    }
+//
+//    /**
+//     * Uses vuforia to find the beacon target image, then uses opencv to determine the beacon color
+//     *
+//     * @param successState      the state to go to if it succeeds
+//     * @param failState         the state to go to if it fails
+//     * @param timeoutState      the state to go to if it times out
+//     * @param timeoutTime       the time before it will time out
+//     * @param vuforiaReceiver   the ResultReceiver to get the VuforiaFramFeeder object from
+//     * @param beaconColorResult the ResultReceiver to store the result in
+//     * @param teamColor         your team's color to decide which beacons to look for
+//     * @param numFrames         the number of frames to process
+//     * @param saveImages        whether or not to save the frames for logging
+//     * @return the created State
+//     * @see VuforiaFrameFeeder
+//     * @see VuforiaBeaconColorProcessor
+//     */
+//    //TODO assume that vuforia is initialized in findBeaconColorState
+//    public static State findBeaconColorState(final StateName successState, final StateName failState, final StateName timeoutState, Time timeoutTime, final ResultReceiver<VuforiaFrameFeeder> vuforiaReceiver, final ResultReceiver<BeaconColorResult> beaconColorResult, TeamColor teamColor, final int numFrames, final boolean saveImages) {
+//        final List<BeaconName> beaconNames = BeaconName.getNamesForTeamColor(teamColor);
+//        final EndCondition timeout = EndConditions.timed(timeoutTime);
+//
+//        return new BasicAbstractState() {
+//            private VuforiaFrameFeeder vuforia = null;
+//            private VuforiaBeaconColorProcessor processor = null;
+//            private BeaconName beaconName;
+//            private int beaconIndex = 0; //index of the beaconNames list
+//            private boolean timedOut = false;
+//
+//            @Override
+//            public void init() {
+//                timeout.init();
+//                timedOut = false;
+//
+//                if (beaconIndex >= beaconNames.size()) {
+//                    beaconIndex = 0;
+//                    //we should never go here
+//                }
+//                beaconName = beaconNames.get(beaconIndex);
+//                if (processor != null) {
+//                    processor.setBeaconName(beaconName);
+//                }
+//            }
+//
+//            @Override
+//            public boolean isDone() {
+//                if (vuforia == null && vuforiaReceiver.isReady()) {
+//                    vuforia = vuforiaReceiver.getValue();
+////                    if (vuforia == null) {
+////                        Log.e("EVStates", "vuforia is null!!!!!!!!!!!!!");
+////                    }
+//
+//                    processor = new VuforiaBeaconColorProcessor(vuforia);
+//                    processor.setBeaconName(beaconName);
+//
+//                    VuforiaTrackable beacon = beacons.get(beaconName);
+//                    beacon.getTrackables().activate();
+//
+//                    frameGrabber.setImageProcessor(processor);
+//                    frameGrabber.setSaveImages(saveImages);
+//                    frameGrabber.grabContinuousFrames();
+//                }
+//                timedOut = timeout.isDone();
+//                return timedOut || processor != null && processor.getResultsFound() >= numFrames;
+//            }
+//
+//            @Override
+//            public StateName getNextStateName() {
+//                beaconIndex++;
+//                frameGrabber.stopFrameGrabber();
+//                VuforiaTrackable beacon = beacons.get(beaconName);
+//                beacon.getTrackables().deactivate();
+//
+//                BeaconColorResult result = processor.getAverageResult();
+//                processor.reset();
+//                BeaconColorResult.BeaconColor leftColor = result.getLeftColor();
+//                BeaconColorResult.BeaconColor rightColor = result.getRightColor();
+//                if ((leftColor == BeaconColorResult.BeaconColor.RED && rightColor == BeaconColorResult.BeaconColor.BLUE)
+//                        || (leftColor == BeaconColorResult.BeaconColor.BLUE && rightColor == BeaconColorResult.BeaconColor.RED)) {
+//                    beaconColorResult.setValue(result);
+//                    return successState;
+//                } else {
+//                    beaconColorResult.setValue(new BeaconColorResult());
+//                    if (timedOut) {
+//                        return timeoutState;
+//                    } else {
+//                        return failState;
 //                    }
-
-                    processor = new VuforiaBeaconColorProcessor(vuforia);
-                    processor.setBeaconName(beaconName);
-
-                    VuforiaTrackable beacon = beacons.get(beaconName);
-                    beacon.getTrackables().activate();
-
-                    frameGrabber.setImageProcessor(processor);
-                    frameGrabber.setSaveImages(saveImages);
-                    frameGrabber.grabContinuousFrames();
-                }
-                timedOut = timeout.isDone();
-                return timedOut || processor != null && processor.getResultsFound() >= numFrames;
-            }
-
-            @Override
-            public StateName getNextStateName() {
-                beaconIndex++;
-                frameGrabber.stopFrameGrabber();
-                VuforiaTrackable beacon = beacons.get(beaconName);
-                beacon.getTrackables().deactivate();
-
-                BeaconColorResult result = processor.getAverageResult();
-                processor.reset();
-                BeaconColorResult.BeaconColor leftColor = result.getLeftColor();
-                BeaconColorResult.BeaconColor rightColor = result.getRightColor();
-                if ((leftColor == BeaconColorResult.BeaconColor.RED && rightColor == BeaconColorResult.BeaconColor.BLUE)
-                        || (leftColor == BeaconColorResult.BeaconColor.BLUE && rightColor == BeaconColorResult.BeaconColor.RED)) {
-                    beaconColorResult.setValue(result);
-                    return successState;
-                } else {
-                    beaconColorResult.setValue(new BeaconColorResult());
-                    if (timedOut) {
-                        return timeoutState;
-                    } else {
-                        return failState;
-                    }
-                }
-            }
-        };
-    }
-
-    public static State findColorState(final StateName redState, final StateName blueState, final StateName unknownState, final Time timeout, final ResultReceiver<BeaconColorResult.BeaconColor> colorResult, final boolean saveImages) {
-        final EndCondition timeoutEC = EVEndConditions.timed(timeout);
-        return new BasicAbstractState() {
-            private boolean timedOut = false;
-
-            @Override
-            public void init() {
-                frameGrabber.setImageProcessor(new CloseUpColorProcessor());
-                frameGrabber.setSaveImages(saveImages);
-                frameGrabber.grabSingleFrame();
-                timeoutEC.init();
-            }
-
-            @Override
-            public boolean isDone() {
-                if (frameGrabber.isResultReady()) {
-                    return true;
-                }
-
-                timedOut = timeoutEC.isDone();
-                return timedOut;
-            }
-
-            @Override
-            public StateName getNextStateName() {
-                if (timedOut) {
-                    return unknownState;
-                } else {
-                    BeaconColorResult.BeaconColor result = (BeaconColorResult.BeaconColor) frameGrabber.getResult().getResult();
-                    colorResult.setValue(result);
-                    switch (result) {
-                        case RED:
-                            return redState;
-                        case BLUE:
-                            return blueState;
-                        default:
-                            return unknownState;
-                    }
-                }
-            }
-        };
-    }
-
-    public static State beaconColorSwitch(final StateName redState, final StateName blueState, final StateName unknownState, ResultReceiver<BeaconColorResult.BeaconColor> colorResult) {
-        return new BasicAbstractState() {
-            @Override
-            public void init() {
-
-            }
-
-            @Override
-            public boolean isDone() {
-                return true;
-            }
-
-            @Override
-            public StateName getNextStateName() {
-                BeaconColorResult.BeaconColor result = (BeaconColorResult.BeaconColor) frameGrabber.getResult().getResult();
-                switch (result) {
-                    case RED:
-                        return redState;
-                    case BLUE:
-                        return blueState;
-                    default:
-                        return unknownState;
-                }
-            }
-        };
-    }
-
-    /**
-     * @param nextStateName  the name of the next state
-     * @param imageProcessor the object that processes the image
-     * @param resultReceiver the object that stores the image
-     * @return the created State
-     */
-    public static State processFrame(final StateName nextStateName, final ImageProcessor imageProcessor, final ResultReceiver<ImageProcessorResult> resultReceiver) {
-        return new BasicAbstractState() {
-            @Override
-            public void init() {
-                frameGrabber.setImageProcessor(imageProcessor);
-                frameGrabber.grabSingleFrame();
-            }
-
-            @Override
-            public boolean isDone() {
-                return frameGrabber.isResultReady();
-            }
-
-            @Override
-            public StateName getNextStateName() {
-                resultReceiver.setValue(frameGrabber.getResult());
-                return nextStateName;
-            }
-        };
-    }
-
-    /**
-     * @param unknownUnknownState if both sides are unknown
-     * @param unknownRedState     if the left is unknown and the right is red
-     * @param unknownBlueState    if the left is unknown and the right is blue
-     * @param redUnknownState     if the left is red and the right is unknown
-     * @param redRedState         if the left is red and the right is red
-     * @param redBlueState        if the left is red and the right is blue
-     * @param blueUnknownState    if the left is blue and the right is unknown
-     * @param blueRedState        if the left is blue and the right is red
-     * @param blueBlueState       if the left is blue and the right is blue
-     * @return the created State
-     */
-    public static State processBeaconPicture(
-            final StateName unknownUnknownState, final StateName unknownRedState, final StateName unknownBlueState,
-            final StateName redUnknownState, final StateName redRedState, final StateName redBlueState,
-            final StateName blueUnknownState, final StateName blueRedState, final StateName blueBlueState
-    ) {
-
-        return new BasicAbstractState() {
-            @Override
-            public void init() {
-                frameGrabber.setImageProcessor(new RGBBeaconProcessor());
-                frameGrabber.grabSingleFrame();
-            }
-
-            @Override
-            public boolean isDone() {
-                return frameGrabber.isResultReady();
-            }
-
-            @Override
-            public StateName getNextStateName() {
-                BeaconColorResult beaconColorResult = (BeaconColorResult) frameGrabber.getResult().getResult();
-                BeaconColorResult.BeaconColor leftColor = beaconColorResult.getLeftColor();
-                BeaconColorResult.BeaconColor rightColor = beaconColorResult.getRightColor();
-
-                if (leftColor == BeaconColorResult.BeaconColor.RED) {
-                    if (rightColor == BeaconColorResult.BeaconColor.RED) {
-                        return redRedState;
-                    } else if (rightColor == BeaconColorResult.BeaconColor.BLUE) {
-                        return redBlueState;
-                    } else {
-                        return redUnknownState;
-                    }
-                } else if (leftColor == BeaconColorResult.BeaconColor.BLUE) {
-                    if (rightColor == BeaconColorResult.BeaconColor.RED) {
-                        return blueRedState;
-                    } else if (rightColor == BeaconColorResult.BeaconColor.BLUE) {
-                        return blueBlueState;
-                    } else {
-                        return blueUnknownState;
-                    }
-                } else {
-                    if (rightColor == BeaconColorResult.BeaconColor.RED) {
-                        return unknownRedState;
-                    } else if (rightColor == BeaconColorResult.BeaconColor.BLUE) {
-                        return unknownBlueState;
-                    } else {
-                        return unknownUnknownState;
-                    }
-                }
-            }
-        };
-    }
+//                }
+//            }
+//        };
+//    }
+//
+//    public static State findColorState(final StateName redState, final StateName blueState, final StateName unknownState, final Time timeout, final ResultReceiver<BeaconColorResult.BeaconColor> colorResult, final boolean saveImages) {
+//        final EndCondition timeoutEC = EVEndConditions.timed(timeout);
+//        return new BasicAbstractState() {
+//            private boolean timedOut = false;
+//
+//            @Override
+//            public void init() {
+//                frameGrabber.setImageProcessor(new CloseUpColorProcessor());
+//                frameGrabber.setSaveImages(saveImages);
+//                frameGrabber.grabSingleFrame();
+//                timeoutEC.init();
+//            }
+//
+//            @Override
+//            public boolean isDone() {
+//                if (frameGrabber.isResultReady()) {
+//                    return true;
+//                }
+//
+//                timedOut = timeoutEC.isDone();
+//                return timedOut;
+//            }
+//
+//            @Override
+//            public StateName getNextStateName() {
+//                if (timedOut) {
+//                    return unknownState;
+//                } else {
+//                    BeaconColorResult.BeaconColor result = (BeaconColorResult.BeaconColor) frameGrabber.getResult().getResult();
+//                    colorResult.setValue(result);
+//                    switch (result) {
+//                        case RED:
+//                            return redState;
+//                        case BLUE:
+//                            return blueState;
+//                        default:
+//                            return unknownState;
+//                    }
+//                }
+//            }
+//        };
+//    }
+//
+//    public static State beaconColorSwitch(final StateName redState, final StateName blueState, final StateName unknownState, ResultReceiver<BeaconColorResult.BeaconColor> colorResult) {
+//        return new BasicAbstractState() {
+//            @Override
+//            public void init() {
+//
+//            }
+//
+//            @Override
+//            public boolean isDone() {
+//                return true;
+//            }
+//
+//            @Override
+//            public StateName getNextStateName() {
+//                BeaconColorResult.BeaconColor result = (BeaconColorResult.BeaconColor) frameGrabber.getResult().getResult();
+//                switch (result) {
+//                    case RED:
+//                        return redState;
+//                    case BLUE:
+//                        return blueState;
+//                    default:
+//                        return unknownState;
+//                }
+//            }
+//        };
+//    }
+//
+//    /**
+//     * @param nextStateName  the name of the next state
+//     * @param imageProcessor the object that processes the image
+//     * @param resultReceiver the object that stores the image
+//     * @return the created State
+//     */
+//    public static State processFrame(final StateName nextStateName, final ImageProcessor imageProcessor, final ResultReceiver<ImageProcessorResult> resultReceiver) {
+//        return new BasicAbstractState() {
+//            @Override
+//            public void init() {
+//                frameGrabber.setImageProcessor(imageProcessor);
+//                frameGrabber.grabSingleFrame();
+//            }
+//
+//            @Override
+//            public boolean isDone() {
+//                return frameGrabber.isResultReady();
+//            }
+//
+//            @Override
+//            public StateName getNextStateName() {
+//                resultReceiver.setValue(frameGrabber.getResult());
+//                return nextStateName;
+//            }
+//        };
+//    }
+//
+//    /**
+//     * @param unknownUnknownState if both sides are unknown
+//     * @param unknownRedState     if the left is unknown and the right is red
+//     * @param unknownBlueState    if the left is unknown and the right is blue
+//     * @param redUnknownState     if the left is red and the right is unknown
+//     * @param redRedState         if the left is red and the right is red
+//     * @param redBlueState        if the left is red and the right is blue
+//     * @param blueUnknownState    if the left is blue and the right is unknown
+//     * @param blueRedState        if the left is blue and the right is red
+//     * @param blueBlueState       if the left is blue and the right is blue
+//     * @return the created State
+//     */
+//    public static State processBeaconPicture(
+//            final StateName unknownUnknownState, final StateName unknownRedState, final StateName unknownBlueState,
+//            final StateName redUnknownState, final StateName redRedState, final StateName redBlueState,
+//            final StateName blueUnknownState, final StateName blueRedState, final StateName blueBlueState
+//    ) {
+//
+//        return new BasicAbstractState() {
+//            @Override
+//            public void init() {
+//                frameGrabber.setImageProcessor(new RGBBeaconProcessor());
+//                frameGrabber.grabSingleFrame();
+//            }
+//
+//            @Override
+//            public boolean isDone() {
+//                return frameGrabber.isResultReady();
+//            }
+//
+//            @Override
+//            public StateName getNextStateName() {
+//                BeaconColorResult beaconColorResult = (BeaconColorResult) frameGrabber.getResult().getResult();
+//                BeaconColorResult.BeaconColor leftColor = beaconColorResult.getLeftColor();
+//                BeaconColorResult.BeaconColor rightColor = beaconColorResult.getRightColor();
+//
+//                if (leftColor == BeaconColorResult.BeaconColor.RED) {
+//                    if (rightColor == BeaconColorResult.BeaconColor.RED) {
+//                        return redRedState;
+//                    } else if (rightColor == BeaconColorResult.BeaconColor.BLUE) {
+//                        return redBlueState;
+//                    } else {
+//                        return redUnknownState;
+//                    }
+//                } else if (leftColor == BeaconColorResult.BeaconColor.BLUE) {
+//                    if (rightColor == BeaconColorResult.BeaconColor.RED) {
+//                        return blueRedState;
+//                    } else if (rightColor == BeaconColorResult.BeaconColor.BLUE) {
+//                        return blueBlueState;
+//                    } else {
+//                        return blueUnknownState;
+//                    }
+//                } else {
+//                    if (rightColor == BeaconColorResult.BeaconColor.RED) {
+//                        return unknownRedState;
+//                    } else if (rightColor == BeaconColorResult.BeaconColor.BLUE) {
+//                        return unknownBlueState;
+//                    } else {
+//                        return unknownUnknownState;
+//                    }
+//                }
+//            }
+//        };
+//    }
 
     /**
      * @param nMotors the motors to turn off

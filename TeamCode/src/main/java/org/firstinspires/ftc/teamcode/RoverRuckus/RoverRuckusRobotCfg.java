@@ -32,7 +32,7 @@ import ftc.electronvolts.util.units.Distance;
 import ftc.electronvolts.util.units.Time;
 import ftc.electronvolts.util.units.Velocity;
 
-import static ftc.evlib.vision.framegrabber.GlobalFrameGrabber.frameGrabber;
+//import static ftc.evlib.vision.framegrabber.GlobalFrameGrabber.frameGrabber;
 
 /**
  * Created by ftc7393 on 9/29/2018.
@@ -355,7 +355,7 @@ public class RoverRuckusRobotCfg extends RobotCfg {
         return loggerColumns;
     }
     public EVStateMachineBuilder createEVStateMachineBuilder(StateName firstStateName, TeamColor teamColor, Angle tolerance) {
-        return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, frameGrabber, servos, mecanumControl);
+        return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, servos, mecanumControl);
     }
 
 }

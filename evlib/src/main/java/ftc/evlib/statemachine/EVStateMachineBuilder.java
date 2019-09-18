@@ -12,8 +12,8 @@ import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.hardware.servos.ServoControl;
 import ftc.evlib.hardware.servos.ServoName;
 import ftc.evlib.hardware.servos.Servos;
-import ftc.evlib.vision.framegrabber.FrameGrabber;
-import ftc.evlib.vision.processors.BeaconColorResult;
+//import ftc.evlib.vision.framegrabber.FrameGrabber;
+//import ftc.evlib.vision.processors.BeaconColorResult;
 import ftc.electronvolts.statemachine.EndCondition;
 import ftc.electronvolts.statemachine.StateMachineBuilder;
 import ftc.electronvolts.statemachine.StateName;
@@ -39,7 +39,7 @@ public class EVStateMachineBuilder extends StateMachineBuilder {
     private final Angle tolerance;
     private final MecanumControl mecanumControl;
     private final Gyro gyro;
-    private final FrameGrabber frameGrabber;
+//    private final FrameGrabber frameGrabber;
     private final Servos servos;
 
     /**
@@ -48,22 +48,25 @@ public class EVStateMachineBuilder extends StateMachineBuilder {
      * @param teamColor      the alliance you are on
      * @param tolerance      the tolerance on gyro angles
      * @param gyro           the gyro sensor
-     * @param frameGrabber   access to the camera
      * @param servos         the servos
      * @param mecanumControl the mecanum wheel controller
      */
-    public EVStateMachineBuilder(StateName firstStateName, TeamColor teamColor, Angle tolerance, Gyro gyro, FrameGrabber frameGrabber, Servos servos, MecanumControl mecanumControl) {
+    public EVStateMachineBuilder(StateName firstStateName, TeamColor teamColor, Angle tolerance, Gyro gyro,
+                                 //FrameGrabber frameGrabber,
+                                 Servos servos, MecanumControl mecanumControl) {
         super(firstStateName);
         this.teamColor = teamColor;
         this.tolerance = tolerance;
         this.mecanumControl = mecanumControl;
         this.gyro = gyro;
-        this.frameGrabber = frameGrabber;
+//        this.frameGrabber = frameGrabber;
         this.servos = servos;
     }
 
     public EVStateMachineBuilder(StateName firstStateName, EVStateMachineBuilder b) {
-        this(firstStateName, b.teamColor, b.tolerance, b.gyro, b.frameGrabber, b.servos, b.mecanumControl);
+        this(firstStateName, b.teamColor, b.tolerance, b.gyro,
+                // b.frameGrabber,
+                b.servos, b.mecanumControl);
     }
 
     //convenience methods for adding different types of States
@@ -272,13 +275,13 @@ public class EVStateMachineBuilder extends StateMachineBuilder {
 //        add(stateName, ftc.evlib.statemachine.EVStates.displayBeaconColor(beaconColor));
 //    }
 
-    public void addDisplayBeaconColorResult(StateName stateName, ResultReceiver<BeaconColorResult> beaconColorResult) {
-        add(stateName, ftc.evlib.statemachine.EVStates.displayBeaconColorResult(beaconColorResult));
-    }
-
-    public void addFindColorState(StateName stateName, StateName redState, StateName blueState, StateName unknownState, Time timeout, ResultReceiver<BeaconColorResult.BeaconColor> colorResult, boolean saveImages) {
-        add(stateName, ftc.evlib.statemachine.EVStates.findColorState(redState, blueState, unknownState, timeout, colorResult, saveImages));
-    }
+//    public void addDisplayBeaconColorResult(StateName stateName, ResultReceiver<BeaconColorResult> beaconColorResult) {
+//        add(stateName, ftc.evlib.statemachine.EVStates.displayBeaconColorResult(beaconColorResult));
+//    }
+//
+//    public void addFindColorState(StateName stateName, StateName redState, StateName blueState, StateName unknownState, Time timeout, ResultReceiver<BeaconColorResult.BeaconColor> colorResult, boolean saveImages) {
+//        add(stateName, ftc.evlib.statemachine.EVStates.findColorState(redState, blueState, unknownState, timeout, colorResult, saveImages));
+//    }
 
     public void addMotorTurn(StateName stateName, Map<StateName, EndCondition> transitions, Motor motor, double power, boolean useSpeedMode) {
         add(stateName, ftc.evlib.statemachine.EVStates.motorTurn(transitions, motor, power, useSpeedMode));

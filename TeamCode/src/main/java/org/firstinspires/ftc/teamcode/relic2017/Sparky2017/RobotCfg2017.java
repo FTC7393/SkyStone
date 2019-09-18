@@ -40,7 +40,7 @@ import ftc.electronvolts.util.units.Distance;
 import ftc.electronvolts.util.units.Time;
 import ftc.electronvolts.util.units.Velocity;
 
-import static ftc.evlib.vision.framegrabber.GlobalFrameGrabber.frameGrabber;
+//import static ftc.evlib.vision.framegrabber.GlobalFrameGrabber.frameGrabber;
 
 /**
  * This file was made by the electronVolts, FTC team 7393
@@ -426,7 +426,7 @@ public class RobotCfg2017 extends RobotCfg {
     }
 
     public EVStateMachineBuilder createEVStateMachineBuilder(StateName firstStateName, TeamColor teamColor, Angle tolerance) {
-        return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, frameGrabber, servos, mecanumControl);
+        return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, servos, mecanumControl);
     }
 
 }
