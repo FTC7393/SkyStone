@@ -19,7 +19,7 @@ import ftc.evlib.opmodes.AbstractTeleOp;
 /**
  * Created by ftc7393 on 9/22/2018.
  */
-@TeleOp(name = "FutureFest")
+@TeleOp(name = "SkyStone Ri3D")
 public class SkystoneRi3DTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
     private ServoControl dump = null;
     private DcMotor collector = null;
@@ -92,7 +92,6 @@ public class SkystoneRi3DTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
         rightY = new ScalingInputExtractor(driver1.right_stick_y, f);
         leftX = new ScalingInputExtractor(driver1.left_stick_x, f);
         rightX = new ScalingInputExtractor(InputExtractors.negative(driver1.right_stick_x), -1.0*f);
-        //noinspection SuspiciousNameCombination
         robotCfg.getMecanumControl().setTranslationControl(TranslationControls.inputExtractorXY(rightY, rightX));
 //        robotCfg.getMecanumControl().setRotationControl(RotationControls.teleOpGyro(leftX, robotCfg.getGyro()));
         robotCfg.getMecanumControl().setRotationControl(RotationControls.inputExtractor(leftX));
@@ -118,7 +117,7 @@ public class SkystoneRi3DTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
 
         // Collector logic: Driver 2 has priority, Driver 1 can be disabled as well
         if(driver2.right_bumper.isPressed() ||
-                (driver1.right_bumper.isPressed() && driver1CollectorEnabled == true) ){
+                (driver1.right_bumper.isPressed() && driver1CollectorEnabled) ){
             collector.setPower(-0.8);
         } else if(driver2.left_bumper.isPressed()) {
             collector.setPower(0.8);
