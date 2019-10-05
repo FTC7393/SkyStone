@@ -20,10 +20,7 @@ import ftc.evlib.opmodes.AbstractTeleOp;
 //@Disabled
 public class TankDriveTeleOp2019 extends AbstractTeleOp<TankDriveRobotCfg> {
     private ServoControl clamp = null;
-//    private DcMotor chest = null;
-//    double chestSpeed =.2;
-//    boolean chestDirnForward =true;
-//    boolean chestRunning = false;
+    boolean clampIsClosed = true;
 
     @Override
     public Time getMatchTime() {
@@ -47,17 +44,16 @@ public class TankDriveTeleOp2019 extends AbstractTeleOp<TankDriveRobotCfg> {
 
     @Override
     protected void setup_act() {
-        clamp = robotCfg.getClamp(TankDriveRobotCfg.TankDriveServoEnum.CLAMP_SERVO);
+        clamp = robotCfg.getClamp();
     }
 
     @Override
     protected void go() {
-
     }
 
     @Override
     protected void act() {
-//        chest = robotCfg.getChest();
+        boolean closeClamp;
 
         //take the joystick values and send them to the motors
         robotCfg.getTwoMotors().runMotors(
@@ -67,24 +63,24 @@ public class TankDriveTeleOp2019 extends AbstractTeleOp<TankDriveRobotCfg> {
 
 
 
-        if(driver1.x.justPressed()) {
-            clamp.goToPreset(TankDriveRobotCfg.ClampServoPresets.OPEN);
+        if(driver1.left_bumper.justPressed()) {
+            closeClamp = false;
+        } else if(driver1.right_bumper.justPressed()) {
+            closeClamp = true;
+        } else {
+            closeClamp = clampIsClosed;
         }
-//
-//        if (chestRunning) {
-//            if(driver1.b.justPressed()) {
-//                chestDirnForward = !chestDirnForward;
-//            }
-//            if(driver1.dpad_up.justPressed()) {
-//                chestSpeed +=.02;
-//            }
-//            if(driver1.dpad_down.justPressed()) {
-//                chestSpeed -=.02;
-//            }
-//            chest.setPower(chestSpeed);
-//        } else {
-//            chest.setPower(0);
-//        }
+
+        if(closeClamp != clampIsClosed) {
+            if(closeClamp) {
+                clamp.goToPreset(TankDriveRobotCfg.ClampServoPresets.CLOSED);
+            } else {
+                clamp.goToPreset(TankDriveRobotCfg.ClampServoPresets.OPEN);
+            }
+        }
+
+        clampIsClosed = closeClamp; //save clamp state for next pass
+
     }
 
     @Override

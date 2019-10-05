@@ -110,6 +110,6 @@ public class TankDriveRobotCfg extends RobotCfg {
         return twoMotors;
     }
 
-    public ServoControl getClamp(TankDriveServoEnum clampServo) {return clamp;}
+    public ServoControl getClamp() {return clamp;}
 
 }
