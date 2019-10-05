@@ -1,8 +1,6 @@
-package org.firstinspires.ftc.teamcode.pranavRobot;
+package org.firstinspires.ftc.teamcode.Abhi_Robot;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
-import org.firstinspires.ftc.teamcode.skystone2019.ri3d.Ri3DjdvRobotCfg;
 
 import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.opmodes.AbstractServoTuneOp;

@@ -1,11 +1,10 @@
-package org.firstinspires.ftc.teamcode.abhiRobot;
+package org.firstinspires.ftc.teamcode.Abhi_Robot;
 
 /**
  * Created by ftc7393 on 7/31/2018.
  */
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.Map;
 
@@ -15,8 +14,10 @@ import ftc.electronvolts.util.units.Velocity;
 import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.hardware.motors.Motors;
 import ftc.evlib.hardware.motors.TwoMotors;
+import ftc.evlib.hardware.servos.ServoCfg;
 import ftc.evlib.hardware.servos.ServoControl;
 import ftc.evlib.hardware.servos.ServoName;
+import ftc.evlib.hardware.servos.Servos;
 
 /**
  * This file was made by the electronVolts, FTC team 7393
@@ -30,21 +31,24 @@ public class TankDriveRobotCfg extends RobotCfg {
      */
     private static final Velocity maxRobotSpeed = new Velocity(Distance.fromFeet(1), Time.fromSeconds(1));
 
-    public enum clampServoPresets {
-        OPEN,
-        CLOSE
+    private final TwoMotors twoMotors;
+    private final ServoControl clamp;
+    private final Servos servos;
+
+
+    public enum ClampServoPresets {
+        CLOSED,
+        OPEN
     }
 
-
-
-    public enum TankDriveRobotServoEnum implements ServoName {
+    public enum TankDriveServoEnum implements ServoName {
         //enum name("hardware name", preset enum.values()),
-        CLAMP_SERVO("clampServo", TankDriveRobotCfg.clampServoPresets.values());
+        CLAMP_SERVO("clamp", ClampServoPresets.values());
 
         private final String hardwareName;
         private final Enum[] presets;
 
-        TankDriveRobotServoEnum(String hardwareName, Enum[] presets) {
+        TankDriveServoEnum(String hardwareName, Enum[] presets) {
             this.hardwareName = hardwareName;
             this.presets = presets;
         }
@@ -63,14 +67,14 @@ public class TankDriveRobotCfg extends RobotCfg {
         public Class<TankDriveRobotCfg> getRobotCfg() {
             return TankDriveRobotCfg.class;
         }
-
     }
 
-    private final TwoMotors twoMotors;
-    private final Servo clamp;
-
-
     public TankDriveRobotCfg(HardwareMap hardwareMap) {
+        this(hardwareMap, ServoCfg.defaultServoStartPresetMap(TankDriveServoEnum.values()));
+    }
+
+
+    public TankDriveRobotCfg(HardwareMap hardwareMap, Map<ServoName, Enum> servoStartPresetMap) {
         super(hardwareMap);
 
         //get the two motors from the hardwareMap and put them into a TwoMotors object
@@ -80,12 +84,17 @@ public class TankDriveRobotCfg extends RobotCfg {
                 false, maxRobotSpeed
         );
 
+        servos = new Servos(ServoCfg.createServoMap(hardwareMap, servoStartPresetMap));
 
+        clamp = getServo(TankDriveServoEnum.CLAMP_SERVO);
 
     }
 
     @Override
-    public void start() {}
+    public void start() {
+
+
+    }
 
     @Override
     public void act() {
@@ -100,5 +109,8 @@ public class TankDriveRobotCfg extends RobotCfg {
     public TwoMotors getTwoMotors() {
         return twoMotors;
     }
-    public ServoControl getClamp(TankDriveRobotServoEnum clampServo) {return clamp;}
+
+    public ServoControl getClamp(TankDriveServoEnum clampServo) {return clamp;}
+
 }
+

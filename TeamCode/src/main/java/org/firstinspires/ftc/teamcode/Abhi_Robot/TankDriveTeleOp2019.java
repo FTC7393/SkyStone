@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.pranavRobot;
+package org.firstinspires.ftc.teamcode.Abhi_Robot;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -18,7 +18,7 @@ import ftc.evlib.opmodes.AbstractTeleOp;
  */
 @TeleOp(name = "Tank Drive Robot TeleOp")
 //@Disabled
-public class TankDriveTeleOp2019 extends AbstractTeleOp<TankDrive2019RobotCfg> {
+public class TankDriveTeleOp2019 extends AbstractTeleOp<TankDriveRobotCfg> {
     private ServoControl clamp = null;
 //    private DcMotor chest = null;
 //    double chestSpeed =.2;
@@ -31,8 +31,8 @@ public class TankDriveTeleOp2019 extends AbstractTeleOp<TankDrive2019RobotCfg> {
     }
 
     @Override
-    protected TankDrive2019RobotCfg createRobotCfg() {
-        return new TankDrive2019RobotCfg(hardwareMap);
+    protected TankDriveRobotCfg createRobotCfg() {
+        return new TankDriveRobotCfg(hardwareMap);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class TankDriveTeleOp2019 extends AbstractTeleOp<TankDrive2019RobotCfg> {
 
     @Override
     protected void setup_act() {
-        clamp = robotCfg.getClamp(TankDrive2019RobotCfg.TankDriveServoEnum.CLAMP_SERVO);
+        clamp = robotCfg.getClamp(TankDriveRobotCfg.TankDriveServoEnum.CLAMP_SERVO);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class TankDriveTeleOp2019 extends AbstractTeleOp<TankDrive2019RobotCfg> {
 
 
         if(driver1.x.justPressed()) {
-            clamp.goToPreset(TankDrive2019RobotCfg.clampServoPresets.OPEN);
+            clamp.goToPreset(TankDriveRobotCfg.ClampServoPresets.OPEN);
         }
 //
 //        if (chestRunning) {
