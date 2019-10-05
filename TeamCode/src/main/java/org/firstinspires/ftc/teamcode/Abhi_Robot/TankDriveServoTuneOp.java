@@ -11,6 +11,6 @@ public class TankDriveServoTuneOp extends AbstractServoTuneOp {
     protected RobotCfg createRobotCfg() {
         //create a new robot config and return it.
         //the superclass will extract the servos and do the rest.
-        return new TankDrive2019RobotCfg(hardwareMap);
+        return new TankDriveRobotCfg(hardwareMap);
     }
 }
