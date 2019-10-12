@@ -90,7 +90,7 @@ public class TankDriveRobotAuto extends AbstractAutoOp<TankDriveRobotCfg> {
 
 
         StateMachineBuilder b = new StateMachineBuilder(S.DRIVE);
-        b.add(S.DRIVE, new TwoMotorsRunForTime(robotCfg.getTwoMotors(), 0.8, S.WAIT, 3000));
+        b.add(S.DRIVE, new TwoMotorsRunForTime(robotCfg.getTwoMotors(), 0.8, S.STOP, 3000));
         b.addStop(S.STOP);
 
 
