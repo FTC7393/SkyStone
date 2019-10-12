@@ -30,6 +30,7 @@ import ftc.electronvolts.util.units.Angle;
 import ftc.electronvolts.util.units.Distance;
 import ftc.electronvolts.util.units.Time;
 import ftc.evlib.hardware.control.MecanumControl;
+import ftc.evlib.hardware.motors.TwoMotors;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
@@ -77,35 +78,84 @@ public class TankDriveAutoSample extends AbstractAutoOp<TankDriveRobotCfg> {
     }
 
     private enum S implements StateName {
-        START, DRIVE1, STOP;
+        DRIVE, WAIT, OFF, STOP;
     }
 
     @Override
     public StateMachine buildStates() {
-        //!!!!!!!!!! CHANGE START CONDITION
-//        StateName firstState;
-        StateMachineBuilder b = new StateMachineBuilder(S.START);
-        State nextState = new State() {
-            boolean isFirst = true;
-            long timeAtStart = 0L;
-            long waitTimeMillis = 3000L;
-            @Override
-            public StateName act() {
-                if (isFirst) {
-                    timeAtStart = System.currentTimeMillis();
-                    isFirst = false;
-                    return null;
-                }
-                if (System.currentTimeMillis() - timeAtStart > waitTimeMillis) {
-                    return S.STOP;
-                } else {
-                    return null;
-                }
-            }
-        };
 
-        b.add(S.START, nextState);
+
+        TwoMotors tm = robotCfg.getTwoMotors();
+
+        StateMachineBuilder b = new StateMachineBuilder(S.DRIVE);
+        b.add(/* state name */ S.DRIVE,  /* the actual state */  new MotorsOnState(tm, 0.8, S.WAIT))  ;
+        b.add( S.WAIT,  new WaitState(3000L, S.OFF));
+        b.add(S.OFF, new MotorsOffState(tm, S.STOP));
+        b.add(/* state name */ S.DRIVE,  /* the actual state */  new MotorsOnState(robotCfg.getTwoMotors(), 0.8, S.WAIT))  ;
+
         b.addStop(S.STOP);
+
         return b.build();
     }
 }
+
+class WaitState implements State {
+    boolean isFirst = true;
+    long timeAtStart = 0L;
+    private final long waitTimeMillis;
+    private final StateName nextState;
+
+    public WaitState(long waitTimeMillis, StateName nextState) {
+        this.waitTimeMillis = waitTimeMillis;
+        this.nextState = nextState;
+    }
+
+    @Override
+    public StateName act() {
+        if (isFirst) {
+            timeAtStart = System.currentTimeMillis();
+            isFirst = false;
+            return null;
+        }
+        if (System.currentTimeMillis() - timeAtStart > waitTimeMillis) {
+            return nextState;
+        } else {
+            return null;
+        }
+    }
+}
+
+class MotorsOnState implements State {
+    private final TwoMotors motors;
+    private final double power;
+    private final StateName nextState;
+
+    public MotorsOnState(TwoMotors motors, double power, StateName nextState) {
+        this.motors = motors;
+        this.power = power;
+        this.nextState = nextState;
+    }
+
+    @Override
+    public StateName act() {
+        motors.runMotors(power, power);
+        return nextState;
+    }
+}
+
+class MotorsOffState implements State {
+    private final TwoMotors motors;
+    private final StateName nextState;
+
+    public MotorsOffState(TwoMotors motors, StateName nextState) {
+        this.motors = motors;
+        this.nextState = nextState;
+    }
+
+    @Override
+    public StateName act() {
+        motors.stop();
+        return nextState;
+    }
+}
+
