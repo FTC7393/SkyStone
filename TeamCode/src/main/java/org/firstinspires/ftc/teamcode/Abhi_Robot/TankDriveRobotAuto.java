@@ -90,9 +90,7 @@ public class TankDriveRobotAuto extends AbstractAutoOp<TankDriveRobotCfg> {
 
 
         StateMachineBuilder b = new StateMachineBuilder(S.DRIVE);
-        b.add(S.DRIVE, new MotorsOnState(robotCfg.getTwoMotors(), 0.8, S.WAIT, 3000));
-        b.add(S.WAIT, new waitState(S.OFF, 3000));
-        b.add(S.OFF, new StopMotors(robotCfg.getTwoMotors(), S.STOP));
+        b.add(S.DRIVE, new TwoMotorsRunForTime(robotCfg.getTwoMotors(), 0.8, S.WAIT, 3000));
         b.addStop(S.STOP);
 
 
@@ -145,7 +143,7 @@ class waitState implements State {
     }
 }
 
-class MotorsOnState implements State {
+class TwoMotorsRunForTime implements State {
 
     private final TwoMotors twoMotors;
     private final double power;
@@ -155,7 +153,7 @@ class MotorsOnState implements State {
     private long timeAtStart;
 
 
-    public MotorsOnState(TwoMotors twoMotors, double power, StateName nextState, long runTimeMillis) {
+    public TwoMotorsRunForTime(TwoMotors twoMotors, double power, StateName nextState, long runTimeMillis) {
         this.twoMotors = twoMotors;
         this.power = power;
         this.nextState = nextState;
@@ -171,6 +169,7 @@ class MotorsOnState implements State {
             return null;
         }
         if(System.currentTimeMillis() - timeAtStart > runTimeMillis) {
+            twoMotors.stop();
             return nextState;
         } else {
             return null;
