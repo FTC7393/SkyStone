@@ -32,7 +32,6 @@ public class TankDriveRobotCfg extends RobotCfg {
     private static final Velocity maxRobotSpeed = new Velocity(Distance.fromFeet(1), Time.fromSeconds(1));
 
     private final TwoMotors twoMotors;
-    private final ServoControl clamp;
     private final Servos servos;
 
 
@@ -86,15 +85,11 @@ public class TankDriveRobotCfg extends RobotCfg {
 
         servos = new Servos(ServoCfg.createServoMap(hardwareMap, servoStartPresetMap));
 
-        clamp = getServo(TankDriveServoEnum.CLAMP_SERVO);
 
     }
 
     @Override
-    public void start() {
-
-
-    }
+    public void start() {}
 
     @Override
     public void act() {
@@ -110,6 +105,10 @@ public class TankDriveRobotCfg extends RobotCfg {
         return twoMotors;
     }
 
-    public ServoControl getClamp() {return clamp;}
+    public ServoControl getClamp() {return getServo(TankDriveServoEnum.CLAMP_SERVO);}
 
+    @Override
+    public Servos getServos() {
+        return servos;
+    }
 }
