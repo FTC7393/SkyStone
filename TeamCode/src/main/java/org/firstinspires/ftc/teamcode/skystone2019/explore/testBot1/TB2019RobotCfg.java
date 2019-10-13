@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ class TB2019RobotCfg  extends RobotCfg {
     //private final ColorSensor leftColorSensor;
     //private final ColorSensor rightColorSensor;
     private final MecanumControl mecanumControl;
-    private final ServoControl phonePan;
+//    private final ServoControl phonePan;
     private final MotorEnc frontLeft;
     private final MotorEnc frontRight;
     private final MotorEnc backLeft;
@@ -45,6 +46,9 @@ class TB2019RobotCfg  extends RobotCfg {
 
     private static final Velocity MAX_ROBOT_SPEED = new Velocity(Distance.fromInches(57 * 4), Time.fromSeconds(2.83));
     private static final Velocity MAX_ROBOT_SPEED_SIDEWAYS = new Velocity(Distance.fromInches(21.2441207039), Time.fromSeconds(1));
+
+
+    private final CameraPlacement cameraPlacement;
     private IMUGyro gyro;
     private final Servos servos;
 
@@ -52,12 +56,14 @@ class TB2019RobotCfg  extends RobotCfg {
         return backLeft;
     }
 
-    public TB2019RobotCfg(HardwareMap hardwareMap, Map<ServoName, Enum> servoStartPresetMap) {
+    public TB2019RobotCfg(HardwareMap hardwareMap, CameraPlacement cameraPlacement) { // }, Map<ServoName, Enum> servoStartPresetMap) {
         super(hardwareMap);
         double scaleFactor = 1.0;
 
-        servos = new Servos(ServoCfg.createServoMap(hardwareMap, servoStartPresetMap));
-        phonePan=getServo(TBServos.PHONEPAN);
+        this.cameraPlacement = cameraPlacement;
+        servos = new Servos(new HashMap<ServoName, ServoControl>());
+//        servos = new Servos(ServoCfg.createServoMap(hardwareMap, servoStartPresetMap));
+//        phonePan=getServo(TBServos.PHONEPAN);
 
 
 
@@ -138,12 +144,9 @@ class TB2019RobotCfg  extends RobotCfg {
             return TB2019RobotCfg.class;
         }
     }
-    public TB2019RobotCfg(HardwareMap hardwareMap){
-        this(hardwareMap, ServoCfg.defaultServoStartPresetMap(TBServos.values()));
-    }
-    public Gyro getGyro() {
-        return gyro;
-    }
+//    public TB2019RobotCfg(HardwareMap hardwareMap, CameraPlacement cameraPlacement){
+//        this(hardwareMap, cameraPlacement); // , ServoCfg.defaultServoStartPresetMap(TBServos.values()));
+//    }
 
 
     @Override
@@ -177,13 +180,18 @@ class TB2019RobotCfg  extends RobotCfg {
     public MecanumControl getMecanumControl() {
         return mecanumControl;
     }
-    public ServoControl getPhonePan(){return phonePan;}
-
+//    public ServoControl getPhonePan(){return phonePan;}
+    public CameraPlacement getCameraPlacement() {
+        return cameraPlacement;
+    }
     @Override
     public Servos getServos() {
         return servos;
     }
     private final List<Logger.Column> loggerColumns;
+    public Gyro getGyro() {
+        return gyro;
+    }
 
     public List<Logger.Column> getLoggerColumns() {
         return loggerColumns;

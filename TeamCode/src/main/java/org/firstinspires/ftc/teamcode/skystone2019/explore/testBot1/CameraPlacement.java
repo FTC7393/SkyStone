@@ -17,6 +17,11 @@ public class CameraPlacement {
         this.cameraChoice = cameraChoice;
     }
 
+    /** This is for the tank drive test bot */
+    public static CameraPlacement createTestBotCP() {
+        return new CameraPlacement(2.0f, 4.0f, 0.0f, false, VuforiaLocalizer.CameraDirection.BACK);
+    }
+
     public boolean isPhonePortrait() {
         return isPhonePortrait;
     }

@@ -25,7 +25,7 @@ public class VuforiaManager {
     private final VuforiaLocalizer vuforia;
     private final VuforiaTrackables targetsSkyStone;
 
-    public VuforiaManager(List<VuforiaTrackable> allTrackables, VuforiaLocalizer vuforia, VuforiaTrackables targetsSkyStone) {
+    private VuforiaManager(List<VuforiaTrackable> allTrackables, VuforiaLocalizer vuforia, VuforiaTrackables targetsSkyStone) {
         this.allTrackables = allTrackables;
         this.vuforia = vuforia;
         this.targetsSkyStone = targetsSkyStone;
@@ -260,6 +260,11 @@ public class VuforiaManager {
             ((VuforiaTrackableDefaultListener) t.getListener()).setPhoneInformation(robotFromCamera, parameters.cameraDirection);
         }
 
+        return new VuforiaManager(trackables, vuforia, targetsSkyStone);
+    }
+
+    public void activate() {
+
         // WARNING:
         // In this sample, we do not wait for PLAY to be pressed.  Target Tracking is started immediately when INIT is pressed.
         // This sequence is used to enable the new remote DS Camera Preview feature to be used with this sample.
@@ -274,6 +279,5 @@ public class VuforiaManager {
 
         targetsSkyStone.activate();
 
-        return new VuforiaManager(trackables, vuforia, targetsSkyStone);
     }
 }
