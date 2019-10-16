@@ -185,8 +185,8 @@ public class VuforiaSkyStoneAutoExample extends AbstractAutoOp<TB2019RobotCfg> {
     public StateMachine buildStates() {
 
         Angle tolerance = Angle.fromDegrees(3);
-        StateName firstState = S.WAIR_FOR_INIT;
-        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(firstState, teamColor, tolerance);//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        StateName firstStateName = S.WAIR_FOR_INIT;
+        EVStateMachineBuilder b =  new EVStateMachineBuilder(firstStateName, teamColor, tolerance, robotCfg.getGyro(), robotCfg.getServos(), robotCfg.getMecanumControl());
 
         b.add(S.WAIR_FOR_INIT, new WaitForInitiState(S.DRIVE1, 5000L, vfManagerResultRecvr));
         b.addDrive(S.DRIVE1, S.TURN1, Distance.fromFeet(1.5), .9, 0, 0);
