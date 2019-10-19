@@ -356,6 +356,6 @@ public class RoverRuckusRobotCfg extends RobotCfg {
     }
     public EVStateMachineBuilder createEVStateMachineBuilder(StateName firstStateName, TeamColor teamColor, Angle tolerance) {
         return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, servos, mecanumControl);
-    }
+}
 
 }
