@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.sRIBot;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -18,7 +19,7 @@ import ftc.evlib.opmodes.AbstractTeleOp;
  * simple TeleOp for the fair robot which has 2 motors
  */
 @TeleOp(name = "Tank Drive TeleOp")
-//@Disabled
+@Disabled
 public class TankDriveTeleOp2019 extends AbstractTeleOp<Fair2019RobotCfg> {
     //private DcMotor chest = null;
    // double chestSpeed =.2;

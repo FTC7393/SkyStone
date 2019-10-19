@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.futurefest2019.FutureFestRobotCfg;
 import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.opmodes.AbstractServoTuneOp;
 
-@TeleOp(name = "FutureFestServoTuneOp")
+@TeleOp(name = "SkyStoneRi3DServoTuneOp JDV")
 public class SkystoneRi3DServoTuneOp extends AbstractServoTuneOp {
 
     protected RobotCfg createRobotCfg() {

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.jonvRobot;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -18,7 +19,7 @@ import ftc.evlib.opmodes.AbstractTeleOp;
  * simple TeleOp for the fair robot which has 2 motors
  */
 @TeleOp(name = "Jon Tank")
-//@Disabled
+@Disabled
 public class TankDriveTeleOp extends AbstractTeleOp<Fair2019RobotCfg> {
     private DcMotor chest = null;
     double chestSpeed =.2;
