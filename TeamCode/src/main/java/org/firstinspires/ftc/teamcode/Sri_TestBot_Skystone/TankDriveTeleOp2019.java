@@ -1,7 +1,8 @@
-package org.firstinspires.ftc.teamcode.Abhi_Robot;
+package org.firstinspires.ftc.teamcode.Sri_TestBot_Skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Abhi_Robot.TestBotCfg;
 
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;

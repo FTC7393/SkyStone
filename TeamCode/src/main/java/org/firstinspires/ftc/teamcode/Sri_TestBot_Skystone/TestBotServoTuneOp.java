@@ -1,12 +1,14 @@
-package org.firstinspires.ftc.teamcode.Abhi_Robot;
+package org.firstinspires.ftc.teamcode.Sri_TestBot_Skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.teamcode.Abhi_Robot.TestBotCfg;
 
 import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.opmodes.AbstractServoTuneOp;
 
-@TeleOp(name = "TankDriveServoTuneOp")
-public class TankDriveServoTuneOp extends AbstractServoTuneOp {
+@TeleOp(name = "TestBotServoTuneOp")
+public class TestBotServoTuneOp extends AbstractServoTuneOp {
     @Override
     protected RobotCfg createRobotCfg() {
         //create a new robot config and return it.

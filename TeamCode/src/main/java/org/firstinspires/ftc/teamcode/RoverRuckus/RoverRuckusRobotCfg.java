@@ -81,8 +81,8 @@ public class RoverRuckusRobotCfg extends RobotCfg {
 
 
         //leftColorSensor = hardwareMap.colorSensor.get(LEFT_COLOR_SENSOR_NAME);
-        //rightColorSensor = hardwareMap.colorSensor.get(RIGHT_COLOR_SENSOR_NAME);
-        frontLeft=    Motors.withEncoder(hardwareMap.dcMotor.get("frontLeft"), false, true, stoppers);
+                //rightColorSensor = hardwareMap.colorSensor.get(RIGHT_COLOR_SENSOR_NAME);
+                frontLeft=    Motors.withEncoder(hardwareMap.dcMotor.get("frontLeft"), false, true, stoppers);
         frontRight=   Motors.withEncoder(hardwareMap.dcMotor.get("frontRight") , true, true, stoppers);
         backLeft=     Motors.withEncoder(hardwareMap.dcMotor.get("backLeft") , false, true, stoppers);
         backRight=    Motors.withEncoder(hardwareMap.dcMotor.get("backRight") , true, true, stoppers);
@@ -286,9 +286,7 @@ public class RoverRuckusRobotCfg extends RobotCfg {
     //public ColorSensor getRightColorSensor() {
     //    return rightColorSensor;
     //}
-    public Gyro getGyro() {
-        return gyro;
-    }
+    public Gyro getGyro() { return gyro; }
 
 
     @Override

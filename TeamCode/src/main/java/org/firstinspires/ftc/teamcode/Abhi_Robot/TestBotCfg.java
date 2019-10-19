@@ -25,7 +25,7 @@ import ftc.evlib.hardware.servos.Servos;
  * <p>
  * The HardwareCfg for the simple fair parade robot with 2 motors.
  */
-public class TankDriveRobotCfg extends RobotCfg {
+public class TestBotCfg extends RobotCfg {
     /**
      * The speed the robot moves at when the power is set to 100%
      */
@@ -63,17 +63,17 @@ public class TankDriveRobotCfg extends RobotCfg {
         }
 
         @Override
-        public Class<TankDriveRobotCfg> getRobotCfg() {
-            return TankDriveRobotCfg.class;
+        public Class<TestBotCfg> getRobotCfg() {
+            return TestBotCfg.class;
         }
     }
 
-    public TankDriveRobotCfg(HardwareMap hardwareMap) {
+    public TestBotCfg(HardwareMap hardwareMap) {
         this(hardwareMap, ServoCfg.defaultServoStartPresetMap(TankDriveServoEnum.values()));
     }
 
 
-    public TankDriveRobotCfg(HardwareMap hardwareMap, Map<ServoName, Enum> servoStartPresetMap) {
+    public TestBotCfg(HardwareMap hardwareMap, Map<ServoName, Enum> servoStartPresetMap) {
         super(hardwareMap);
 
         //get the two motors from the hardwareMap and put them into a TwoMotors object

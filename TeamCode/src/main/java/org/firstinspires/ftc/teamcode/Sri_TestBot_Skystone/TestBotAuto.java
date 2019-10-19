@@ -1,7 +1,9 @@
-package org.firstinspires.ftc.teamcode.Abhi_Robot;
+package org.firstinspires.ftc.teamcode.Sri_TestBot_Skystone;
 
 import com.google.common.collect.ImmutableList;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
+import org.firstinspires.ftc.teamcode.Abhi_Robot.TestBotCfg;
 
 import ftc.electronvolts.statemachine.State;
 import ftc.electronvolts.statemachine.StateMachine;
@@ -14,7 +16,7 @@ import ftc.evlib.opmodes.AbstractAutoOp;
 
 @Autonomous(name = "TankDriveAuto")
 
-public class TankDriveRobotAuto extends AbstractAutoOp<TestBotCfg> {
+public class TestBotAuto extends AbstractAutoOp<TestBotCfg> {
 
 
     @Override
