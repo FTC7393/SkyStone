@@ -29,56 +29,35 @@
 
 package org.firstinspires.ftc.teamcode.skystone2019.explore.testBot1;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-import org.firstinspires.ftc.teamcode.localvuforia.VuforiaKey;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import ftc.electronvolts.util.InputExtractor;
 import ftc.evlib.opmodes.AbstractAutoOp;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
-import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.mmPerInch;
-import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
 import com.google.common.collect.ImmutableList;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import java.util.List;
-
-import ftc.evlib.hardware.control.MecanumControl;
-import ftc.evlib.hardware.sensors.Gyro;
-import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
-import ftc.evlib.util.EVConverters;
-import ftc.evlib.util.FileUtil;
 import ftc.electronvolts.statemachine.BasicAbstractState;
 import ftc.electronvolts.statemachine.State;
 import ftc.electronvolts.statemachine.StateMachine;
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.BasicResultReceiver;
-import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.ResultReceiver;
 import ftc.electronvolts.util.TeamColor;
 import ftc.electronvolts.util.files.Logger;
-import ftc.electronvolts.util.files.OptionsFile;
 import ftc.electronvolts.util.units.Angle;
 import ftc.electronvolts.util.units.Distance;
-import ftc.electronvolts.util.units.Time;
 
 
 /**
@@ -144,10 +123,17 @@ public class VuforiaSkyStoneAutoExample extends AbstractAutoOp<TB2019RobotCfg> {
 
     @Override
     protected Logger createLogger() {
-
-
+        ImmutableList.Builder<Logger.Column> cols = ImmutableList.builder();
+        cols.addAll(robotCfg.getLoggerColumns());
+        InputExtractor<?> stateMachLabelInptExt = new InputExtractor<Object>() {
+            @Override
+            public Object getValue() {
+                return stateMachine.getCurrentStateName();
+            }
+        };
+        cols.add(new Logger.Column("state", stateMachLabelInptExt));
         return new Logger("", "auto.csv",
-                robotCfg.getLoggerColumns()
+                cols.build()
         );
     }
 
@@ -178,27 +164,28 @@ public class VuforiaSkyStoneAutoExample extends AbstractAutoOp<TB2019RobotCfg> {
 
 
     private enum S implements StateName {
-        WAIR_FOR_INIT, DRIVE1, TURN1, DRIVE2, MTT01_FIND_TARGET, MTT01_NO_TARGET_TURN, MTT01_FOUND_TARGET_S1, MTT01_FOUND_TARGET_S2, STOP;
+        WAIT_FOR_INIT, DRIVE1, TURN1, DRIVE2, MTT01_FIND_TARGET, MTT01_NO_TARGET_TURN, MTT01_FOUND_TARGET_S1, MTT01_FOUND_TARGET_S2, STOP;
     }
 
     @Override
     public StateMachine buildStates() {
 
         Angle tolerance = Angle.fromDegrees(3);
-        StateName firstStateName = S.WAIR_FOR_INIT;
-        EVStateMachineBuilder b =  new EVStateMachineBuilder(firstStateName, teamColor, tolerance, robotCfg.getGyro(), robotCfg.getServos(), robotCfg.getMecanumControl());
+        StateName firstStateName = S.WAIT_FOR_INIT;
+        EVStateMachineBuilder b = new EVStateMachineBuilder(firstStateName, teamColor, tolerance, robotCfg.getGyro(), robotCfg.getServos(), robotCfg.getMecanumControl());
 
-        b.add(S.WAIR_FOR_INIT, new WaitForInitiState(S.DRIVE1, 5000L, vfManagerResultRecvr));
-        b.addDrive(S.DRIVE1, S.TURN1, Distance.fromFeet(1.5), .9, 0, 0);
+        b.add(S.WAIT_FOR_INIT, new WaitForInitiState(S.DRIVE1, 5000L, vfManagerResultRecvr));
+        b.addDrive(S.DRIVE1, S.TURN1, Distance.fromFeet(0.5), .9, 0, 0);
         b.addGyroTurn(S.TURN1, S.DRIVE2, -90, tolerance, 0.5);
-        b.addDrive(S.DRIVE2, S.MTT01_FIND_TARGET, Distance.fromFeet(5.0), .9, -90, -90);
+        b.addDrive(S.DRIVE2, S.MTT01_FIND_TARGET, Distance.fromFeet(0.5), .9, -90, -90);
         BasicResultReceiver<VuforiaTrackableDefaultListener> target01_rr = new BasicResultReceiver();
-        b.add(S.MTT01_FIND_TARGET, new FindTargetState(vfManagerResultRecvr, 15L, target01_rr,
+        int tgtIdx = 10; // Blue Perim 1
+        b.add(S.MTT01_FIND_TARGET, new FindTargetByIndex(tgtIdx, vfManagerResultRecvr, 15L, target01_rr,
                 5000L, S.MTT01_NO_TARGET_TURN, S.MTT01_FOUND_TARGET_S1));
         // did not find the target - turn around 180 to +90
         b.addGyroTurn(S.MTT01_NO_TARGET_TURN, S.STOP, 90.0, Angle.fromDegrees(tolerance.degrees() * 2), 0.5);
         // did find target - so move to be a certain distance to it
-        b.add(S.MTT01_FOUND_TARGET_S1, new WaitWithRunnable(S.MTT01_FOUND_TARGET_S2, 7000L, target01TelemRunnable(target01_rr)));
+        b.add(S.MTT01_FOUND_TARGET_S1, new WaitWithRunnable(S.MTT01_FOUND_TARGET_S2, 10000L, target01TelemRunnable(target01_rr)));
         b.addDrive(S.MTT01_FOUND_TARGET_S2, S.STOP, Distance.fromFeet(0.5), 0.3, -90, -90);
         b.addStop(S.STOP);
 
@@ -208,6 +195,7 @@ public class VuforiaSkyStoneAutoExample extends AbstractAutoOp<TB2019RobotCfg> {
     private Runnable target01TelemRunnable(final BasicResultReceiver<VuforiaTrackableDefaultListener> target01_rr) {
         return new Runnable() {
             OpenGLMatrix updatedTransform = null;
+
             @Override
             public void run() {
                 VuforiaTrackableDefaultListener l = target01_rr.getValue();
@@ -324,8 +312,9 @@ class WaitForInitiState extends BasicAbstractState {
 }
 
 
-class FindTargetState extends BasicAbstractState {
+class FindTargetByIndex extends BasicAbstractState {
 
+    private final int targetIndex;
     private final ResultReceiver<VuforiaManager> vfMgr_rr;
     private final long internalLoopDelay;
     private final ResultReceiver<VuforiaTrackableDefaultListener> rr;
@@ -335,7 +324,8 @@ class FindTargetState extends BasicAbstractState {
 
     private long startTime;
 
-    public FindTargetState(ResultReceiver<VuforiaManager> vfMgr_rr, long internalLoopDelay, ResultReceiver<VuforiaTrackableDefaultListener> rr, long maxWait, StateName stateIfNoneFound, StateName stateIfFound) {
+    public FindTargetByIndex(int targetIndex, ResultReceiver<VuforiaManager> vfMgr_rr, long internalLoopDelay, ResultReceiver<VuforiaTrackableDefaultListener> rr, long maxWait, StateName stateIfNoneFound, StateName stateIfFound) {
+        this.targetIndex = targetIndex;
         this.vfMgr_rr = vfMgr_rr;
         this.internalLoopDelay = internalLoopDelay;
         this.rr = rr;
@@ -347,7 +337,7 @@ class FindTargetState extends BasicAbstractState {
     @Override
     public void init() {
         startTime = System.currentTimeMillis();
-        final VuforiaTrackable desiredNavPic = vfMgr_rr.getValue().getTargetsSkyStone().get(12); // Rear 2
+        final VuforiaTrackable desiredNavPic = vfMgr_rr.getValue().getTargetsSkyStone().get(targetIndex); // Rear 2
 
         Runnable r = new Runnable() {
             @Override
