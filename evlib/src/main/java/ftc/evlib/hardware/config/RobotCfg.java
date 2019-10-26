@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.util.HashMap;
 
 import ftc.evlib.hardware.motors.Stoppers;
+import ftc.evlib.hardware.motors.TwoMotors;
 import ftc.evlib.hardware.sensors.Accelerometer;
 import ftc.evlib.hardware.sensors.Sensors;
 import ftc.evlib.hardware.servos.ServoControl;
@@ -124,4 +125,5 @@ public abstract class RobotCfg {
             }
         };
     }
+
 }
