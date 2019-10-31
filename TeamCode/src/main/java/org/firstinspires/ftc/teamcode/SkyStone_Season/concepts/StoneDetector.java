@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.concepts;
 
 //comment
+
 import com.disnodeteam.dogecv.DogeCV;
 import com.disnodeteam.dogecv.detectors.DogeCVDetector;
 import com.disnodeteam.dogecv.filters.DogeCVColorFilter;
@@ -32,8 +33,8 @@ public class StoneDetector extends DogeCVDetector {
 
     public RatioScorer ratioScorerForShortFace = new RatioScorer(1.25, 3); // Used to find the short face of the stone
     public RatioScorer ratioScorerForLongFace = new RatioScorer(0.625, 3); // Used to find the long face of the stone
-    public MaxAreaScorer maxAreaScorer = new MaxAreaScorer( 5);                    // Used to find largest objects
-    public PerfectAreaScorer perfectAreaScorer = new PerfectAreaScorer(5000,0.05); // Used to find objects near a tuned area value
+    public MaxAreaScorer maxAreaScorer = new MaxAreaScorer(5);                    // Used to find largest objects
+    public PerfectAreaScorer perfectAreaScorer = new PerfectAreaScorer(5000, 0.05); // Used to find objects near a tuned area value
 
 
     // Results of the detector
@@ -44,7 +45,7 @@ public class StoneDetector extends DogeCVDetector {
     private Mat workingMat = new Mat();
     private Mat displayMat = new Mat();
     private Mat yellowMask = new Mat();
-    private Mat hierarchy  = new Mat();
+    private Mat hierarchy = new Mat();
 
     public List<Point> foundScreenPositions() {
         return screenPositions;
@@ -73,7 +74,7 @@ public class StoneDetector extends DogeCVDetector {
 
         List<MatOfPoint> contoursYellow = new ArrayList<>();
         Imgproc.findContours(yellowMask, contoursYellow, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
-        Imgproc.drawContours(displayMat,contoursYellow,-1,new Scalar(230,70,70),2);
+        Imgproc.drawContours(displayMat, contoursYellow, -1, new Scalar(230, 70, 70), 2);
 
         // Current result
         ArrayList<Rect> bestRects = new ArrayList<>();
@@ -105,8 +106,7 @@ public class StoneDetector extends DogeCVDetector {
 
         if (foundRects.size() > 0) {
             found = true;
-        }
-        else {
+        } else {
             found = false;
         }
 
@@ -131,11 +131,11 @@ public class StoneDetector extends DogeCVDetector {
         addScorer(ratioScorerForLongFace);
 
         // Add diffrent scoreres depending on the selected mode
-        if(areaScoringMethod == DogeCV.AreaScoringMethod.MAX_AREA){
+        if (areaScoringMethod == DogeCV.AreaScoringMethod.MAX_AREA) {
             addScorer(maxAreaScorer);
         }
 
-        if (areaScoringMethod == DogeCV.AreaScoringMethod.PERFECT_AREA){
+        if (areaScoringMethod == DogeCV.AreaScoringMethod.PERFECT_AREA) {
             addScorer(perfectAreaScorer);
         }
     }
