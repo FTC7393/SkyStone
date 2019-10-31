@@ -9,4 +9,5 @@ dependencies {
     implementation project(':EVLib')
     implementation files('../libs/state-machine-framework-0.7.9.jar')
     implementation files('../libs/guava-20.0.jar')
+    implementation 'com.github.dogecv:dogecv:2020.4-alpha'
 }
