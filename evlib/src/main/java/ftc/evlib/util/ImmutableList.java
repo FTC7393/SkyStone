@@ -8,6 +8,28 @@ public class ImmutableList {
         return construct(e1, e2);
     }
 
+    public static <E> List<E> of(E e1) {
+        return construct(e1);
+    }
+
+    public static <E> List<E> of(E e1, E e2, E e3) {
+        return construct(e1, e2, e3);
+    }
+
+    public static <E> List<E> of(E e1, E e2, E e3, E e4) {
+        return construct(e1, e2, e3, e4);
+    }
+
+    public static <E> List<E> of(E e1, E e2, E e3, E e4, E e5) {
+        return construct(e1, e2, e3, e4, e5);
+    }
+
+    public static <E> List<E> of(E e1, E e2, E e3, E e4, E e5, E e6) {
+        return construct(e1, e2, e3, e4,  e5,  e6);
+    }
+
+
+
     static Object[] checkElementsNotNull(Object... array) {
         return checkElementsNotNull(array, array.length);
     }
@@ -41,6 +63,8 @@ public class ImmutableList {
      * Views the array as an immutable list. Copies if the specified range does not cover the complete
      * array. Does not check for nulls.
      */
+    @SuppressWarnings()
+
     static <E> List<E> asList(Object[] elements, int length) {
 
         List<E> list = new ArrayList<>(length);
