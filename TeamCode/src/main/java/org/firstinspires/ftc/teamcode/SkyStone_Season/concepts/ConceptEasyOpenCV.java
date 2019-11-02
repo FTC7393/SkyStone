@@ -61,7 +61,7 @@ OpenCvCamera phoneCam;
              * For a rear facing camera or a webcam, rotation is defined assuming the camera is facing
              * away from the user.
              */
-            phoneCam.startStreaming(720, 1280, OpenCvCameraRotation.UPRIGHT);
+            phoneCam.startStreaming(1920,1080 , OpenCvCameraRotation.UPRIGHT);
 
             /*
              * Wait for the user to press start on the Driver Station
