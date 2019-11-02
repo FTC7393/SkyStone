@@ -15,6 +15,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.Function;
+import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.files.Logger;
 import ftc.evlib.opmodes.AbstractTeleOp;
 
@@ -22,6 +23,13 @@ import ftc.evlib.opmodes.AbstractTeleOp;
 public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
     OpenCvCamera phoneCam;
     private BasicResultReceiver<Boolean> rr = new BasicResultReceiver<>();
+    int x,y,w,h;
+    InputExtractor<Integer> xii = new InputExtractor<Integer>() {
+        @Override
+        public Integer getValue() {
+            return x;
+        }
+    };
 
 //        public void runOpMode()
 //        {
@@ -115,7 +123,7 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
                 phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
                 phoneCam.openCameraDevice();
-                phoneCam.setPipeline(new SamplePipeline());
+                phoneCam.setPipeline(new SamplePipeline(xii));
                 phoneCam.startStreaming(1920, 1080, OpenCvCameraRotation.UPRIGHT);
                 rr.setValue(true);
             }
@@ -134,6 +142,7 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
     protected void go() {
 
     }
+
 
     @Override
     protected void act() {
@@ -181,7 +190,9 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
         } else if (gamepad1.y) {
             phoneCam.resumeViewport();
         }
-
+        if (gamepad1.dpad_left){
+            x+=10;
+        }
 
     }
 
@@ -215,6 +226,11 @@ class SamplePipeline extends OpenCvPipeline {
      * by forgetting to call mat.release(), and it also reduces memory pressure by not
      * constantly allocating and freeing large chunks of memory.
      */
+    private final InputExtractor<Integer> xii;
+
+    public SamplePipeline(InputExtractor<Integer> xii) {
+        this.xii = xii;
+    }
 
     @Override
     public Mat processFrame(Mat input) {
@@ -238,6 +254,11 @@ class SamplePipeline extends OpenCvPipeline {
                         input.cols() * (3f / 4f),
                         input.rows() * (3f / 4f)),
                 new Scalar(0, 255, 0), 4);
+
+
+        Imgproc.rectangle(input, new Point(xii.getValue(), 100), new Point(600, 300),
+                new Scalar(255, 0, 0), 4);
+
 
         /**
          * NOTE: to see how to get data from your pipeline to your OpMode as well as how

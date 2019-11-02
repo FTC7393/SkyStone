@@ -51,7 +51,7 @@ public abstract class RobotCfg {
 
         // This keeps the phone from automatically turning off the screen, which would
         // I think cause some things to go to sleep
-        phoneWakeLock = phonePowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "FTC_APP_WAKELOCK");
+        phoneWakeLock = phonePowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "evlib:FTC_APP_WAKELOCK");
     }
 
     public Context getPhoneContext() {
