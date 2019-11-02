@@ -1,7 +1,5 @@
 package ftc.evlib.hardware.motors;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +8,7 @@ import ftc.electronvolts.util.units.Angle;
 import ftc.electronvolts.util.units.Distance;
 import ftc.electronvolts.util.units.Time;
 import ftc.electronvolts.util.units.Velocity;
+import ftc.evlib.util.ImmutableList;
 
 /**
  * This file was made by the electronVolts, FTC team 7393

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -20,6 +21,7 @@ import ftc.evlib.opmodes.AbstractTeleOp;
  * Created by ftc7393 on 9/22/2018.
  */
 @TeleOp(name = "SkyStone Ri3D")
+@Disabled
 public class SkystoneTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
     private ServoControl dump = null;
     private DcMotor collector = null;
@@ -107,7 +109,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
         forwardControl();
 
         collector=robotCfg.getCollector();
-        dump  = robotCfg.getServo(FutureFestRobotCfg.FutureFestServoEnum.DUMP_SERVO);
+        dump  = null; // robotCfg.getServo(FutureFestRobotCfg.FutureFestServoEnum.DUMP_SERVO);
 
         if(driver2.x.isPressed()) {
             driver1CollectorEnabled = false;
@@ -125,13 +127,13 @@ public class SkystoneTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
             collector.setPower(0);
         }
 
-        // Dumper control
-        if(driver2.y.isPressed()) {
-            dump.goToPreset(FutureFestRobotCfg.DumpServoPresets.OPEN);
-//        } else if(driver2.a.isPressed()) {
-        } else{
-            dump.goToPreset(FutureFestRobotCfg.DumpServoPresets.OPEN);
-        }
+//        // Dumper control
+//        if(driver2.y.isPressed()) {
+//            dump.goToPreset(FutureFestRobotCfg.DumpServoPresets.OPEN);
+////        } else if(driver2.a.isPressed()) {
+//        } else{
+//            dump.goToPreset(FutureFestRobotCfg.DumpServoPresets.OPEN);
+//        }
     }
 
     @Override

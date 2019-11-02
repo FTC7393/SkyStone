@@ -1,13 +1,17 @@
 package org.firstinspires.ftc.teamcode.relic2017.Sparky2017;
 
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.BaseEncoding;
+import android.util.Base64;
+
+import ftc.evlib.util.ImmutableList;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 
 import org.firstinspires.ftc.teamcode.relic2017.TeleOpPlayback;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import ftc.evlib.hardware.control.RotationControls;
 import ftc.evlib.hardware.control.TranslationControls;
@@ -87,7 +91,10 @@ public class TeleOp2017 extends AbstractTeleOp<RobotCfg2017> {
     @Override
     protected Logger createLogger() {
         //log the gamepads, and the motors, sensors, servos, etc. from MainRobotCfg
-        return new Logger("", "teleop.csv", new ImmutableList.Builder<Logger.Column>()
+        List<Logger.Column> cols = new ArrayList<>();
+        cols.addAll(robotCfg.getLoggerColumns());
+        cols.addAll(
+                ImmutableList.of(
 //                .add(
 //                new Logger.Column("state", new InputExtractor<StateName>() {
 //                    @Override
@@ -95,30 +102,32 @@ public class TeleOp2017 extends AbstractTeleOp<RobotCfg2017> {
 //                        return stateMachine.getCurrentStateName();
 //                    }
 //                }))
-                .addAll(robotCfg.getLoggerColumns()).add(
                         new Logger.Column(TeleOpPlayback.GAMEPAD_1_TITLE, new InputExtractor<String>() {
                             @Override
                             public String getValue() {
                                 try {
-                                    return BaseEncoding.base64Url().encode(gamepad1.toByteArray());
+                                    return android.util.Base64.encodeToString(gamepad1.toByteArray(), Base64.NO_PADDING);
+                                    // BaseEncoding.base64Url().encode(gamepad1.toByteArray());
                                 } catch (RobotCoreException e) {
                                     e.printStackTrace();
                                     return "";
                                 }
                             }
-                        })).add(
+                        }),
                         new Logger.Column(TeleOpPlayback.GAMEPAD_2_TITLE, new InputExtractor<String>() {
                             @Override
                             public String getValue() {
                                 try {
-                                    return BaseEncoding.base64Url().encode(gamepad2.toByteArray());
+                                    return android.util.Base64.encodeToString(gamepad2.toByteArray(),Base64.NO_PADDING);
+//                                    return BaseEncoding.base64Url().encode(gamepad2.toByteArray());
                                 } catch (RobotCoreException e) {
                                     e.printStackTrace();
                                     return "";
                                 }
                             }
                         })
-                ).build());
+                ));
+        return new Logger("", "teleop.csv", cols);
     }
 
 

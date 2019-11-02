@@ -1,12 +1,15 @@
 package org.firstinspires.ftc.teamcode.relic2017.Sparky2017;
 
-import com.google.common.collect.ImmutableList;
+import ftc.evlib.util.ImmutableList;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.RelicRecoveryVuMark;
 import org.firstinspires.ftc.teamcode.relic2017.Mechanisms.VuMarkFinder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVEndConditions;
@@ -440,17 +443,17 @@ public class Auto2017 extends AbstractAutoOp<RobotCfg2017> {
     @Override
     protected Logger createLogger() {
         //log the current state and sub-state, and all the sensors, motors, servos, etc. from MainRobotCfg
-        return new Logger("", "autonomous.csv", new ImmutableList.Builder<Logger.Column>().add(
-                new Logger.Column("state", new InputExtractor<String>() {
+        List<Logger.Column> cols = new ArrayList<>();
+        cols.add(new Logger.Column("state", new InputExtractor<String>() {
                     @Override
                     public String getValue() {
-
-
-
                         return stateMachine.getCurrentStateName().name();
                     }
                 })
-        ).addAll(robotCfg.getLoggerColumns()).build());
+        );
+        cols.addAll(robotCfg.getLoggerColumns());
+
+        return new Logger("", "autonomous.csv", cols);
     }
 
     @Override

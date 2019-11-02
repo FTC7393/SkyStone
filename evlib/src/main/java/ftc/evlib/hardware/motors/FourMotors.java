@@ -1,8 +1,7 @@
 package ftc.evlib.hardware.motors;
 
-import com.google.common.collect.ImmutableList;
-
 import ftc.electronvolts.util.units.Velocity;
+import ftc.evlib.util.ImmutableList;
 
 /**
  * This file was made by the electronVolts, FTC team 7393

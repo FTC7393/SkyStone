@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.relic2017;
 
-import com.google.common.io.BaseEncoding;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.exception.RobotCoreException;
@@ -11,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Base64;
 
 import ftc.evlib.util.EVConverters;
 import ftc.evlib.util.FileUtil;
@@ -74,8 +74,10 @@ public class TeleOpPlayback extends TeleOp2017 {
                     endOfFile = true;
                 } else {
                     String[] values = line.split("\t");
-                    gamepad1.fromByteArray(BaseEncoding.base64Url().decode(values[gamepad1Index]));
-                    gamepad2.fromByteArray(BaseEncoding.base64Url().decode(values[gamepad2Index]));
+                    gamepad1.fromByteArray(android.util.Base64.decode(values[gamepad1Index], android.util.Base64.NO_PADDING));
+                    gamepad2.fromByteArray(android.util.Base64.decode(values[gamepad2Index], android.util.Base64.NO_PADDING));
+//                    gamepad1.fromByteArray(BaseEncoding.base64Url().decode(values[gamepad1Index]));
+//                    gamepad2.fromByteArray(BaseEncoding.base64Url().decode(values[gamepad2Index]));
                 }
             } catch (IOException | RobotCoreException e) {
                 endOfFile = true;

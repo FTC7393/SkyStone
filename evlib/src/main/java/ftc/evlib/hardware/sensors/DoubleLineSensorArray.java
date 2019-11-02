@@ -1,6 +1,6 @@
 package ftc.evlib.hardware.sensors;
 
-import com.google.common.collect.ImmutableList;
+import ftc.evlib.util.ImmutableList;
 
 /**
  * This file was made by the electronVolts, FTC team 7393

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.RoverRuckus.Sandbox;
 
-import com.google.common.collect.ImmutableList;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.RoverRuckus.GoldPosition;
@@ -56,9 +55,7 @@ public class SandboxAuto2 extends AbstractAutoOp<RoverRuckusRobotCfg> {
     protected Logger createLogger() {
         String prefix = "sandbox_log";
         String postfix = ".txt";
-        ImmutableList.Builder<Logger.Column> cols = ImmutableList.builder();
-        cols.addAll(robotCfg.getLoggerColumns());
-        return new Logger(prefix, postfix, cols.build());
+        return new Logger(prefix, postfix, robotCfg.getLoggerColumns());
     }
 
     @Override

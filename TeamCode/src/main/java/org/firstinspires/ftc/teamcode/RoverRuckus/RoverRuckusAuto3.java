@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.RoverRuckus;
 
-import com.google.common.collect.ImmutableList;
+import ftc.evlib.util.ImmutableList;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -77,34 +77,35 @@ public class RoverRuckusAuto3 extends AbstractAutoOp<RoverRuckusRobotCfg> {
 
 
         return new Logger("", "auto.csv",
-                new ImmutableList.Builder<Logger.Column>()
-                .add(new Logger.Column("State", new InputExtractor<StateName>() {
+                ImmutableList.of(
+                new Logger.Column("State", new InputExtractor<StateName>() {
 
                     @Override
                     public StateName getValue() {
                         return stateMachine.getCurrentStateName();
                     }
-                }))
-                .add(new Logger.Column("Left Mineral,c,x,y,w,h,r", new InputExtractor<Mineral>() {
+                }),
+                new Logger.Column("Left Mineral,c,x,y,w,h,r", new InputExtractor<Mineral>() {
                     @Override
                     public Mineral getValue() {
                         return leftMineral;
                     }
-                }))
-                .add(new Logger.Column("Middle Mineral,c,x,y,w,h,r", new InputExtractor<Mineral>() {
+                }),
+                new Logger.Column("Middle Mineral,c,x,y,w,h,r", new InputExtractor<Mineral>() {
                     @Override
                     public Mineral getValue() {
                         return middleMineral;
                     }
-                }))
-                .add(new Logger.Column("Right Mineral,c,x,y,w,h,r", new InputExtractor<Mineral>() {
+                }),
+                new Logger.Column("Right Mineral,c,x,y,w,h,r", new InputExtractor<Mineral>() {
                     @Override
                     public Mineral getValue() {
                         return rightMineral;
                     }
-                }))
-                        .build()
+                })
+                )
         );
+
     }
 
 

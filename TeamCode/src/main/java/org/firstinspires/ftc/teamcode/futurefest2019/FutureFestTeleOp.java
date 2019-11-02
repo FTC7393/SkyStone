@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.futurefest2019;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -12,19 +11,22 @@ import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.units.Time;
 import ftc.evlib.hardware.control.RotationControls;
 import ftc.evlib.hardware.control.TranslationControls;
-import ftc.evlib.hardware.servos.ServoControl;
+import ftc.evlib.hardware.motors.MotorEnc;
 import ftc.evlib.opmodes.AbstractTeleOp;
 
 /**
  * Created by ftc7393 on 9/22/2018.
  */
 @TeleOp(name = "FutureFest")
-@Disabled
 public class FutureFestTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
-    private ServoControl dump = null;
+//    private int dumperDownEncTarget = 0;
+//    private int dumperUpEncTarget = 0;
+    private DcMotor dumpMotor = null;
     private DcMotor collector = null;
     int dumpPosition;
     boolean driver1CollectorEnabled = true;
+//    private boolean dumperIsUp = true;
+
     @Override
     public Time getMatchTime() {
         return Time.fromMinutes(180); //teleop is 2 minutes
@@ -80,7 +82,9 @@ public class FutureFestTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
 
     @Override
     protected void setup() {
-
+//        dumperUpEncTarget = robotCfg.getDumpMotor().getEncoderPosition();
+//        int upToDownEncTicks = 400;
+//        dumperDownEncTarget = dumperUpEncTarget + upToDownEncTicks;
     }
 
     @Override
@@ -91,7 +95,7 @@ public class FutureFestTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
         double f = currentSpeedFactor.getFactor();
         rightY = new ScalingInputExtractor(driver1.right_stick_y, f);
         leftX = new ScalingInputExtractor(driver1.left_stick_x, f);
-        rightX = new ScalingInputExtractor(InputExtractors.negative(driver1.right_stick_x), -1.0*f);
+        rightX = new ScalingInputExtractor(InputExtractors.negative(driver1.right_stick_x), f);
         //noinspection SuspiciousNameCombination
         robotCfg.getMecanumControl().setTranslationControl(TranslationControls.inputExtractorXY(rightY, rightX));
 //        robotCfg.getMecanumControl().setRotationControl(RotationControls.teleOpGyro(leftX, robotCfg.getGyro()));
@@ -108,7 +112,7 @@ public class FutureFestTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
         forwardControl();
 
         collector=robotCfg.getCollector();
-        dump  = robotCfg.getServo(FutureFestRobotCfg.FutureFestServoEnum.DUMP_SERVO);
+        dumpMotor  = robotCfg.getDumpMotor();
 
         if(driver2.x.isPressed()) {
             driver1CollectorEnabled = false;
@@ -119,20 +123,23 @@ public class FutureFestTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
         // Collector logic: Driver 2 has priority, Driver 1 can be disabled as well
         if(driver2.right_bumper.isPressed() ||
                 (driver1.right_bumper.isPressed() && driver1CollectorEnabled == true) ){
-            collector.setPower(-0.8);
-        } else if(driver2.left_bumper.isPressed()) {
             collector.setPower(0.8);
+        } else if(driver2.left_bumper.isPressed()) {
+            collector.setPower(-0.8);
         } else {
             collector.setPower(0);
         }
 
         // Dumper control
+        double dumperPower = 0.15;
         if(driver2.y.isPressed()) {
-            dump.goToPreset(FutureFestRobotCfg.DumpServoPresets.OPEN);
-//        } else if(driver2.a.isPressed()) {
-        } else{
-            dump.goToPreset(FutureFestRobotCfg.DumpServoPresets.OPEN);
+            dumpMotor.setPower(-dumperPower);
+        } else if (driver2.x.isPressed()) {
+            dumpMotor.setPower(dumperPower);
+        } else {
+            dumpMotor.setPower(0);
         }
+//        telemetry.addData("dumped?" , dumperIsUp);
     }
 
     @Override

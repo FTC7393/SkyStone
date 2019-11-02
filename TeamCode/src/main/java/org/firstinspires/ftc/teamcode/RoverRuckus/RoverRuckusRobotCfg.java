@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.RoverRuckus;
 
 import android.util.Log;
 
-import com.google.common.collect.ImmutableList;
+import ftc.evlib.util.ImmutableList;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 

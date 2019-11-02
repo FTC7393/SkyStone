@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.RoverRuckus;
 
-import com.google.common.collect.ImmutableList;
+import ftc.evlib.util.ImmutableList;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;

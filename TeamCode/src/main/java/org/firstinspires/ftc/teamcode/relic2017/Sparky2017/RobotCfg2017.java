@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.relic2017.Sparky2017;
 
 import android.util.Log;
 
-import com.google.common.collect.ImmutableList;
+import ftc.evlib.util.ImmutableList;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.ColorSensor;

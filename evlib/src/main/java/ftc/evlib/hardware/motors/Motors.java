@@ -2,7 +2,6 @@ package ftc.evlib.hardware.motors;
 
 import android.util.Log;
 
-import com.google.common.collect.ImmutableList;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -10,10 +9,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import java.util.Collection;
 
-import ftc.evlib.util.StepTimer;
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.Utility;
+import ftc.evlib.util.ImmutableList;
+import ftc.evlib.util.StepTimer;
 
 /**
  * This file was made by the electronVolts, FTC team 7393

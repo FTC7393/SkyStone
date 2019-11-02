@@ -1,6 +1,6 @@
 package ftc.evlib.util;
 
-import com.google.common.io.BaseEncoding;
+//import com.google.common.io.BaseEncoding;
 
 //import ftc.evlib.vision.processors.BeaconColorResult;
 //import ftc.evlib.vision.processors.BeaconName;

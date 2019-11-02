@@ -107,7 +107,7 @@ public class SkystoneRi3DTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
         forwardControl();
 
         collector=robotCfg.getCollector();
-        dump  = robotCfg.getServo(FutureFestRobotCfg.FutureFestServoEnum.DUMP_SERVO);
+        dump  = null; // robotCfg.getServo(FutureFestRobotCfg.FutureFestServoEnum.DUMP_SERVO);
 
         if(driver2.x.isPressed()) {
             driver1CollectorEnabled = false;
@@ -125,13 +125,13 @@ public class SkystoneRi3DTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
             collector.setPower(0);
         }
 
-        // Dumper control
-        if(driver2.y.isPressed()) {
-            dump.goToPreset(FutureFestRobotCfg.DumpServoPresets.OPEN);
-//        } else if(driver2.a.isPressed()) {
-        } else{
-            dump.goToPreset(FutureFestRobotCfg.DumpServoPresets.OPEN);
-        }
+//        // Dumper control
+//        if(driver2.y.isPressed()) {
+//            dump.goToPreset(FutureFestRobotCfg.DumpServoPresets.OPEN);
+////        } else if(driver2.a.isPressed()) {
+//        } else{
+//            dump.goToPreset(FutureFestRobotCfg.DumpServoPresets.OPEN);
+//        }
     }
 
     @Override

@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.RoverRuckus.Sandbox;
 
-import com.google.common.collect.ImmutableList;
+import ftc.evlib.util.ImmutableList;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -27,7 +27,7 @@ public class RoverCfg extends RobotCfg {
 
     private final MecanumControl mecanumControl;
     private final IMUGyro gyro;
-    private final ImmutableList<Logger.Column> loggerColumns;
+    private final List<Logger.Column> loggerColumns;
 
     public RoverCfg(HardwareMap hmap) {
         super(hmap);

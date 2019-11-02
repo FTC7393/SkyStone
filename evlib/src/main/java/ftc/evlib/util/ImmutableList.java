@@ -27,15 +27,35 @@ public class ImmutableList {
     public static <E> List<E> of(E e1, E e2, E e3, E e4, E e5, E e6) {
         return construct(e1, e2, e3, e4,  e5,  e6);
     }
-
-
-
-    static Object[] checkElementsNotNull(Object... array) {
-        return checkElementsNotNull(array, array.length);
+    public static <E> List<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7) {
+        return construct(e1, e2, e3, e4,  e5,  e6, e7);
     }
+    public static <E> List<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8) {
+        return construct(e1, e2, e3, e4,  e5,  e6, e7, e8);
+    }
+    public static <E> List<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9) {
+        return construct(e1, e2, e3, e4,  e5,  e6, e7, e8, e9);
+    }
+    public static <E> List<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9, E e10) {
+        return construct(e1, e2, e3, e4,  e5,  e6, e7, e8, e9, e10);
+    }
+    public static <E> List<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9, E e10, E e11) {
+        return construct(e1, e2, e3, e4,  e5,  e6, e7, e8, e9, e10, e11);
+    }
+    public static <E> List<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9, E e10, E e11, E e12) {
+        return construct(e1, e2, e3, e4,  e5,  e6, e7, e8, e9, e10, e11, e12);
+    }
+    public static <E> List<E> of(E e1, E e2, E e3, E e4, E e5, E e6, E e7, E e8, E e9, E e10, E e11, E e12, E e13) {
+        return construct(e1, e2, e3, e4,  e5,  e6, e7, e8, e9, e10, e11, e12, e13);
+    }
+
 
     private static <E> List<E> construct(Object... elements) {
         return asList(checkElementsNotNull(elements));
+    }
+
+    static Object[] checkElementsNotNull(Object... array) {
+        return checkElementsNotNull(array, array.length);
     }
 
 
@@ -63,8 +83,6 @@ public class ImmutableList {
      * Views the array as an immutable list. Copies if the specified range does not cover the complete
      * array. Does not check for nulls.
      */
-    @SuppressWarnings()
-
     static <E> List<E> asList(Object[] elements, int length) {
 
         List<E> list = new ArrayList<>(length);

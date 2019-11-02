@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.RoverRuckus;
 
-import com.google.common.collect.ImmutableList;
+import ftc.evlib.util.ImmutableList;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -94,7 +94,7 @@ public class GoldDetector {
         Collections.sort(filteredMinerals);
         Collections.sort(allMinerals);
         potentialItemRR.setValue(allMinerals);
-        return ImmutableList.copyOf(filteredMinerals);
+        return new ArrayList<>(filteredMinerals); // ImmutableList.copyOf(filteredMinerals);
     }
 
     // Temp method to write mineral data to a file as it is discoverede

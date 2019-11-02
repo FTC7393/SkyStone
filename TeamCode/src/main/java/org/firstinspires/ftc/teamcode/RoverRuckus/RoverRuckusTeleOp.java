@@ -2,8 +2,11 @@ package org.firstinspires.ftc.teamcode.RoverRuckus;
 
 import android.util.Log;
 
-import com.google.common.collect.ImmutableList;
+import ftc.evlib.util.ImmutableList;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import ftc.evlib.hardware.control.RotationControls;
 import ftc.evlib.hardware.control.TranslationControls;
@@ -82,10 +85,10 @@ public class RoverRuckusTeleOp extends AbstractTeleOp<RoverRuckusRobotCfg> {
 
     @Override
     protected Logger createLogger() {
-        return new Logger("", "teleop.csv",
-                new ImmutableList.Builder<Logger.Column>()
-                        .add(
-                                new Logger.Column("Rotation Joystick",
+        List<Logger.Column> cols = new ArrayList<>();
+        cols.addAll(
+                ImmutableList.of(
+                        new Logger.Column("Rotation Joystick",
                                         new InputExtractor<Double>()
                                         {
                                             @Override
@@ -93,32 +96,33 @@ public class RoverRuckusTeleOp extends AbstractTeleOp<RoverRuckusRobotCfg> {
                                                 return getRotationValue();
                                             }
                                         }
-                                    )
-                        )
-                        .add(new Logger.Column("leftX", new InputExtractor<Double>() {
+                                    ),
+                        new Logger.Column("leftX", new InputExtractor<Double>() {
                             @Override
                             public Double getValue() {
                                 return driver1.left_stick_x.getValue();
                             }
-                        }))
-                        .add(new Logger.Column("rightY", new InputExtractor<Double>() {
+                        }),
+                        new Logger.Column("rightY", new InputExtractor<Double>() {
                             @Override
                             public Double getValue() {
                                 return driver1.right_stick_y.getValue();
                             }
-                        }))
-                        .add(new Logger.Column("rightX", new InputExtractor<Double>() {
+                        }),
+                        new Logger.Column("rightX", new InputExtractor<Double>() {
                             @Override
                             public Double getValue() {
                                 return driver1.right_stick_x.getValue();
                             }
-                        }))
-                        .add(new Logger.Column("Extension Joystick", new InputExtractor<Double>() {
+                        }),
+                        new Logger.Column("Extension Joystick", new InputExtractor<Double>() {
                             @Override
                             public Double getValue() {
                                 return getExtensionValue();
                             }
-                        })).addAll(robotCfg.getLoggerColumns()).build());
+                        })));
+        cols.addAll(robotCfg.getLoggerColumns());
+        return new Logger("", "teleop.csv", cols);
 
     }
 
