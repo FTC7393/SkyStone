@@ -31,6 +31,27 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
         }
     };
 
+    InputExtractor<Integer> yii = new InputExtractor<Integer>() {
+        @Override
+        public Integer getValue() {
+            return y;
+        }
+    };
+
+    InputExtractor<Integer> wii = new InputExtractor<Integer>() {
+        @Override
+        public Integer getValue() {
+            return w;
+        }
+    };
+
+    InputExtractor<Integer> hii = new InputExtractor<Integer>() {
+        @Override
+        public Integer getValue() {
+            return h;
+        }
+    };
+
 //        public void runOpMode()
 //        {
     /*
@@ -123,7 +144,7 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
                 phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
                 phoneCam.openCameraDevice();
-                phoneCam.setPipeline(new SamplePipeline(xii));
+                phoneCam.setPipeline(new SamplePipeline(xii, yii, wii, hii));
                 phoneCam.startStreaming(1920, 1080, OpenCvCameraRotation.UPRIGHT);
                 rr.setValue(true);
             }
@@ -185,14 +206,32 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
             phoneCam.stopStreaming();
             //webcam.closeCameraDevice();
 
-        } else if (gamepad1.x) {
-            phoneCam.pauseViewport();
-        } else if (gamepad1.y) {
-            phoneCam.resumeViewport();
         }
         if (gamepad1.dpad_left){
-            x+=10;
+            x-=1;
         }
+        if (gamepad1.dpad_right) {
+            x+=1;
+        }
+        if (gamepad1.dpad_up) {
+            y+=1;
+        }
+        if(gamepad1.dpad_down) {
+            y-=1;
+        }
+        if(gamepad1.right_bumper) {
+            w+=1;
+        }
+        if(gamepad1.left_bumper) {
+            w-=1;
+        }
+        if(gamepad1.x) {
+            h+=1;
+        }
+        if(gamepad1.y) {
+            h-=1;
+        }
+
 
     }
 
@@ -227,9 +266,16 @@ class SamplePipeline extends OpenCvPipeline {
      * constantly allocating and freeing large chunks of memory.
      */
     private final InputExtractor<Integer> xii;
+    private final InputExtractor<Integer> yii;
+    private final InputExtractor<Integer> wii;
+    private final InputExtractor<Integer> hii;
 
-    public SamplePipeline(InputExtractor<Integer> xii) {
+
+    public SamplePipeline(InputExtractor<Integer> xii, InputExtractor<Integer> yii, InputExtractor<Integer> wii, InputExtractor<Integer> hii) {
         this.xii = xii;
+        this.yii = yii;
+        this.wii = wii;
+        this.hii = hii;
     }
 
     @Override
@@ -256,8 +302,10 @@ class SamplePipeline extends OpenCvPipeline {
                 new Scalar(0, 255, 0), 4);
 
 
-        Imgproc.rectangle(input, new Point(xii.getValue(), 100), new Point(600, 300),
+        Imgproc.rectangle(input, new Point(xii.getValue(), yii.getValue()), new Point(wii.getValue(), hii.getValue()),
                 new Scalar(255, 0, 0), 4);
+
+
 
 
         /**
