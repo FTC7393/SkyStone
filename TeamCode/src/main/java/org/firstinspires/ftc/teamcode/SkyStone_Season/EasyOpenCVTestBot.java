@@ -210,10 +210,10 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
 
         }
         if (gamepad1.dpad_left){
+            x-=1;
             if(x<=0){
                 x=0;
             }
-            x-=1;
         }
         if (gamepad1.dpad_right) {
             x+=1;
@@ -222,28 +222,28 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
             y+=1;
         }
         if(gamepad1.dpad_down) {
+            y-=1;
             if(y<=0) {
                 y=0;
             }
-            y-=1;
         }
         if(gamepad1.right_bumper) {
             w+=1;
         }
         if(gamepad1.left_bumper) {
+            w-=1;
             if(w<=0) {
                 w = 0;
             }
-            w-=1;
         }
         if(gamepad1.x) {
             h+=1;
         }
         if(gamepad1.y) {
+            h-=1;
             if(h==0) {
                 h = 0;
             }
-            h-=1;
         }
         if(gamepad1.right_stick_button) {
             xStatic = x;
