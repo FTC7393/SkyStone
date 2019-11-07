@@ -6,12 +6,17 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Range;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
+
+import java.net.HttpCookie;
 
 import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.Function;
@@ -19,17 +24,42 @@ import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.files.Logger;
 import ftc.evlib.opmodes.AbstractTeleOp;
 
-@TeleOp(name = "EasyOpenCVTele")
-public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
+import static org.opencv.core.CvType.CV_8UC3;
+import static org.opencv.core.CvType.CV_8UC4;
+
+@TeleOp(name = "ImgProcTest")
+public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
     OpenCvCamera phoneCam;
     private BasicResultReceiver<Boolean> rr = new BasicResultReceiver<>();
-    int x,y,w,h;
-    InputExtractor<Integer> xii = new InputExtractor<Integer>() {
+    private int x=100,y=100,w=300,h=150;
+    private final InputExtractor<Integer> xii = new InputExtractor<Integer>() {
         @Override
         public Integer getValue() {
             return x;
         }
     };
+    private final InputExtractor<Integer> yii = new InputExtractor<Integer>() {
+        @Override
+        public Integer getValue() {
+            return y;
+        }
+    };
+    private final InputExtractor<Integer> wii = new InputExtractor<Integer>() {
+        @Override
+        public Integer getValue() {
+            return w;
+        }
+    };
+    private final InputExtractor<Integer> hii = new InputExtractor<Integer>() {
+        @Override
+        public Integer getValue() {
+            return h;
+        }
+    };
+
+    private InputExtractor<Double> y1dii;
+    private InputExtractor<Double> y1pixelii;
+    private InputExtractor<Double> y1avgii;
 
 //        public void runOpMode()
 //        {
@@ -106,8 +136,8 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
     }
 
     @Override
-    protected TestBotRobotCfg createRobotCfg() {
-        return new TestBotRobotCfg(hardwareMap);
+    protected TestNoBotRobotCfg createRobotCfg() {
+        return new TestNoBotRobotCfg(hardwareMap);
     }
 
     @Override
@@ -123,7 +153,11 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
                 phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
                 phoneCam.openCameraDevice();
-                phoneCam.setPipeline(new SamplePipeline(xii));
+                SamplePipeline pipeline = new SamplePipeline(xii, yii, wii,hii);
+                y1dii = pipeline.getYd1ii();
+                y1pixelii = pipeline.getY1pixelii();
+                y1avgii = pipeline.getY1avgii();
+                phoneCam.setPipeline(pipeline);
                 phoneCam.startStreaming(1920, 1080, OpenCvCameraRotation.UPRIGHT);
                 rr.setValue(true);
             }
@@ -155,8 +189,11 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
         telemetry.addData("Pipeline time ms", phoneCam.getPipelineTimeMs());
         telemetry.addData("Overhead time ms", phoneCam.getOverheadTimeMs());
         telemetry.addData("Theoretical max FPS", phoneCam.getCurrentPipelineMaxFps());
-        telemetry.update();
-
+        if(y1dii != null) {
+            telemetry.addData("y1pixel", y1pixelii.getValue());
+            telemetry.addData("y1avg", y1avgii.getValue());
+            telemetry.addData("y1diff", y1dii.getValue());
+        }
         /*
          * NOTE: stopping the stream from the camera early (before the end of the OpMode
          * when it will be automatically stopped for you) *IS* supported. The "if" statement
@@ -190,8 +227,37 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
         } else if (gamepad1.y) {
             phoneCam.resumeViewport();
         }
+        int delta = 2;
+        double stick_thresh = 0.1;
         if (gamepad1.dpad_left){
-            x+=10;
+            w-=delta;
+            if (w < delta) {
+                w = delta;
+            }
+        }
+        if (gamepad1.dpad_right){
+            w+=delta;
+        }
+        if (gamepad1.dpad_up){
+            h+=delta;
+        }
+        if (gamepad1.dpad_down){
+            h-=delta;
+            if (h < delta) {
+                h = delta;
+            }
+        }
+        if (gamepad1.right_stick_x > stick_thresh) {
+            x += delta;
+        }
+        if (gamepad1.right_stick_x < -stick_thresh) {
+            x -= delta;
+        }
+        if (gamepad1.right_stick_y > stick_thresh) {
+            y += delta;
+        }
+        if (gamepad1.right_stick_y < -stick_thresh) {
+            y -= delta;
         }
 
     }
@@ -227,9 +293,36 @@ class SamplePipeline extends OpenCvPipeline {
      * constantly allocating and freeing large chunks of memory.
      */
     private final InputExtractor<Integer> xii;
+    private final InputExtractor<Integer> yii;
+    private final InputExtractor<Integer> wii;
+    private final InputExtractor<Integer> hii;
+    private double y1pixel;
+    private double y1avg;
+    private double y1diff;
+    private final InputExtractor<Double> yd1ii = new InputExtractor<Double>() {
+        @Override
+        public Double getValue() {
+            return y1diff;
+        }
+    };
+    private final InputExtractor<Double> y1avgii = new InputExtractor<Double>() {
+        @Override
+        public Double getValue() {
+            return y1avg;
+        }
+    };
+    private final InputExtractor<Double> y1pixelii = new InputExtractor<Double>() {
+        @Override
+        public Double getValue() {
+            return y1pixel;
+        }
+    };
 
-    public SamplePipeline(InputExtractor<Integer> xii) {
+    public SamplePipeline(InputExtractor<Integer> xii, InputExtractor<Integer> yii, InputExtractor<Integer> wii, InputExtractor<Integer> hii) {
         this.xii = xii;
+        this.yii = yii;
+        this.wii = wii;
+        this.hii = hii;
     }
 
     @Override
@@ -241,6 +334,39 @@ class SamplePipeline extends OpenCvPipeline {
          * of this particular frame for later use, you will need to either clone it or copy
          * it to another Mat.
          */
+
+        double realYellow = Math.sqrt(255*255*2);
+
+        int hueIdx = 0;
+
+        int x = xii.getValue();
+        int y = yii.getValue();
+        int w = wii.getValue();
+        int h = hii.getValue();
+        Rect rect1 = new Rect(x,y,w,h);
+        Mat s1 = new Mat(input, rect1).clone();
+
+        Mat s1tmp = new Mat(input, rect1).clone();
+        Imgproc.cvtColor(s1,s1tmp, Imgproc.COLOR_RGB2HSV);
+        y1pixel = s1tmp.get(0,0)[hueIdx]; //w/2,h/2)[0];
+        int nw = 3, nh = 3;
+        Mat s1r = new Mat(nw,nh,input.type());
+        Size newSize = new Size(nw,nh);
+//        if (s1r.size().empty()) {
+//            return input;
+//        }
+
+        Imgproc.resize(s1, s1r, newSize);
+        double b = s1r.get(1,1)[0];
+        double g = s1r.get(1,1)[1];
+        double r = s1r.get(1,1)[2];
+        double thisColor = Math.sqrt(b*b+g*g+r*r);
+        y1avg = thisColor;
+        y1diff = b;
+//        Mat s1hsv = new Mat(nw,nh,input.type());
+//        Imgproc.cvtColor(s1r,s1hsv, Imgproc.COLOR_RGB2HSV);
+//        y1avg = s1hsv.get(0,0)[hueIdx];
+//        y1diff = Math.abs(s1hsv.get(0,0)[hueIdx] - 60);
 
         /*
          * Draw a simple box around the middle 1/2 of the entire frame
@@ -256,7 +382,7 @@ class SamplePipeline extends OpenCvPipeline {
                 new Scalar(0, 255, 0), 4);
 
 
-        Imgproc.rectangle(input, new Point(xii.getValue(), 100), new Point(600, 300),
+        Imgproc.rectangle(input, new Point(x, y), new Point(x+w, y+h),
                 new Scalar(255, 0, 0), 4);
 
 
@@ -267,6 +393,16 @@ class SamplePipeline extends OpenCvPipeline {
          */
 
         return input;
+    }
+
+    public InputExtractor<Double> getYd1ii() {
+        return yd1ii;
+    }
+    public InputExtractor<Double> getY1pixelii() {
+        return y1pixelii;
+    }
+    public InputExtractor<Double> getY1avgii() {
+        return y1avgii;
     }
 }
 
