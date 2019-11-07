@@ -5,11 +5,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfFloat;
+import org.opencv.core.MatOfInt;
 import org.opencv.core.Point;
 import org.opencv.core.Range;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -17,6 +20,8 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.net.HttpCookie;
+import java.util.ArrayList;
+import java.util.List;
 
 import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.Function;
@@ -355,6 +360,20 @@ class SamplePipeline extends OpenCvPipeline {
         Size newSize = new Size(nw,nh);
 //        if (s1r.size().empty()) {
 //            return input;
+//        }
+
+//        if (buttonII.getResult()) {
+//            MatOfFloat ranges = new MatOfFloat(1.0f);
+//            Mat histResult = new Mat(25);
+//            MatOfInt channels = new MatOfInt(0);
+//            Mat mask = new Mat();
+//            MatOfInt histSize = new MatOfInt(25);
+//            List<Mat> images = new ArrayList<>();
+//            images.add(s1);
+//            Imgproc.calcHist(images, channels, mask, histResult, histSize, ranges);
+//            // we expect histResult to have a size of "w" for number of x pixels, and a height of 1 (only got one channel!)
+//            String filename = "/sdcard/FIRST/hist.png";
+//            Imgcodecs.imwrite(filename, histResult);
 //        }
 
         Imgproc.resize(s1, s1r, newSize);
