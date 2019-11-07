@@ -179,6 +179,10 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
         telemetry.addData("Overhead time ms", phoneCam.getOverheadTimeMs());
         telemetry.addData("Theoretical max FPS", phoneCam.getCurrentPipelineMaxFps());
         telemetry.addData("isLocked", isLocked);
+        telemetry.addData("xStatic", xStatic);
+        telemetry.addData("yStatic", yStatic);
+        telemetry.addData("wStatic",wStatic);
+        telemetry.addData("hStatic",hStatic);
         telemetry.update();
 
         /*
