@@ -192,7 +192,7 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
         if(y1dii != null) {
             telemetry.addData("y1pixel", y1pixelii.getValue());
             telemetry.addData("y1avg", y1avgii.getValue());
-            telemetry.addData("y1diff", y1dii.getValue());
+            telemetry.addData("blue", y1dii.getValue());
         }
         /*
          * NOTE: stopping the stream from the camera early (before the end of the OpMode
@@ -346,10 +346,11 @@ class SamplePipeline extends OpenCvPipeline {
         Rect rect1 = new Rect(x,y,w,h);
         Mat s1 = new Mat(input, rect1).clone();
 
-        Mat s1tmp = new Mat(input, rect1).clone();
-        Imgproc.cvtColor(s1,s1tmp, Imgproc.COLOR_RGB2HSV);
-        y1pixel = s1tmp.get(0,0)[hueIdx]; //w/2,h/2)[0];
+//        Mat s1tmp = new Mat(input, rect1).clone();
+//        Imgproc.cvtColor(s1,s1tmp, Imgproc.COLOR_RGB2HSV);
+//        y1pixel = s1tmp.get(0,0)[hueIdx]; //w/2,h/2)[0];
         int nw = 3, nh = 3;
+
         Mat s1r = new Mat(nw,nh,input.type());
         Size newSize = new Size(nw,nh);
 //        if (s1r.size().empty()) {
@@ -357,9 +358,11 @@ class SamplePipeline extends OpenCvPipeline {
 //        }
 
         Imgproc.resize(s1, s1r, newSize);
-        double b = s1r.get(1,1)[0];
-        double g = s1r.get(1,1)[1];
-        double r = s1r.get(1,1)[2];
+        double [] bgr = s1r.get(1,1);
+
+        double b = bgr[0];
+        double g = bgr[1];
+        double r = bgr[2];
         double thisColor = Math.sqrt(b*b+g*g+r*r);
         y1avg = thisColor;
         y1diff = b;
