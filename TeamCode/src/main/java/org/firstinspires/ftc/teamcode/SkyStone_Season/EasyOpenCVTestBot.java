@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season;
 
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.opencv.core.Mat;
@@ -24,6 +23,8 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
     OpenCvCamera phoneCam;
     private BasicResultReceiver<Boolean> rr = new BasicResultReceiver<>();
     int x,y,w,h;
+    static int xStatic, yStatic, wStatic, hStatic;
+    public boolean isLocked = false;
     InputExtractor<Integer> xii = new InputExtractor<Integer>() {
         @Override
         public Integer getValue() {
@@ -51,6 +52,7 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
             return h;
         }
     };
+
 
 //        public void runOpMode()
 //        {
@@ -208,6 +210,9 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
 
         }
         if (gamepad1.dpad_left){
+            if(x<=0){
+                x=0;
+            }
             x-=1;
         }
         if (gamepad1.dpad_right) {
@@ -217,19 +222,35 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
             y+=1;
         }
         if(gamepad1.dpad_down) {
+            if(y<=0) {
+                y=0;
+            }
             y-=1;
         }
         if(gamepad1.right_bumper) {
             w+=1;
         }
         if(gamepad1.left_bumper) {
+            if(w<=0) {
+                w = 0;
+            }
             w-=1;
         }
         if(gamepad1.x) {
             h+=1;
         }
         if(gamepad1.y) {
+            if(h==0) {
+                h = 0;
+            }
             h-=1;
+        }
+        if(gamepad1.right_stick_button) {
+            xStatic = x;
+            yStatic = y;
+            wStatic = w;
+            hStatic = h;
+            isLocked = true;
         }
 
 
@@ -256,7 +277,14 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
  * if you're doing something weird where you do need it synchronized with your OpMode thread,
  * then you will need to account for that accordingly.
  */
+
 class SamplePipeline extends OpenCvPipeline {
+
+    EasyOpenCVTestBot easyCV = new EasyOpenCVTestBot();
+
+
+
+
     /*
      * NOTE: if you wish to use additional Mat objects in your processing pipeline, it is
      * highly recommended to declare them here as instance variables and re-use them for
@@ -271,12 +299,17 @@ class SamplePipeline extends OpenCvPipeline {
     private final InputExtractor<Integer> hii;
 
 
+
     public SamplePipeline(InputExtractor<Integer> xii, InputExtractor<Integer> yii, InputExtractor<Integer> wii, InputExtractor<Integer> hii) {
         this.xii = xii;
         this.yii = yii;
         this.wii = wii;
         this.hii = hii;
     }
+
+
+
+
 
     @Override
     public Mat processFrame(Mat input) {
@@ -304,6 +337,13 @@ class SamplePipeline extends OpenCvPipeline {
 
         Imgproc.rectangle(input, new Point(xii.getValue(), yii.getValue()), new Point(wii.getValue(), hii.getValue()),
                 new Scalar(255, 0, 0), 4);
+
+
+
+        if (easyCV.isLocked) {
+            Imgproc.rectangle(input, new Point(easyCV.xStatic, easyCV.yStatic), new Point(easyCV.wStatic, easyCV.hStatic),
+                    new Scalar(0, 0, 255), 4);
+        }
 
 
 
