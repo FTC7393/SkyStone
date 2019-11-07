@@ -227,25 +227,26 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
                 y=0;
             }
         }
-        if(gamepad1.right_bumper) {
+        double threshold = 0.1;
+        if(gamepad1.right_stick_x > threshold) {
             w+=1;
         }
-        if(gamepad1.left_bumper) {
+        if(gamepad1.right_stick_x < -threshold) {
             w-=1;
             if(w<=0) {
                 w = 0;
             }
         }
-        if(gamepad1.x) {
+        if(gamepad1.right_stick_y > threshold) {
             h+=1;
         }
-        if(gamepad1.y) {
+        if(gamepad1.right_stick_y < -threshold) {
             h-=1;
             if(h==0) {
                 h = 0;
             }
         }
-        if(gamepad1.right_stick_button) {
+        if(gamepad1.left_stick_button) {
             xStatic = x;
             yStatic = y;
             wStatic = w;
@@ -335,8 +336,8 @@ class SamplePipeline extends OpenCvPipeline {
                 new Scalar(0, 255, 0), 4);
 
 
-        Imgproc.rectangle(input, new Point(xii.getValue(), yii.getValue()), new Point(wii.getValue(), hii.getValue()),
-                new Scalar(255, 0, 0), 4);
+        Imgproc.rectangle(input, new Point(xii.getValue(), yii.getValue()),
+                new Point(xii.getValue()+wii.getValue(), yii.getValue()+hii.getValue()), new Scalar(255, 0, 0), 4);
 
 
 
