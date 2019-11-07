@@ -247,7 +247,7 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
         }
         if(gamepad1.right_stick_y < -threshold) {
             h-=1;
-            if(h==0) {
+            if(h<=0) {
                 h = 0;
             }
         }
