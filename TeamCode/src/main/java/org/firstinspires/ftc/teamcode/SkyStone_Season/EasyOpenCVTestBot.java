@@ -341,8 +341,8 @@ class SamplePipeline extends OpenCvPipeline {
 
 
         if (easyCV.isLocked) {
-            Imgproc.rectangle(input, new Point(easyCV.xStatic, easyCV.yStatic), new Point(easyCV.wStatic, easyCV.hStatic),
-                    new Scalar(0, 0, 255), 4);
+            Imgproc.rectangle(input, new Point(easyCV.xStatic, easyCV.yStatic), new Point(easyCV.xStatic+easyCV.wStatic,
+                            easyCV.yStatic+easyCV.hStatic), new Scalar(0, 0, 255), 4);
         }
 
 
