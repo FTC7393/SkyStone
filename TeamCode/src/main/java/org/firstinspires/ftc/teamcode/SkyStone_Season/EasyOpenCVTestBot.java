@@ -25,8 +25,10 @@ import java.util.List;
 
 import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.Function;
+import ftc.electronvolts.util.Functions;
 import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.files.Logger;
+import ftc.evlib.driverstation.GamepadManager;
 import ftc.evlib.opmodes.AbstractTeleOp;
 
 import static org.opencv.core.CvType.CV_8UC3;
@@ -37,6 +39,8 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
     OpenCvCamera phoneCam;
     private BasicResultReceiver<Boolean> rr = new BasicResultReceiver<>();
     private int x=100,y=100,w=300,h=150;
+    private boolean justPressed = false;
+
     private final InputExtractor<Integer> xii = new InputExtractor<Integer>() {
         @Override
         public Integer getValue() {
@@ -61,6 +65,13 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
             return h;
         }
     };
+    private final InputExtractor<Boolean> bii = new InputExtractor<Boolean>() {
+        @Override
+        public Boolean getValue() {
+            return justPressed;
+        }
+    };
+
 
     private InputExtractor<Double> y1dii;
     private InputExtractor<Double> y1pixelii;
@@ -134,6 +145,10 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
 //                sleep(100);
 
 
+    @Override
+    public void init() {
+        super.init();
+    }
 
     @Override
     protected Function getJoystickScalingFunction() {
@@ -158,12 +173,16 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
                 phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
                 phoneCam.openCameraDevice();
-                SamplePipeline pipeline = new SamplePipeline(xii, yii, wii,hii);
+                SamplePipeline pipeline = new SamplePipeline(xii, yii, wii,hii,bii);
                 y1dii = pipeline.getYd1ii();
                 y1pixelii = pipeline.getY1pixelii();
                 y1avgii = pipeline.getY1avgii();
                 phoneCam.setPipeline(pipeline);
-                phoneCam.startStreaming(1920, 1080, OpenCvCameraRotation.UPRIGHT);
+                // Nexus 5:
+                // phoneCam.startStreaming(1920, 1080, OpenCvCameraRotation.UPRIGHT);
+                // Moto G5 Plus:
+//                phoneCam.startStreaming(1080, 1920,OpenCvCameraRotation.SIDEWAYS_RIGHT);
+                phoneCam.startStreaming(640, 480,OpenCvCameraRotation.UPRIGHT);
                 rr.setValue(true);
             }
         };
@@ -257,14 +276,19 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
         }
         if (gamepad1.right_stick_x < -stick_thresh) {
             x -= delta;
+            if (x<=0) x=0;
         }
         if (gamepad1.right_stick_y > stick_thresh) {
             y += delta;
         }
         if (gamepad1.right_stick_y < -stick_thresh) {
             y -= delta;
+            if (y<=0) y=0;
         }
 
+//        if (driver1.left_stick_button.justPressed()) {
+//            justPressed = !justPressed;
+//        }
     }
 
     @Override
@@ -301,6 +325,7 @@ class SamplePipeline extends OpenCvPipeline {
     private final InputExtractor<Integer> yii;
     private final InputExtractor<Integer> wii;
     private final InputExtractor<Integer> hii;
+    private final InputExtractor<Boolean> buttonII;
     private double y1pixel;
     private double y1avg;
     private double y1diff;
@@ -323,11 +348,12 @@ class SamplePipeline extends OpenCvPipeline {
         }
     };
 
-    public SamplePipeline(InputExtractor<Integer> xii, InputExtractor<Integer> yii, InputExtractor<Integer> wii, InputExtractor<Integer> hii) {
+    public SamplePipeline(InputExtractor<Integer> xii, InputExtractor<Integer> yii, InputExtractor<Integer> wii, InputExtractor<Integer> hii, InputExtractor<Boolean> buttonII) {
         this.xii = xii;
         this.yii = yii;
         this.wii = wii;
         this.hii = hii;
+        this.buttonII = buttonII;
     }
 
     @Override
@@ -362,7 +388,7 @@ class SamplePipeline extends OpenCvPipeline {
 //            return input;
 //        }
 
-//        if (buttonII.getResult()) {
+//        if (buttonII.getValue()) {
 //            MatOfFloat ranges = new MatOfFloat(1.0f);
 //            Mat histResult = new Mat(25);
 //            MatOfInt channels = new MatOfInt(0);
