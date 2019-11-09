@@ -172,17 +172,21 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
         if(!rr.isReady()) {
             return;
         }
-        telemetry.addData("Frame Count", phoneCam.getFrameCount());
-        telemetry.addData("FPS", String.format("%.2f", phoneCam.getFps()));
-        telemetry.addData("Total frame time ms", phoneCam.getTotalFrameTimeMs());
-        telemetry.addData("Pipeline time ms", phoneCam.getPipelineTimeMs());
-        telemetry.addData("Overhead time ms", phoneCam.getOverheadTimeMs());
-        telemetry.addData("Theoretical max FPS", phoneCam.getCurrentPipelineMaxFps());
+//        telemetry.addData("Frame Count", phoneCam.getFrameCount());
+//        telemetry.addData("FPS", String.format("%.2f", phoneCam.getFps()));
+//        telemetry.addData("Total frame time ms", phoneCam.getTotalFrameTimeMs());
+//        telemetry.addData("Pipeline time ms", phoneCam.getPipelineTimeMs());
+//        telemetry.addData("Overhead time ms", phoneCam.getOverheadTimeMs());
+//        telemetry.addData("Theoretical max FPS", phoneCam.getCurrentPipelineMaxFps());
         telemetry.addData("isLocked", isLocked);
         telemetry.addData("xStatic", xStatic);
         telemetry.addData("yStatic", yStatic);
         telemetry.addData("wStatic",wStatic);
         telemetry.addData("hStatic",hStatic);
+        telemetry.addData("x", x);
+        telemetry.addData("y", y);
+        telemetry.addData("h",h);
+        telemetry.addData("w", w);
         telemetry.update();
 
         /*

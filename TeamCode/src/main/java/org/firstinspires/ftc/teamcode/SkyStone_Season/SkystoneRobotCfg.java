@@ -39,6 +39,11 @@ public class SkystoneRobotCfg extends RobotCfg {
         GRAB
     }
 
+    public enum pushServoPresets {
+        RETRACT,
+        EJECT
+    }
+
     /**
      * defines all the servos on the robot
      */

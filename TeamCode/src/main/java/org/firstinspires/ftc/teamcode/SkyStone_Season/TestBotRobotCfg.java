@@ -6,6 +6,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,80 +40,82 @@ import ftc.evlib.util.StepTimer;
 
 public class TestBotRobotCfg extends RobotCfg {
 
-    //private final ColorSensor leftColorSensor;
-    //private final ColorSensor rightColorSensor;
-    private final MecanumControl mecanumControl;
-    //    private final ServoControl phonePan;
-    private final MotorEnc frontLeft;
-    private final MotorEnc frontRight;
-    private final MotorEnc backLeft;
-    private final MotorEnc backRight;
-
-    private static final Velocity MAX_ROBOT_SPEED = new Velocity(Distance.fromInches(57 * 4), Time.fromSeconds(2.83));
-    private static final Velocity MAX_ROBOT_SPEED_SIDEWAYS = new Velocity(Distance.fromInches(21.2441207039), Time.fromSeconds(1));
-
-
-    private IMUGyro gyro;
-    private final Servos servos;
-
-    public MotorEnc getTestMotor() {
-        return backLeft;
-    }
-
-    public TestBotRobotCfg(HardwareMap hardwareMap) { // }, Map<ServoName, Enum> servoStartPresetMap) {
+//    //private final ColorSensor leftColorSensor;
+//    //private final ColorSensor rightColorSensor;
+//    private final MecanumControl mecanumControl;
+//    //    private final ServoControl phonePan;
+//    private final MotorEnc frontLeft;
+//    private final MotorEnc frontRight;
+//    private final MotorEnc backLeft;
+//    private final MotorEnc backRight;
+//
+//    private static final Velocity MAX_ROBOT_SPEED = new Velocity(Distance.fromInches(57 * 4), Time.fromSeconds(2.83));
+//    private static final Velocity MAX_ROBOT_SPEED_SIDEWAYS = new Velocity(Distance.fromInches(21.2441207039), Time.fromSeconds(1));
+//
+//
+//    private IMUGyro gyro;
+//    private final Servos servos;
+//
+//    public MotorEnc getTestMotor() {
+//        return backLeft;
+//    }
+//
+   public TestBotRobotCfg(HardwareMap hardwareMap) { // }, Map<ServoName, Enum> servoStartPresetMap) {
         super(hardwareMap);
-        double scaleFactor = 1.0;
 
-        servos = new Servos(new HashMap<ServoName, ServoControl>());
+        loggerColumns = new ArrayList<>();
+//        double scaleFactor = 1.0;
+//
+//        servos = new Servos(new HashMap<ServoName, ServoControl>());
 //        servos = new Servos(ServoCfg.createServoMap(hardwareMap, servoStartPresetMap));
 //        phonePan=getServo(TBServos.PHONEPAN);
-
-
-
-        //leftColorSensor = hardwareMap.colorSensor.get(LEFT_COLOR_SENSOR_NAME);
-        //rightColorSensor = hardwareMap.colorSensor.get(RIGHT_COLOR_SENSOR_NAME);
-        frontLeft=    Motors.withEncoder(hardwareMap.dcMotor.get("frontLeft"), false, true, stoppers);
-        frontRight=   Motors.withEncoder(hardwareMap.dcMotor.get("frontRight") , true, true, stoppers);
-        backLeft=     Motors.withEncoder(hardwareMap.dcMotor.get("backLeft") , false, true, stoppers);
-        backRight=    Motors.withEncoder(hardwareMap.dcMotor.get("backRight") , true, true, stoppers);
+//
+//
+//
+//        //leftColorSensor = hardwareMap.colorSensor.get(LEFT_COLOR_SENSOR_NAME);
+//        //rightColorSensor = hardwareMap.colorSensor.get(RIGHT_COLOR_SENSOR_NAME);
+//        frontLeft=    Motors.withEncoder(hardwareMap.dcMotor.get("frontLeft"), false, true, stoppers);
+//        frontRight=   Motors.withEncoder(hardwareMap.dcMotor.get("frontRight") , true, true, stoppers);
+//        backLeft=     Motors.withEncoder(hardwareMap.dcMotor.get("backLeft") , false, true, stoppers);
+//        backRight=    Motors.withEncoder(hardwareMap.dcMotor.get("backRight") , true, true, stoppers);
 //        backRight=    Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backRight") , false, true, stoppers), 0.7);
-
-        gyro = new IMUGyro(hardwareMap.get(BNO055IMU.class, "imu"));
-        mecanumControl = new MecanumControl(new MecanumMotors(
-                frontLeft,
-                frontRight,
-                backLeft,
-                backRight,
-                true, MAX_ROBOT_SPEED,MAX_ROBOT_SPEED_SIDEWAYS));
-
-
-        loggerColumns = ImmutableList.of(
-                new Logger.Column("VeloxityX",new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return getMecanumControl().getVelocityX();
-                    }
-                }),
-                new Logger.Column("VeloxityY",new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return getMecanumControl().getVelocityY();
-                    }
-                }),new Logger.Column("VeloxityR",new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return getMecanumControl().getVelocityR();
-                    }
-                })
-        );
-
-
-
+//
+//        gyro = new IMUGyro(hardwareMap.get(BNO055IMU.class, "imu"));
+//        mecanumControl = new MecanumControl(new MecanumMotors(
+//                frontLeft,
+//                frontRight,
+//                backLeft,
+//                backRight,
+//                true, MAX_ROBOT_SPEED,MAX_ROBOT_SPEED_SIDEWAYS));
+//
+//
+//        loggerColumns = ImmutableList.of(
+//                new Logger.Column("VeloxityX",new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return getMecanumControl().getVelocityX();
+//                    }
+//                }),
+//                new Logger.Column("VeloxityY",new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return getMecanumControl().getVelocityY();
+//                    }
+//                }),new Logger.Column("VeloxityR",new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return getMecanumControl().getVelocityR();
+//                    }
+//                })
+//        );
+//
+//
+//
 //hi
-
-
-
-
+//
+//
+//
+//
     }
     public enum PhonePanServoPresets{
         MIDDLE,
@@ -163,7 +166,7 @@ public class TestBotRobotCfg extends RobotCfg {
     public void act() {
         myTimer.start();
         myTimer.step("mecanumControl.act");
-        mecanumControl.act();
+//        mecanumControl.act();
         // when testing the motors, uncomment these (and comment out mecanum.act()
 //        frontLeft.update();
 //        frontRight.update();
@@ -175,30 +178,30 @@ public class TestBotRobotCfg extends RobotCfg {
 
     @Override
     public void stop() {
-        mecanumControl.stop();
-        gyro.stop();
+//        mecanumControl.stop();
+//        gyro.stop();
 
     }
-    public MecanumControl getMecanumControl() {
-        return mecanumControl;
-    }
-    //    public ServoControl getPhonePan(){return phonePan;}
-
-    @Override
-    public Servos getServos() {
-        return servos;
-    }
-    private final List<Logger.Column> loggerColumns;
-    public Gyro getGyro() {
-        return gyro;
-    }
+//    public MecanumControl getMecanumControl() {
+//        return mecanumControl;
+//    }
+//    //    public ServoControl getPhonePan(){return phonePan;}
+//
+//    @Override
+//    public Servos getServos() {
+//        return servos;
+//    }
+   private final List<Logger.Column> loggerColumns;
+//    public Gyro getGyro() {
+//        return gyro;
+//    }
 
     public List<Logger.Column> getLoggerColumns() {
         return loggerColumns;
     }
-    public EVStateMachineBuilder createEVStateMachineBuilder(StateName firstStateName, TeamColor teamColor, Angle tolerance) {
-        return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, servos, mecanumControl);
-    }
+//    public EVStateMachineBuilder createEVStateMachineBuilder(StateName firstStateName, TeamColor teamColor, Angle tolerance) {
+//        return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, servos, mecanumControl);
+//    }
 
 }
 
