@@ -38,8 +38,8 @@ import static org.opencv.core.CvType.CV_8UC4;
 public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
     OpenCvCamera phoneCam;
     private BasicResultReceiver<Boolean> rr = new BasicResultReceiver<>();
-    private int x=100,y=100,w=300,h=150;
-    private boolean justPressed = false;
+    private int x = 100, y = 100, w = 300, h = 150;
+    private boolean saveImage = false;
 
     private final InputExtractor<Integer> xii = new InputExtractor<Integer>() {
         @Override
@@ -65,13 +65,12 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
             return h;
         }
     };
-    private final InputExtractor<Boolean> bii = new InputExtractor<Boolean>() {
+    private final InputExtractor<Boolean> saveii = new InputExtractor<Boolean>() {
         @Override
         public Boolean getValue() {
-            return justPressed;
+            return saveImage;
         }
     };
-
 
     private InputExtractor<Double> y1dii;
     private InputExtractor<Double> y1pixelii;
@@ -120,28 +119,28 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
 
     //            while (opModeIsActive())
 
-        /*
-         * Send some stats to the telemetry
-         */
+    /*
+     * Send some stats to the telemetry
+     */
 
-        /*
-         * The viewport (if one was specified in the constructor) can also be dynamically "paused"
-         * and "resumed". The primary use case of this is to reduce CPU, memory, and power load
-         * when you need your vision pipeline running, but do not require a live preview on the
-         * robot controller screen. For instance, this could be useful if you wish to see the live
-         * camera preview as you are initializing your robot, but you no longer require the live
-         * preview after you have finished your initialization process; pausing the viewport does
-         * not stop running your pipeline.
-         *
-         * The "if" statements below will pause the viewport if the "X" button on gamepad1 is pressed,
-         * and resume the viewport if the "Y" button on gamepad1 is pressed.
-         */
+    /*
+     * The viewport (if one was specified in the constructor) can also be dynamically "paused"
+     * and "resumed". The primary use case of this is to reduce CPU, memory, and power load
+     * when you need your vision pipeline running, but do not require a live preview on the
+     * robot controller screen. For instance, this could be useful if you wish to see the live
+     * camera preview as you are initializing your robot, but you no longer require the live
+     * preview after you have finished your initialization process; pausing the viewport does
+     * not stop running your pipeline.
+     *
+     * The "if" statements below will pause the viewport if the "X" button on gamepad1 is pressed,
+     * and resume the viewport if the "Y" button on gamepad1 is pressed.
+     */
 
-        /*
-         * For the purposes of this sample, throttle ourselves to 10Hz loop to avoid burning
-         * excess CPU cycles for no reason. (By default, telemetry is only sent to the DS at 4Hz
-         * anyway). Of course in a real OpMode you will likely not want to do this.
-         */
+    /*
+     * For the purposes of this sample, throttle ourselves to 10Hz loop to avoid burning
+     * excess CPU cycles for no reason. (By default, telemetry is only sent to the DS at 4Hz
+     * anyway). Of course in a real OpMode you will likely not want to do this.
+     */
 //                sleep(100);
 
 
@@ -173,7 +172,8 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
                 phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
                 phoneCam.openCameraDevice();
-                SamplePipeline pipeline = new SamplePipeline(xii, yii, wii,hii,bii);
+                String phoneSaveDir = "/sdcard/FIRST/histograms";
+                SamplePipeline pipeline = new SamplePipeline(xii, yii, wii, hii, saveii, phoneSaveDir);
                 y1dii = pipeline.getYd1ii();
                 y1pixelii = pipeline.getY1pixelii();
                 y1avgii = pipeline.getY1avgii();
@@ -182,7 +182,7 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
                 // phoneCam.startStreaming(1920, 1080, OpenCvCameraRotation.UPRIGHT);
                 // Moto G5 Plus:
 //                phoneCam.startStreaming(1080, 1920,OpenCvCameraRotation.SIDEWAYS_RIGHT);
-                phoneCam.startStreaming(640, 480,OpenCvCameraRotation.UPRIGHT);
+                phoneCam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
                 rr.setValue(true);
             }
         };
@@ -204,7 +204,7 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
 
     @Override
     protected void act() {
-        if(!rr.isReady()) {
+        if (!rr.isReady()) {
             return;
         }
         telemetry.addData("Frame Count", phoneCam.getFrameCount());
@@ -213,11 +213,12 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
         telemetry.addData("Pipeline time ms", phoneCam.getPipelineTimeMs());
         telemetry.addData("Overhead time ms", phoneCam.getOverheadTimeMs());
         telemetry.addData("Theoretical max FPS", phoneCam.getCurrentPipelineMaxFps());
-        if(y1dii != null) {
+        if (y1dii != null) {
             telemetry.addData("y1pixel", y1pixelii.getValue());
             telemetry.addData("y1avg", y1avgii.getValue());
             telemetry.addData("blue", y1dii.getValue());
         }
+        telemetry.addData("saving? ", saveImage);
         /*
          * NOTE: stopping the stream from the camera early (before the end of the OpMode
          * when it will be automatically stopped for you) *IS* supported. The "if" statement
@@ -253,20 +254,20 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
         }
         int delta = 2;
         double stick_thresh = 0.1;
-        if (gamepad1.dpad_left){
-            w-=delta;
+        if (gamepad1.dpad_left) {
+            w -= delta;
             if (w < delta) {
                 w = delta;
             }
         }
-        if (gamepad1.dpad_right){
-            w+=delta;
+        if (gamepad1.dpad_right) {
+            w += delta;
         }
-        if (gamepad1.dpad_up){
-            h+=delta;
+        if (gamepad1.dpad_up) {
+            h += delta;
         }
-        if (gamepad1.dpad_down){
-            h-=delta;
+        if (gamepad1.dpad_down) {
+            h -= delta;
             if (h < delta) {
                 h = delta;
             }
@@ -276,19 +277,19 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
         }
         if (gamepad1.right_stick_x < -stick_thresh) {
             x -= delta;
-            if (x<=0) x=0;
+            if (x <= 0) x = 0;
         }
         if (gamepad1.right_stick_y > stick_thresh) {
             y += delta;
         }
         if (gamepad1.right_stick_y < -stick_thresh) {
             y -= delta;
-            if (y<=0) y=0;
+            if (y <= 0) y = 0;
         }
 
-//        if (driver1.left_stick_button.justPressed()) {
-//            justPressed = !justPressed;
-//        }
+        if (driver1.y.justPressed()) {
+            this.saveImage = !saveImage;
+        }
     }
 
     @Override
@@ -347,13 +348,15 @@ class SamplePipeline extends OpenCvPipeline {
             return y1pixel;
         }
     };
+    private final FileSaver fileSaver;
 
-    public SamplePipeline(InputExtractor<Integer> xii, InputExtractor<Integer> yii, InputExtractor<Integer> wii, InputExtractor<Integer> hii, InputExtractor<Boolean> buttonII) {
+    public SamplePipeline(InputExtractor<Integer> xii, InputExtractor<Integer> yii, InputExtractor<Integer> wii, InputExtractor<Integer> hii, InputExtractor<Boolean> buttonII, String phoneSaveDir) {
         this.xii = xii;
         this.yii = yii;
         this.wii = wii;
         this.hii = hii;
         this.buttonII = buttonII;
+        fileSaver = new FileSaver(phoneSaveDir);
     }
 
     @Override
@@ -366,7 +369,7 @@ class SamplePipeline extends OpenCvPipeline {
          * it to another Mat.
          */
 
-        double realYellow = Math.sqrt(255*255*2);
+        double realYellow = Math.sqrt(255 * 255 * 2);
 
         int hueIdx = 0;
 
@@ -374,7 +377,7 @@ class SamplePipeline extends OpenCvPipeline {
         int y = yii.getValue();
         int w = wii.getValue();
         int h = hii.getValue();
-        Rect rect1 = new Rect(x,y,w,h);
+        Rect rect1 = new Rect(x, y, w, h);
         Mat s1 = new Mat(input, rect1).clone();
 
 //        Mat s1tmp = new Mat(input, rect1).clone();
@@ -382,33 +385,23 @@ class SamplePipeline extends OpenCvPipeline {
 //        y1pixel = s1tmp.get(0,0)[hueIdx]; //w/2,h/2)[0];
         int nw = 3, nh = 3;
 
-        Mat s1r = new Mat(nw,nh,input.type());
-        Size newSize = new Size(nw,nh);
+        Mat s1r = new Mat(nw, nh, input.type());
+        Size newSize = new Size(nw, nh);
 //        if (s1r.size().empty()) {
 //            return input;
 //        }
 
-//        if (buttonII.getValue()) {
-//            MatOfFloat ranges = new MatOfFloat(1.0f);
-//            Mat histResult = new Mat(25);
-//            MatOfInt channels = new MatOfInt(0);
-//            Mat mask = new Mat();
-//            MatOfInt histSize = new MatOfInt(25);
-//            List<Mat> images = new ArrayList<>();
-//            images.add(s1);
-//            Imgproc.calcHist(images, channels, mask, histResult, histSize, ranges);
-//            // we expect histResult to have a size of "w" for number of x pixels, and a height of 1 (only got one channel!)
-//            String filename = "/sdcard/FIRST/hist.png";
-//            Imgcodecs.imwrite(filename, histResult);
-//        }
+        if (buttonII.getValue()) {
+            fileSaver.saveHistogramIfNotBusy(s1);
+        }
 
         Imgproc.resize(s1, s1r, newSize);
-        double [] bgr = s1r.get(1,1);
+        double[] bgr = s1r.get(1, 1);
 
         double b = bgr[0];
         double g = bgr[1];
         double r = bgr[2];
-        double thisColor = Math.sqrt(b*b+g*g+r*r);
+        double thisColor = Math.sqrt(b * b + g * g + r * r);
         y1avg = thisColor;
         y1diff = b;
 //        Mat s1hsv = new Mat(nw,nh,input.type());
@@ -430,7 +423,7 @@ class SamplePipeline extends OpenCvPipeline {
                 new Scalar(0, 255, 0), 4);
 
 
-        Imgproc.rectangle(input, new Point(x, y), new Point(x+w, y+h),
+        Imgproc.rectangle(input, new Point(x, y), new Point(x + w, y + h),
                 new Scalar(255, 0, 0), 4);
 
 
@@ -446,9 +439,11 @@ class SamplePipeline extends OpenCvPipeline {
     public InputExtractor<Double> getYd1ii() {
         return yd1ii;
     }
+
     public InputExtractor<Double> getY1pixelii() {
         return y1pixelii;
     }
+
     public InputExtractor<Double> getY1avgii() {
         return y1avgii;
     }
