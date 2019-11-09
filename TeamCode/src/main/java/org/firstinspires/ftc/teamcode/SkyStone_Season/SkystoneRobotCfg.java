@@ -51,7 +51,8 @@ public class SkystoneRobotCfg extends RobotCfg {
         //enum name("hardware name", preset enum.values()),
         GRAB_SERVO("grabServo", GrabServoPresets.values()),
         ROTATE_SERVO("rotateServo", RotateServoPresets.values()),
-        EXTEND_SERVO("extendServo", extendServoPresets.values());
+        EXTEND_SERVO("extendServo", extendServoPresets.values()),
+        PUSH_SERVO("pushServo", RotateServoPresets.values());
 
         private final String hardwareName;
         private final Enum[] presets;
