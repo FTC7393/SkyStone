@@ -55,5 +55,7 @@ public class FlyWheelTest extends AbstractTeleOp<HardwareTestRobotCfg> {
     @Override
     protected void end() {
 
+        robotCfg.getTwoMotors().stop();
+
     }
 }
