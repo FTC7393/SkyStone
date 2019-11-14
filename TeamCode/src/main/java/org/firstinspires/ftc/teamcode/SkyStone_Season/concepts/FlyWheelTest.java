@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.files.Logger;
+import ftc.evlib.driverstation.GamepadManager;
 import ftc.evlib.opmodes.AbstractTeleOp;
 @TeleOp(name = "FlyWheelTest")
 public class FlyWheelTest extends AbstractTeleOp<HardwareTestRobotCfg> {
@@ -45,7 +46,6 @@ public class FlyWheelTest extends AbstractTeleOp<HardwareTestRobotCfg> {
         if(driver1.right_stick_button.justPressed()) {
             robotCfg.getTwoMotors().runMotors(leftValue, rightValue);
         }
-
         if(driver1.left_stick_button.justPressed()) {
             robotCfg.getTwoMotors().stop();
         }
