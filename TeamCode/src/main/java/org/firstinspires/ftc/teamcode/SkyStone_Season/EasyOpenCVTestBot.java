@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfFloat;
 import org.opencv.core.MatOfInt;
@@ -72,7 +73,7 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
         }
     };
 
-    private InputExtractor<Double> y1dii;
+    private InputExtractor<Double> y1blueii;
     private InputExtractor<Double> y1pixelii;
     private InputExtractor<Double> y1avgii;
 
@@ -174,7 +175,7 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
                 phoneCam.openCameraDevice();
                 String phoneSaveDir = "/sdcard/FIRST/histograms";
                 SamplePipeline pipeline = new SamplePipeline(xii, yii, wii, hii, saveii, phoneSaveDir);
-                y1dii = pipeline.getYd1ii();
+                y1blueii = pipeline.getY1blueii();
                 y1pixelii = pipeline.getY1pixelii();
                 y1avgii = pipeline.getY1avgii();
                 phoneCam.setPipeline(pipeline);
@@ -213,10 +214,10 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestNoBotRobotCfg> {
         telemetry.addData("Pipeline time ms", phoneCam.getPipelineTimeMs());
         telemetry.addData("Overhead time ms", phoneCam.getOverheadTimeMs());
         telemetry.addData("Theoretical max FPS", phoneCam.getCurrentPipelineMaxFps());
-        if (y1dii != null) {
+        if (y1blueii != null) {
             telemetry.addData("y1pixel", y1pixelii.getValue());
             telemetry.addData("y1avg", y1avgii.getValue());
-            telemetry.addData("blue", y1dii.getValue());
+            telemetry.addData("blue", y1blueii.getValue());
         }
         telemetry.addData("saving? ", saveImage);
         /*
@@ -329,11 +330,11 @@ class SamplePipeline extends OpenCvPipeline {
     private final InputExtractor<Boolean> buttonII;
     private double y1pixel;
     private double y1avg;
-    private double y1diff;
-    private final InputExtractor<Double> yd1ii = new InputExtractor<Double>() {
+    private double y1blue;
+    private final InputExtractor<Double> y1blueii = new InputExtractor<Double>() {
         @Override
         public Double getValue() {
-            return y1diff;
+            return y1blue;
         }
     };
     private final InputExtractor<Double> y1avgii = new InputExtractor<Double>() {
@@ -349,6 +350,12 @@ class SamplePipeline extends OpenCvPipeline {
         }
     };
     private final FileSaver fileSaver;
+
+
+    int nw = 3, nh = 3;
+
+    Mat s1r = new Mat(nw, nh, CV_8UC3);
+    Size newSize = new Size(nw, nh);
 
     public SamplePipeline(InputExtractor<Integer> xii, InputExtractor<Integer> yii, InputExtractor<Integer> wii, InputExtractor<Integer> hii, InputExtractor<Boolean> buttonII, String phoneSaveDir) {
         this.xii = xii;
@@ -378,15 +385,11 @@ class SamplePipeline extends OpenCvPipeline {
         int w = wii.getValue();
         int h = hii.getValue();
         Rect rect1 = new Rect(x, y, w, h);
-        Mat s1 = new Mat(input, rect1).clone();
+        Mat s1 = new Mat(input, rect1); // .clone();
 
 //        Mat s1tmp = new Mat(input, rect1).clone();
 //        Imgproc.cvtColor(s1,s1tmp, Imgproc.COLOR_RGB2HSV);
 //        y1pixel = s1tmp.get(0,0)[hueIdx]; //w/2,h/2)[0];
-        int nw = 3, nh = 3;
-
-        Mat s1r = new Mat(nw, nh, input.type());
-        Size newSize = new Size(nw, nh);
 //        if (s1r.size().empty()) {
 //            return input;
 //        }
@@ -403,7 +406,7 @@ class SamplePipeline extends OpenCvPipeline {
         double r = bgr[2];
         double thisColor = Math.sqrt(b * b + g * g + r * r);
         y1avg = thisColor;
-        y1diff = b;
+        y1blue = b;
 //        Mat s1hsv = new Mat(nw,nh,input.type());
 //        Imgproc.cvtColor(s1r,s1hsv, Imgproc.COLOR_RGB2HSV);
 //        y1avg = s1hsv.get(0,0)[hueIdx];
@@ -436,8 +439,8 @@ class SamplePipeline extends OpenCvPipeline {
         return input;
     }
 
-    public InputExtractor<Double> getYd1ii() {
-        return yd1ii;
+    public InputExtractor<Double> getY1blueii() {
+        return y1blueii;
     }
 
     public InputExtractor<Double> getY1pixelii() {
