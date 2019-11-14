@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.SkyStone_Season;
+package org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;

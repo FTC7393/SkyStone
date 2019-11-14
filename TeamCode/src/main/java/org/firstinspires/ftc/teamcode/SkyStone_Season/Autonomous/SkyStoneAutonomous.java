@@ -1,16 +1,11 @@
-package org.firstinspires.ftc.teamcode.SkyStone_Season;
+package org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous;
 //comment
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.RoverRuckus.RoverRuckusRobotCfg;
-import org.opencv.core.Mat;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
-import org.openftc.easyopencv.OpenCvPipeline;
 
 import ftc.electronvolts.statemachine.BasicAbstractState;
 import ftc.electronvolts.statemachine.State;
