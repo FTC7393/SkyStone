@@ -36,7 +36,10 @@ class ProcessPipeline extends OpenCvPipeline {
     Rect rect1 = new Rect(x1, y1, w1, h1);
     Rect rect2 = new Rect(x2, y2, w2, h2);
     public double blue;
-    public double blu2e;
+    public double blue2;
+    public int option = -1;
+    public double stoneratio;
+
 
     public ProcessPipeline(int minStabalizationCycles) {
         this.minStabalizationCycles = minStabalizationCycles;
@@ -47,7 +50,16 @@ class ProcessPipeline extends OpenCvPipeline {
 
         if (numStabalizationCycles > minStabalizationCycles) {
             blue = getLowestAvgBlue(input, rect1);
-            blu2e = getLowestAvgBlue(input, rect2);
+            blue2 = getLowestAvgBlue(input, rect2);
+            double ratio = blue / blue2;
+            if (ratio < 0.75) {
+                option = 0;
+            }
+            if (ratio > 1.5) {
+                option = 1;
+            }
+            option = 2;
+            ratio = stoneratio;
         }
         Imgproc.rectangle(input, rect1, new Scalar(255, 0, 0), 3);
         Imgproc.rectangle(input, rect2, new Scalar(255, 0, 0), 3);
@@ -106,20 +118,6 @@ class ProcessPipeline extends OpenCvPipeline {
         return runningAverage;
     }
 
-    private int getRatio(int colorLeft, int colorRight) {
-        int ratio = colorLeft / colorRight;
-        int option = -1;
 
-
-        if (ratio < 0.75) {
-            option = 0;
-        }
-
-        if (ratio > 1.50) {
-            option = 1;
-        }
-
-        return option;
-    }
 
 }
