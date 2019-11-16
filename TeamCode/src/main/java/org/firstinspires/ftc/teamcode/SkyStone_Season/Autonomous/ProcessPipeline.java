@@ -111,14 +111,12 @@ class ProcessPipeline extends OpenCvPipeline {
         int option = -1;
 
 
-        if (ratio < 0.8 && ratio > 0.7) {
+        if (ratio < 0.75) {
             option = 0;
         }
-        if (ratio == 0) {
+
+        if (ratio > 1.50) {
             option = 1;
-        }
-        if (ratio > 1.00) {
-            option = 2;
         }
 
         return option;
