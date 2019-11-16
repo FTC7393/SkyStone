@@ -28,8 +28,8 @@ class ProcessPipeline extends OpenCvPipeline {
     };
 
     public static String threadName = "";
-    int x1 = 100, y1 = 100, w1 = 100, h1 = 100;
-    int x2 = 250, y2 = 100, w2 = 100, h2 = 100;
+    int x1 = 100, y1 = 100, w1 = 75, h1 = 50;
+    int x2 = 225, y2 = 100, w2 = 75, h2 = 50;
     Mat m1;
     Mat m2;
     private final int minStabalizationCycles;
@@ -45,25 +45,7 @@ class ProcessPipeline extends OpenCvPipeline {
     public Mat processFrame(Mat input) {
 
         if (numStabalizationCycles > minStabalizationCycles) {
-
-            m1 = new Mat(input, rect1).clone();
-            int nw = 5, nh = 5;
-            m2 = new Mat(nw, nh, input.type());
-            Size s = new Size(nw, nh);
-            Imgproc.resize(m1, m2, s);
-            double[] colors = m2.get(2, 2);
-            double b = colors[0];
-            double g = colors[1];
-            double r = colors[2];
-
-            double avgColor = Math.sqrt(b * b + g * g + r * r);
-            ac = avgColor;
-            blueDiff = b;
-
-
-            m1.release();
-            m2.release();
-
+            avgMiddleBlue(input, rect1);
         }
         Imgproc.rectangle(input, rect1, new Scalar(255, 0, 0), 3);
         Imgproc.rectangle(input, rect2, new Scalar(255, 0, 0), 3);
@@ -77,6 +59,26 @@ class ProcessPipeline extends OpenCvPipeline {
 
     public InputExtractor<Double> getBlueDiffII() {
         return blueDiffII;
+    }
+
+    private double avgMiddleBlue(Mat input, Rect rect) {
+        m1 = new Mat(input, rect).clone();
+        int nw = 25, nh = 1;
+        m2 = new Mat(nw, nh, input.type());
+        Size s = new Size(nw, nh);
+        Imgproc.resize(m1, m2, s);
+        double[] colors = m2.get(2, 2);
+        double b = colors[0];
+        double g = colors[1];
+        double r = colors[2];
+
+        double avgColor = Math.sqrt(b * b + g * g + r * r);
+        ac = avgColor;
+        blueDiff = b;
+
+        m1.release();
+        m2.release();
+        return b;
     }
 
 }
