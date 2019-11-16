@@ -1,10 +1,11 @@
-package org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous;
+package org.firstinspires.ftc.teamcode.SkyStone_Season;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import java.util.Map;
+
+import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FlyWheelsClass;
 
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.TeamColor;
@@ -29,6 +30,7 @@ import ftc.evlib.statemachine.EVStateMachineBuilder;
 
 public class SkystoneRobotCfg extends RobotCfg {
 
+    private final FlyWheelsClass flyWheels;
     private Gyro gyro;
 
 
@@ -120,8 +122,12 @@ public class SkystoneRobotCfg extends RobotCfg {
 
         gyro = new IMUGyro(hardwareMap.get(BNO055IMU.class, "imu"));
 
-
+        flyWheels = new FlyWheelsClass(
+                Motors.withoutEncoder(hardwareMap.dcMotor.get("leftFlywheel"), false, false, stoppers),
+                Motors.withoutEncoder(hardwareMap.dcMotor.get("rightFlywheel"), false, false, stoppers)
+        );
     }
+
     @Override
     public void start() {
 
@@ -131,11 +137,13 @@ public class SkystoneRobotCfg extends RobotCfg {
     public void act() {
         mecanumControl.act();
 //        servos.act();
+        flyWheels.act();
     }
 
     @Override
     public void stop() {
         mecanumControl.stop();
+        flyWheels.stop();
 
 
     }
@@ -151,6 +159,11 @@ public class SkystoneRobotCfg extends RobotCfg {
     public Gyro getGyro() {
         return gyro;
     }
+
+    public FlyWheelsClass getFlyWheels() {
+        return flyWheels;
+    }
+
     public EVStateMachineBuilder createEVStateMachineBuilder(StateName firstStateName, TeamColor teamColor, Angle tolerance) {
         return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, servos, mecanumControl);
     }

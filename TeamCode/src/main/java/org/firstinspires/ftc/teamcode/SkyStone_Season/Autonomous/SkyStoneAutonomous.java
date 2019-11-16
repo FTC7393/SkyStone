@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;

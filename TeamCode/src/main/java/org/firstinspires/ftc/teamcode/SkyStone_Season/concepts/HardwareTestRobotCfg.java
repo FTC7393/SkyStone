@@ -34,7 +34,7 @@ private static final Velocity maxRobotSpeed = new Velocity(Distance.fromFeet(1),
 
        twoMotors = new TwoMotors(
                Motors.withoutEncoder(hardwareMap.dcMotor.get("leftmotor"), false, false, stoppers),
-               Motors.withoutEncoder(hardwareMap.dcMotor.get("rightmotor"), true, false, stoppers),
+               Motors.withoutEncoder(hardwareMap.dcMotor.get("rightmotor"), false, false, stoppers),
                false, maxRobotSpeed
        );
 

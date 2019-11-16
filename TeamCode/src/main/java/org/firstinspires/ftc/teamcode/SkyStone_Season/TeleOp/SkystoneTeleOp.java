@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.SkyStone_Season;
+package org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.futurefest2019.FutureFestRobotCfg;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
 
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
@@ -22,7 +22,7 @@ import ftc.evlib.opmodes.AbstractTeleOp;
  */
 @TeleOp(name = "SkyStone Ri3D")
 @Disabled
-public class SkystoneTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
+public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     private ServoControl dump = null;
     private DcMotor collector = null;
     int dumpPosition;
@@ -71,8 +71,8 @@ public class SkystoneTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
     }
 
     @Override
-    protected FutureFestRobotCfg createRobotCfg() {
-        return new FutureFestRobotCfg(hardwareMap);
+    protected SkystoneRobotCfg createRobotCfg() {
+        return new SkystoneRobotCfg(hardwareMap);
     }
 
     @Override
@@ -107,8 +107,6 @@ public class SkystoneTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
     @Override
     protected void act() {
         forwardControl();
-
-        collector=robotCfg.getCollector();
         dump  = null; // robotCfg.getServo(FutureFestRobotCfg.FutureFestServoEnum.DUMP_SERVO);
 
         if(driver2.x.isPressed()) {
