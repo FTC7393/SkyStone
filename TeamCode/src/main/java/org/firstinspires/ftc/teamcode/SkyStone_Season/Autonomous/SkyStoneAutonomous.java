@@ -28,9 +28,12 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     Gyro gyro;
     MecanumControl mecanumControl;
     OpenCvCamera phoneCam;
-    private BasicResultReceiver<Boolean> rr = new BasicResultReceiver<>();
+    private BasicResultReceiver<Boolean> phoneInitRR = new BasicResultReceiver<>();
+    private BasicResultReceiver<StateName> foundSkyStoneRR = new BasicResultReceiver<>();
+    private StateName postStoneDrive = null;
     InputExtractor<Double> avgColor;
     InputExtractor<Double> blue;
+    ProcessPipeline processPipeline;
 
     @Override
     protected SkystoneRobotCfg createRobotCfg() {
@@ -51,12 +54,18 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
                 phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
                 phoneCam.openCameraDevice();
-                ProcessPipeline p = new ProcessPipeline();
-                avgColor = p.getAvgColorII();
-                blue = p.getBlueDiffII();
-                phoneCam.setPipeline(p);
+                int numContinuous = 5;
+                int numSettle = 50;
+                double minBlueValueForReg = 150.0;
+                StateName [] nextStates = { S.A, S.B, S.C };
+                int maxTries = 150;
+                StateName defaultState = S.C;
+                processPipeline = new ProcessPipeline(foundSkyStoneRR,numContinuous, numSettle, minBlueValueForReg, nextStates, maxTries, defaultState);
+                avgColor = processPipeline.getAvgColorII();
+                blue = processPipeline.getBlueDiffII();
+                phoneCam.setPipeline(processPipeline);
                 phoneCam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
-                rr.setValue(true);
+                phoneInitRR.setValue(true);
             }
         };
 
@@ -79,6 +88,10 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
     @Override
     protected void act() {
+        telemetry.addData("RunAvg: " , processPipeline.runAvgII.getValue());
+        telemetry.addData("key: " , processPipeline.keyII.getValue());
+        telemetry.addData("blue1: " , processPipeline.blue1II.getValue());
+        telemetry.addData("blue2: " , processPipeline.blue2II.getValue());
         telemetry.addData("gyro", robotCfg.getGyro().getHeading());
         telemetry.addData("state", stateMachine.getCurrentStateName());
         telemetry.addData("thread", ProcessPipeline.threadName);
@@ -123,6 +136,10 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
             @Override
             public boolean isDone() {
+                telemetry.addData("RR is ready", foundSkyStoneRR.isReady());
+                if (foundSkyStoneRR.isReady()) {
+                    telemetry.addData("next state", foundSkyStoneRR.getValue());
+                }
                 return false;
             }
 
@@ -140,6 +157,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         PROCESS_SKYSTONE,
         DRIVE_STONE,
         STOP
+        ,A,B,C; // bogus for example...
 
     }
 }
