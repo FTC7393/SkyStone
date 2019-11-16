@@ -27,7 +27,6 @@ class ProcessPipeline extends OpenCvPipeline {
         }
     };
 
-    public static String threadName = "";
     int x1 = 100, y1 = 100, w1 = 75, h1 = 50;
     int x2 = 225, y2 = 100, w2 = 75, h2 = 50;
     Mat m1;
@@ -67,14 +66,9 @@ class ProcessPipeline extends OpenCvPipeline {
         m2 = new Mat(nw, nh, input.type());
         Size s = new Size(nw, nh);
         Imgproc.resize(m1, m2, s);
-        double[] colors = m2.get(2, 2);
+        double[] colors = m2.get(0, 11);
         double b = colors[0];
-        double g = colors[1];
-        double r = colors[2];
 
-        double avgColor = Math.sqrt(b * b + g * g + r * r);
-        ac = avgColor;
-        blueDiff = b;
 
         m1.release();
         m2.release();
