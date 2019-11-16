@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous;
-//comment
+
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -51,7 +51,8 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
                 phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
                 phoneCam.openCameraDevice();
-                ProcessPipeline p = new ProcessPipeline();
+                int minCycles = 10;
+                ProcessPipeline p = new ProcessPipeline(minCycles);
                 avgColor = p.getAvgColorII();
                 blue = p.getBlueDiffII();
                 phoneCam.setPipeline(p);
@@ -143,4 +144,3 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
     }
 }
-
