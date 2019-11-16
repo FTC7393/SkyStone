@@ -84,8 +84,8 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         telemetry.addData("state", stateMachine.getCurrentStateName());
         telemetry.addData("current thread", Thread.currentThread().getName());
         telemetry.addData("average color", avgColor.getValue());
-        telemetry.addData("blue", blue.getValue());
-        telemetry.addData("lowestAvgBlue", p.blue );
+        telemetry.addData("blue one", p.blue);
+        telemetry.addData("blue two", p.blu2e);
 
 
     }
