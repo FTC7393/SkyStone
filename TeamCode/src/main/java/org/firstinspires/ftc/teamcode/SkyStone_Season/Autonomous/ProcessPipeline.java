@@ -106,6 +106,22 @@ class ProcessPipeline extends OpenCvPipeline {
         return runningAverage;
     }
 
+    private int getRatio(int colorLeft, int colorRight) {
+        int ratio = colorLeft / colorRight;
+        int option = -1;
 
+
+        if (ratio < 0.8 && ratio > 0.7) {
+            option = 0;
+        }
+        if (ratio == 0) {
+            option = 1;
+        }
+        if (ratio > 1.00) {
+            option = 2;
+        }
+
+        return option;
+    }
 
 }
