@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous;
-//comment
+
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -32,6 +32,8 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     private BasicResultReceiver<Boolean> rr = new BasicResultReceiver<>();
     InputExtractor<Double> avgColor;
     InputExtractor<Double> blue;
+    int minCycles = 10;
+    ProcessPipeline p = new ProcessPipeline(minCycles);
 
     @Override
     protected SkystoneRobotCfg createRobotCfg() {
@@ -52,7 +54,6 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
                 phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
                 phoneCam.openCameraDevice();
-                ProcessPipeline p = new ProcessPipeline();
                 avgColor = p.getAvgColorII();
                 blue = p.getBlueDiffII();
                 phoneCam.setPipeline(p);
@@ -82,13 +83,20 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     protected void act() {
         telemetry.addData("gyro", robotCfg.getGyro().getHeading());
         telemetry.addData("state", stateMachine.getCurrentStateName());
-        telemetry.addData("thread", ProcessPipeline.threadName);
         telemetry.addData("current thread", Thread.currentThread().getName());
         telemetry.addData("average color", avgColor.getValue());
-        telemetry.addData("blue", blue.getValue());
-        if(blue.getValue() < 150) {
-            telemetry.addData("found skystone!", blue);
+        telemetry.addData("blue one", p.blue);
+        telemetry.addData("blue two", p.blue2);
+        if (p.option == 0) {
+            telemetry.addData("skystone middle", p.stoneratio);
         }
+        if (p.option == 1) {
+            telemetry.addData("skystone left", p.stoneratio);
+        }
+        if (p.option == 2) {
+            telemetry.addData("skystone right", p.stoneratio);
+        }
+
 
     }
 
@@ -144,4 +152,3 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
     }
 }
-
