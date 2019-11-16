@@ -35,6 +35,8 @@ class ProcessPipeline extends OpenCvPipeline {
     private int numStabalizationCycles = 0;
     Rect rect1 = new Rect(x1, y1, w1, h1);
     Rect rect2 = new Rect(x2, y2, w2, h2);
+    public double blue;
+    public double blu2e;
 
     public ProcessPipeline(int minStabalizationCycles) {
         this.minStabalizationCycles = minStabalizationCycles;
@@ -44,7 +46,8 @@ class ProcessPipeline extends OpenCvPipeline {
     public Mat processFrame(Mat input) {
 
         if (numStabalizationCycles > minStabalizationCycles) {
-            avgMiddleBlue(input, rect1);
+            blue = getLowestAvgBlue(input, rect1);
+            blu2e = getLowestAvgBlue(input, rect2);
         }
         Imgproc.rectangle(input, rect1, new Scalar(255, 0, 0), 3);
         Imgproc.rectangle(input, rect2, new Scalar(255, 0, 0), 3);
@@ -74,5 +77,35 @@ class ProcessPipeline extends OpenCvPipeline {
         m2.release();
         return b;
     }
+
+    private double getLowestAvgBlue(Mat input, Rect rect) {
+        m1 = new Mat(input, rect).clone();
+        int nw = 100, nh = 1;
+        m2 = new Mat(nw, nh, input.type());
+        Size s = new Size(nw, nh);
+        Imgproc.resize(m1, m2, s);
+        double lowestBlue = 255;
+        for (int i=0; i<nw; i++) {
+            double thisBlue = m2.get(0,i)[0];
+            if (thisBlue < lowestBlue) {
+                lowestBlue = thisBlue;
+            }
+        }
+
+        return lowestBlue;
+    }
+
+    private double avgBlue(int thisBlueLevel, int runningAverage, int maxVariance, int similarCount) {
+        if (Math.abs(thisBlueLevel - runningAverage) < maxVariance) {
+            runningAverage = (runningAverage * similarCount + thisBlueLevel) / ++similarCount;
+        } else {
+            runningAverage = -1;
+            similarCount = 0;
+        }
+
+        return runningAverage;
+    }
+
+
 
 }
