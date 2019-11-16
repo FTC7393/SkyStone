@@ -54,12 +54,10 @@ class ProcessPipeline extends OpenCvPipeline {
             double ratio = blue / blue2;
             if (ratio < 0.75) {
                 option = 0;
-            }
-            if (ratio > 1.5) {
+            } else if (ratio > 1.5) {
                 option = 1;
-            }
-            option = 2;
-            ratio = stoneratio;
+            } else option = 2;
+            stoneratio = blue / blue2;
         }
         Imgproc.rectangle(input, rect1, new Scalar(255, 0, 0), 3);
         Imgproc.rectangle(input, rect2, new Scalar(255, 0, 0), 3);

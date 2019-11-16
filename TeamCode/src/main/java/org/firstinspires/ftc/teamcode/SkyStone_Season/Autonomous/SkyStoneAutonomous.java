@@ -87,16 +87,13 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         telemetry.addData("blue one", p.blue);
         telemetry.addData("blue two", p.blue2);
         if (p.option == 0) {
-            telemetry.addData("skystone left", p.stoneratio);
+            telemetry.addData("skystone middle", p.stoneratio);
         }
         if (p.option == 1) {
-            telemetry.addData("skystone middle", p.stoneratio);
+            telemetry.addData("skystone left", p.stoneratio);
         }
         if (p.option == 2) {
             telemetry.addData("skystone right", p.stoneratio);
-        }
-        if (p.option < 0) {
-            telemetry.addData("skystone not found", p.stoneratio);
         }
 
 
