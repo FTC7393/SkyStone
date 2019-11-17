@@ -22,7 +22,7 @@ import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
 
-@Autonomous(name = "SkyStoneAuto")
+@Autonomous(name = "SkyStoneAuto JDV")
 
 public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     Gyro gyro;
@@ -88,7 +88,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
     @Override
     protected void act() {
-        telemetry.addData("RunAvg: " , processPipeline.runAvgII.getValue());
+//        telemetry.addData("RunAvg: " , processPipeline.runAvgII.getValue());
         telemetry.addData("key: " , processPipeline.keyII.getValue());
         telemetry.addData("blue1: " , processPipeline.blue1II.getValue());
         telemetry.addData("blue2: " , processPipeline.blue2II.getValue());

@@ -15,10 +15,10 @@ import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.InputExtractor;
 
 
-enum StoneType {
-    SKY, REG;
-}
-
+//enum StoneType {
+//    SKY, REG;
+//}
+//
 //class SkystoneDetector {
 //    private final double minBlueForRegStone;
 //    private final int numContinousDetectionsRequired;
@@ -55,44 +55,45 @@ enum StoneType {
 //    }
 //}
 
-class ColorDetector {
-    private final double maxVariance;
-    private final int minSimilarValues;
-    private int similarCount = 0;
-    private double runningAverage = -1;
+//class ColorDetector {
+//    private final double maxVariance;
+//    private final int minSimilarValues;
+//    private int similarCount = 0;
+//    private double runningAverage = -1;
+//
+//    public ColorDetector(double maxVariance, int minSimilarValues) {
+//        this.maxVariance = maxVariance;
+//        this.minSimilarValues = minSimilarValues;
+//    }
+//
+//    public Double getColor(double thisBlueLevel) {
+//        if (similarCount > minSimilarValues) {
+//            return runningAverage;
+//        }
+//
+//        if (runningAverage == -1) {
+//            runningAverage = thisBlueLevel;
+//            similarCount = 1;
+//        } else {
+//            if (Math.abs(thisBlueLevel - runningAverage) < maxVariance) {
+//                runningAverage = (runningAverage * similarCount + thisBlueLevel) / ++similarCount;
+//            } else {
+//                runningAverage = thisBlueLevel;
+//                similarCount = 1;
+//            }
+//        }
+//        if (similarCount > minSimilarValues) {
+//            return runningAverage;
+//        } else {
+//            return null;
+//        }
+//    }
+//
+//    public double getRunningAverage() {
+//        return runningAverage;
+//    }
+//}
 
-    public ColorDetector(double maxVariance, int minSimilarValues) {
-        this.maxVariance = maxVariance;
-        this.minSimilarValues = minSimilarValues;
-    }
-
-    public Double getColor(double thisBlueLevel) {
-        if (similarCount > minSimilarValues) {
-            return runningAverage;
-        }
-
-        if (runningAverage == -1) {
-            runningAverage = thisBlueLevel;
-            similarCount = 1;
-        } else {
-            if (Math.abs(thisBlueLevel - runningAverage) < maxVariance) {
-                runningAverage = (runningAverage * similarCount + thisBlueLevel) / ++similarCount;
-            } else {
-                runningAverage = -1;
-                similarCount = 0;
-            }
-        }
-        if (similarCount > minSimilarValues) {
-            return runningAverage;
-        } else {
-            return null;
-        }
-    }
-
-    public double getRunningAverage() {
-        return runningAverage;
-    }
-}
 
 class ProcessPipeline extends OpenCvPipeline {
 
@@ -104,20 +105,17 @@ class ProcessPipeline extends OpenCvPipeline {
     private final int maxTries;
     private final StateName defaultState;
 
-    private final ColorDetector stone1;
-    private final ColorDetector stone2;
-
     private int processCounter = 0;
 
     private double blueDiff = 0;
     private double ac = 0;
     private double blue1 = -1;
     private double blue2;
-    private String key = "unset";
+    private String ratio = "unset";
     public final InputExtractor<String> keyII = new InputExtractor<String>() {
         @Override
         public String getValue() {
-            return key;
+            return ratio;
         }
     };
     public final InputExtractor<Double> blue1II = new InputExtractor<Double>() {
@@ -130,12 +128,6 @@ class ProcessPipeline extends OpenCvPipeline {
         @Override
         public Double getValue() {
             return blue2;
-        }
-    };
-    public final InputExtractor<Double> runAvgII = new InputExtractor<Double>() {
-        @Override
-        public Double getValue() {
-            return stone1.getRunningAverage();
         }
     };
 
@@ -153,8 +145,8 @@ class ProcessPipeline extends OpenCvPipeline {
     };
 
     public static String threadName = "";
-    int x1 = 25, y1 = 100, w1 = 150, h1 = 100;
-    int x2 = 250, y2 = 100, w2 = 150, h2 = 100;
+    int x1 = 200, y1 = 350, w1 = 20, h1 = 50;
+    int x2 = x1,  y2 = 260, w2 = 20, h2 = 50;
     Mat m1;
     Mat m2;
 
@@ -166,8 +158,6 @@ class ProcessPipeline extends OpenCvPipeline {
         this.skystoneStates = skystoneStates;
         this.maxTries = maxTries;
         this.defaultState = defaultState;
-        stone1 = new ColorDetector(10, minNumContinousForPositiveId);
-        stone2 = new ColorDetector(10, minNumContinousForPositiveId);
 //        stone1 = new SkystoneDetector(minBlueForRegStone,minNumContinousForPositiveId);
 //        stone2 = new SkystoneDetector(minBlueForRegStone,minNumContinousForPositiveId);
     }
@@ -193,20 +183,24 @@ class ProcessPipeline extends OpenCvPipeline {
 
                 blue1 = getLowestAvgBlue(input, rect1);
                 blue2 = getLowestAvgBlue(input, rect2);
+
+                StateName nextState = getAnswer(blue1, blue2);
+                foundSkystoneRR.setValue(nextState);
+
+
 //                StoneType t1 = stone1.getStoneType(blue1);
 //                StoneType t2 = stone2.getStoneType(blue2);
-                Double c1 = stone1.getColor(blue1);
-                Double c2 = stone2.getColor(blue2);
-
 //                if ((t1 != null) && (t2 != null)) {
 //                    StateName nextState = getAnswer(t1, t2);
 //                    foundSkystoneRR.setValue(nextState);
 //                }
-                if ((c1 != null) && (c2 != null)) {
-//                    StateName nextState = getAnswer(t1, t2);
-                    StateName nextState = getAnswer(c1, c2);
-                    foundSkystoneRR.setValue(nextState);
-                }
+
+//                Double c1 = stone1.getColor(blue1);
+//                Double c2 = stone2.getColor(blue2);
+//                if ((c1 != null) && (c2 != null)) {
+//                    StateName nextState = getAnswer(c1, c2);
+//                    foundSkystoneRR.setValue(nextState);
+//                }
             }
         }
         Imgproc.rectangle(input, rect1, new Scalar(255, 0, 0), 5);
@@ -216,15 +210,15 @@ class ProcessPipeline extends OpenCvPipeline {
         return input;
     }
 
-    private StateName getAnswer(Double c1, Double c2) {
-        double ratio = c1/c2;
-        key = String.format("%4.2f",ratio);
-        if (ratio < 0.75) {
+    private StateName getAnswer(double c1, double c2) {
+        double blueRatio = c1/c2;
+        ratio = String.format("%4.2f",blueRatio);
+        if (blueRatio < 0.6) {
             // c1 (left of the two) has less blue, so it is a dark skystone;
             // c1 is the middle of the options (1 out of 0,1,2)
             return skystoneStates[1];
         }
-        if (ratio > 1.5) {
+        if (blueRatio > 1.8) {
             // c1 (left of the two) has more blue, so it is NOT the darker skystone;
             // c2 is the right of the options (2 out of 0,1,2)
             return skystoneStates[2];
@@ -234,16 +228,16 @@ class ProcessPipeline extends OpenCvPipeline {
         return skystoneStates[0];
     }
 
-    private StateName getAnswer(StoneType t1, StoneType t2) {
-        Map<String, StateName> map = new HashMap<>();
-        map.put("REG REG", skystoneStates[0]); // left
-        map.put("SKY REG", skystoneStates[1]); // middle
-        map.put("REG SKY", skystoneStates[2]); // right
-        map.put("SKY SKY", skystoneStates[2]); // who knows- go with right
-
-        key = t1.name() + " " + t2.name();
-        return map.get(key);
-    }
+//    private StateName getAnswer(StoneType t1, StoneType t2) {
+//        Map<String, StateName> map = new HashMap<>();
+//        map.put("REG REG", skystoneStates[0]); // left
+//        map.put("SKY REG", skystoneStates[1]); // middle
+//        map.put("REG SKY", skystoneStates[2]); // right
+//        map.put("SKY SKY", skystoneStates[2]); // who knows- go with right
+//
+//        key = t1.name() + " " + t2.name();
+//        return map.get(key);
+//    }
 
 
 
@@ -269,7 +263,7 @@ class ProcessPipeline extends OpenCvPipeline {
     }
     private double getLowestAvgBlue(Mat input, Rect rect) {
         m1 = new Mat(input, rect).clone();
-        int nw = 100, nh = 1;
+        int nw = w1, nh = 1;
         m2 = new Mat(nw, nh, input.type());
         Size s = new Size(nw, nh);
         Imgproc.resize(m1, m2, s);
