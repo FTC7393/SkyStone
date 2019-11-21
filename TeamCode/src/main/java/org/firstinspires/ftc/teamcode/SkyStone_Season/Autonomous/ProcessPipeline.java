@@ -101,7 +101,8 @@ class ProcessPipeline extends OpenCvPipeline {
                 lowestBlue = thisBlue;
             }
         }
-
+        m1.release();
+        m2.release();
         return lowestBlue;
     }
 
