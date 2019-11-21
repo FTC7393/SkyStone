@@ -3,9 +3,11 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 import ftc.electronvolts.statemachine.BasicAbstractState;
 import ftc.electronvolts.statemachine.State;
@@ -23,11 +25,11 @@ import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
 
 @Autonomous(name = "SkyStoneAuto JDV")
-
 public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     Gyro gyro;
     MecanumControl mecanumControl;
-    OpenCvCamera phoneCam;
+//    OpenCvCamera phoneCam;
+    OpenCvCamera camera;
     private BasicResultReceiver<Boolean> phoneInitRR = new BasicResultReceiver<>();
     private BasicResultReceiver<StateName> foundSkyStoneRR = new BasicResultReceiver<>();
     private StateName postStoneDrive = null;
@@ -52,8 +54,11 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
             @Override
             public void run() {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-                phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
-                phoneCam.openCameraDevice();
+                // phome camera
+                // camera = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+                // web cam
+                camera = new OpenCvWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+                camera.openCameraDevice();
                 int numContinuous = 5;
                 int numSettle = 50;
                 double minBlueValueForReg = 150.0;
@@ -63,8 +68,8 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
                 processPipeline = new ProcessPipeline(foundSkyStoneRR,numContinuous, numSettle, minBlueValueForReg, nextStates, maxTries, defaultState);
                 avgColor = processPipeline.getAvgColorII();
                 blue = processPipeline.getBlueDiffII();
-                phoneCam.setPipeline(processPipeline);
-                phoneCam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
+                camera.setPipeline(processPipeline);
+                camera.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
                 phoneInitRR.setValue(true);
             }
         };
