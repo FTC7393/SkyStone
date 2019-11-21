@@ -39,6 +39,9 @@ class ProcessPipeline extends OpenCvPipeline {
     public double blue2;
     public int option = -1;
     public double stoneratio;
+    private int middle = 0;
+    private int right = 1;
+    private int left = 2;
 
 
     public ProcessPipeline(int minStabalizationCycles) {
@@ -51,15 +54,15 @@ class ProcessPipeline extends OpenCvPipeline {
         if (numStabalizationCycles > minStabalizationCycles) {
             blue = getLowestAvgBlue(input, rect1);
             blue2 = getLowestAvgBlue(input, rect2);
-            double ratio = blue / blue2;
             if (blue2 == 0) {
                 blue2 = 0.1;
             }
+            double ratio = blue / blue2;
             if (ratio < 0.75) {
-                option = 0;
+                option = middle;
             } else if (ratio > 1.5) {
-                option = 1;
-            } else option = 2;
+                option = right;
+            } else option = left;
             stoneratio = blue / blue2;
         }
         Imgproc.rectangle(input, rect1, new Scalar(255, 0, 0), 3);
