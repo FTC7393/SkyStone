@@ -52,6 +52,9 @@ class ProcessPipeline extends OpenCvPipeline {
             blue = getLowestAvgBlue(input, rect1);
             blue2 = getLowestAvgBlue(input, rect2);
             double ratio = blue / blue2;
+            if (blue2 == 0) {
+                blue2 = 0.1;
+            }
             if (ratio < 0.75) {
                 option = 0;
             } else if (ratio > 1.5) {
