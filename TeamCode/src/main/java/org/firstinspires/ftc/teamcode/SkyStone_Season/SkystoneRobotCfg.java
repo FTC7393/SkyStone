@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import java.util.Map;
 
-import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FlyWheelsClass;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FlyWheels;
 
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.TeamColor;
@@ -30,7 +30,7 @@ import ftc.evlib.statemachine.EVStateMachineBuilder;
 
 public class SkystoneRobotCfg extends RobotCfg {
 
-    private final FlyWheelsClass flyWheels;
+    private final FlyWheels flyWheels;
     private Gyro gyro;
 
 
@@ -122,7 +122,7 @@ public class SkystoneRobotCfg extends RobotCfg {
 
         gyro = new IMUGyro(hardwareMap.get(BNO055IMU.class, "imu"));
 
-        flyWheels = new FlyWheelsClass(
+        flyWheels = new FlyWheels(
                 Motors.withoutEncoder(hardwareMap.dcMotor.get("leftFlywheel"), false, false, stoppers),
                 Motors.withoutEncoder(hardwareMap.dcMotor.get("rightFlywheel"), false, false, stoppers)
         );
@@ -160,7 +160,7 @@ public class SkystoneRobotCfg extends RobotCfg {
         return gyro;
     }
 
-    public FlyWheelsClass getFlyWheels() {
+    public FlyWheels getFlyWheels() {
         return flyWheels;
     }
 

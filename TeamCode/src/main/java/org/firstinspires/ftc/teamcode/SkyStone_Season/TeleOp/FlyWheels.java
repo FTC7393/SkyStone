@@ -4,11 +4,11 @@ import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
 
 import ftc.evlib.hardware.motors.Motor;
 
-public class FlyWheelsClass {
+public class FlyWheels {
 
     private Motor leftFlywheel,rightFlywheel;
 
-    public FlyWheelsClass(Motor leftFlywheel, Motor rightFlywheel){
+    public FlyWheels(Motor leftFlywheel, Motor rightFlywheel){
         this.leftFlywheel = leftFlywheel;
         this.rightFlywheel = rightFlywheel;
     }
