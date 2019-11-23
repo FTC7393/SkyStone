@@ -20,6 +20,7 @@ import ftc.evlib.hardware.motors.Motors;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.hardware.sensors.IMUGyro;
 import ftc.evlib.hardware.servos.ServoCfg;
+import ftc.evlib.hardware.servos.ServoControl;
 import ftc.evlib.hardware.servos.ServoName;
 import ftc.evlib.hardware.servos.Servos;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
@@ -147,9 +148,19 @@ public class SkystoneRobotCfg extends RobotCfg {
 
 
     }
-//    public Servos getServos(){
-//        return servos;
-//    }
+    public Servos getServos(){
+        return servos;
+    }
+    public ServoControl getElbow() {
+        return getServo(SkystoneServoEnum.ELBOW_SERVO);
+    }
+    public ServoControl getWrist() {
+        return getServo(SkystoneServoEnum.WRIST_SERVO);
+    }
+    public ServoControl getFingers() {
+        return getServo(SkystoneServoEnum.FINGERS_SERVO);
+    }
+
 //    public DcMotor getCollector(){
 //        return collector;
 //    }

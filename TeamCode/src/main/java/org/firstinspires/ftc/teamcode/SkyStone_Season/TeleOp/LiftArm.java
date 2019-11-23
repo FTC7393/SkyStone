@@ -2,35 +2,38 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp;
 
 
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
+
 import ftc.evlib.hardware.servos.ServoControl;
 
 public class LiftArm {
 
-    private Servo elbow, wrist, fingers;
+    private ServoControl elbow, wrist, fingers;
 
-    public LiftArm(Servo elbow, Servo wrist, Servo fingers){
+    public LiftArm(ServoControl elbow, ServoControl wrist, ServoControl fingers){
         this.elbow = elbow;
         this.wrist = wrist;
         this.fingers = fingers;
     }
 
     public void Extend() {
-        elbow.goToPreset(.EXTEND);
-        wrist.goToPreset(.EXTEND);
+        elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.EXTEND);
+        wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.EXTEND);
 
     }
 
     public void Retract() {
-        elbow.goToPreset(.RETRACT);
-        wrist.goToPreset(.RETRACT);
+        elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.RETRACT);
+        wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.RETRACT);
     }
 
     public void Grab() {
-        fingers.goToPreset(.GRAB);
+        fingers.goToPreset(SkystoneRobotCfg.FingersServoPresets.GRAB);
     }
 
     public void Release() {
-        fingers.goToPreset(.RELEASE)
+        fingers.goToPreset(SkystoneRobotCfg.FingersServoPresets.RELEASE);
     }
 
 }
