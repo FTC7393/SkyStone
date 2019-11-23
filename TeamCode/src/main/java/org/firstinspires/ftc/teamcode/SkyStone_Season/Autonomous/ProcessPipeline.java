@@ -15,23 +15,23 @@ class ProcessPipeline extends OpenCvPipeline {
     private double blueDiff = 0;
     private double ac = 0;
 
-    private final InputExtractor<Double> AvgColorII = new InputExtractor<Double>() {
+    private final InputExtractor<StateName> StateNameII = new InputExtractor<StateName>() {
         @Override
-        public Double getValue() {
-            return ac;
+        public StateName getValue() {
+            return option;
         }
     };
-    private final InputExtractor<Double> blueDiffII = new InputExtractor<Double>() {
+    private final InputExtractor<Double> stoneRatioII = new InputExtractor<Double>() {
         @Override
         public Double getValue() {
-            return blueDiff;
+            return stoneratio;
         }
     };
 
-    int x1 = 100, y1 = 100, w1 = 75, h1 = 50;
-    int x2 = 225, y2 = 100, w2 = 75, h2 = 50;
-    Mat m1;
-    Mat m2;
+    private int x1 = 100, y1 = 100, w1 = 75, h1 = 50;
+    private int x2 = 225, y2 = 100, w2 = 75, h2 = 50;
+    private Mat m1;
+    private Mat m2;
     private final int minStabalizationCycles;
     private int numStabalizationCycles = 0;
     Rect rect1 = new Rect(x1, y1, w1, h1);
@@ -74,12 +74,12 @@ class ProcessPipeline extends OpenCvPipeline {
         SKYSTONE_RIGHT
     }
 
-    public InputExtractor<Double> getAvgColorII() {
-        return AvgColorII;
+    public InputExtractor<StateName> getStateNameII() {
+        return StateNameII;
     }
 
-    public InputExtractor<Double> getBlueDiffII() {
-        return blueDiffII;
+    public InputExtractor<Double> getStoneRatioII() {
+        return stoneRatioII;
     }
 
     private double avgMiddleBlue(Mat input, Rect rect) {

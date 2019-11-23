@@ -264,7 +264,10 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
 //            hStatic = h;
 //            isLocked = true;
 //        }
-
+        telemetry.addData("x", x);
+        telemetry.addData("y", y);
+        telemetry.addData("w", w);
+        telemetry.addData("h", h);
 
     }
 
@@ -292,7 +295,6 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
 
 class SamplePipeline extends OpenCvPipeline {
 
-    EasyOpenCVTestBot easyCV = new EasyOpenCVTestBot();
 
 
 

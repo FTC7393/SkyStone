@@ -31,8 +31,8 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     MecanumControl mecanumControl;
     OpenCvCamera camera;
     private BasicResultReceiver<Boolean> rr = new BasicResultReceiver<>();
-    InputExtractor<Double> avgColor;
-    InputExtractor<Double> blue;
+    InputExtractor<StateName> s;
+    InputExtractor<Double> ratio;
     int minCycles = 10;
     ProcessPipeline p = new ProcessPipeline(minCycles);
 
@@ -56,8 +56,8 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 //                phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
                 camera = new OpenCvWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
                 camera.openCameraDevice();
-                avgColor = p.getAvgColorII();
-                blue = p.getBlueDiffII();
+                s = p.getStateNameII();
+                ratio = p.getStoneRatioII();
                 camera.setPipeline(p);
                 camera.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
                 rr.setValue(true);
@@ -86,20 +86,8 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         telemetry.addData("gyro", robotCfg.getGyro().getHeading());
         telemetry.addData("state", stateMachine.getCurrentStateName());
         telemetry.addData("current thread", Thread.currentThread().getName());
-        telemetry.addData("average color", avgColor.getValue());
-        telemetry.addData("blue one", p.blue);
-        telemetry.addData("blue two", p.blue2);
-        if (p.option == 0) {
-            telemetry.addData("skystone middle", p.stoneratio);
-        }
-        if (p.option == 1) {
-            telemetry.addData("skystone right", p.stoneratio);
-        }
-        if (p.option == 2) {
-            telemetry.addData("skystone left", p.stoneratio);
-        }
-
-
+        telemetry.addData("state for detetcting skystone", s);
+        telemetry.addData("ratio of both stones", ratio);
     }
 
 
