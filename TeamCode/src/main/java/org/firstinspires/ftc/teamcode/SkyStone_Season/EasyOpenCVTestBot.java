@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season;
 
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.opencv.core.Mat;
@@ -24,12 +23,36 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
     OpenCvCamera phoneCam;
     private BasicResultReceiver<Boolean> rr = new BasicResultReceiver<>();
     int x,y,w,h;
+    static int xStatic, yStatic, wStatic, hStatic;
+    public boolean isLocked = false;
     InputExtractor<Integer> xii = new InputExtractor<Integer>() {
         @Override
         public Integer getValue() {
             return x;
         }
     };
+
+    InputExtractor<Integer> yii = new InputExtractor<Integer>() {
+        @Override
+        public Integer getValue() {
+            return y;
+        }
+    };
+
+    InputExtractor<Integer> wii = new InputExtractor<Integer>() {
+        @Override
+        public Integer getValue() {
+            return w;
+        }
+    };
+
+    InputExtractor<Integer> hii = new InputExtractor<Integer>() {
+        @Override
+        public Integer getValue() {
+            return h;
+        }
+    };
+
 
 //        public void runOpMode()
 //        {
@@ -123,8 +146,8 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
                 phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
                 phoneCam.openCameraDevice();
-                phoneCam.setPipeline(new SamplePipeline(xii));
-                phoneCam.startStreaming(1920, 1080, OpenCvCameraRotation.UPRIGHT);
+                phoneCam.setPipeline(new SamplePipeline(xii, yii, wii, hii));
+                phoneCam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
                 rr.setValue(true);
             }
         };
@@ -149,12 +172,21 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
         if(!rr.isReady()) {
             return;
         }
-        telemetry.addData("Frame Count", phoneCam.getFrameCount());
-        telemetry.addData("FPS", String.format("%.2f", phoneCam.getFps()));
-        telemetry.addData("Total frame time ms", phoneCam.getTotalFrameTimeMs());
-        telemetry.addData("Pipeline time ms", phoneCam.getPipelineTimeMs());
-        telemetry.addData("Overhead time ms", phoneCam.getOverheadTimeMs());
-        telemetry.addData("Theoretical max FPS", phoneCam.getCurrentPipelineMaxFps());
+//        telemetry.addData("Frame Count", phoneCam.getFrameCount());
+//        telemetry.addData("FPS", String.format("%.2f", phoneCam.getFps()));
+//        telemetry.addData("Total frame time ms", phoneCam.getTotalFrameTimeMs());
+//        telemetry.addData("Pipeline time ms", phoneCam.getPipelineTimeMs());
+//        telemetry.addData("Overhead time ms", phoneCam.getOverheadTimeMs());
+//        telemetry.addData("Theoretical max FPS", phoneCam.getCurrentPipelineMaxFps());
+        telemetry.addData("isLocked", isLocked);
+        telemetry.addData("xStatic", xStatic);
+        telemetry.addData("yStatic", yStatic);
+        telemetry.addData("wStatic",wStatic);
+        telemetry.addData("hStatic",hStatic);
+        telemetry.addData("x", x);
+        telemetry.addData("y", y);
+        telemetry.addData("h",h);
+        telemetry.addData("w", w);
         telemetry.update();
 
         /*
@@ -185,14 +217,52 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
             phoneCam.stopStreaming();
             //webcam.closeCameraDevice();
 
-        } else if (gamepad1.x) {
-            phoneCam.pauseViewport();
-        } else if (gamepad1.y) {
-            phoneCam.resumeViewport();
         }
         if (gamepad1.dpad_left){
-            x+=10;
+            x-=1;
+            if(x<=0){
+                x=0;
+            }
         }
+        if (gamepad1.dpad_right) {
+            x+=1;
+        }
+        if (gamepad1.dpad_up) {
+            y+=1;
+        }
+        if(gamepad1.dpad_down) {
+            y-=1;
+            if(y<=0) {
+                y=0;
+            }
+        }
+        double threshold = 0.1;
+        if(gamepad1.right_stick_x > threshold) {
+            w+=1;
+        }
+        if(gamepad1.right_stick_x < -threshold) {
+            w-=1;
+            if(w<=0) {
+                w = 0;
+            }
+        }
+        if(gamepad1.right_stick_y > threshold) {
+            h+=1;
+        }
+        if(gamepad1.right_stick_y < -threshold) {
+            h-=1;
+            if(h<=0) {
+                h = 0;
+            }
+        }
+        if(gamepad1.left_stick_button) {
+            xStatic = x;
+            yStatic = y;
+            wStatic = w;
+            hStatic = h;
+            isLocked = true;
+        }
+
 
     }
 
@@ -217,7 +287,14 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
  * if you're doing something weird where you do need it synchronized with your OpMode thread,
  * then you will need to account for that accordingly.
  */
+
 class SamplePipeline extends OpenCvPipeline {
+
+    EasyOpenCVTestBot easyCV = new EasyOpenCVTestBot();
+
+
+
+
     /*
      * NOTE: if you wish to use additional Mat objects in your processing pipeline, it is
      * highly recommended to declare them here as instance variables and re-use them for
@@ -227,10 +304,22 @@ class SamplePipeline extends OpenCvPipeline {
      * constantly allocating and freeing large chunks of memory.
      */
     private final InputExtractor<Integer> xii;
+    private final InputExtractor<Integer> yii;
+    private final InputExtractor<Integer> wii;
+    private final InputExtractor<Integer> hii;
 
-    public SamplePipeline(InputExtractor<Integer> xii) {
+
+
+    public SamplePipeline(InputExtractor<Integer> xii, InputExtractor<Integer> yii, InputExtractor<Integer> wii, InputExtractor<Integer> hii) {
         this.xii = xii;
+        this.yii = yii;
+        this.wii = wii;
+        this.hii = hii;
     }
+
+
+
+
 
     @Override
     public Mat processFrame(Mat input) {
@@ -256,8 +345,17 @@ class SamplePipeline extends OpenCvPipeline {
                 new Scalar(0, 255, 0), 4);
 
 
-        Imgproc.rectangle(input, new Point(xii.getValue(), 100), new Point(600, 300),
-                new Scalar(255, 0, 0), 4);
+        Imgproc.rectangle(input, new Point(xii.getValue(), yii.getValue()),
+                new Point(xii.getValue()+wii.getValue(), yii.getValue()+hii.getValue()), new Scalar(255, 0, 0), 4);
+
+
+
+        if (easyCV.isLocked) {
+            Imgproc.rectangle(input, new Point(easyCV.xStatic, easyCV.yStatic), new Point(easyCV.xStatic+easyCV.wStatic,
+                            easyCV.yStatic+easyCV.hStatic), new Scalar(0, 0, 255), 4);
+        }
+
+
 
 
         /**
