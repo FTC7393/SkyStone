@@ -16,7 +16,7 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
 
     public static final String FILENAME = "options_skystone.txt";
     public static final String teamColorTag = "teamColor";
-    public static final TeamColor teamColorDefault = TeamColor.RED;
+    public static final TeamColor teamColorDefault = TeamColor.BLUE;
     int index = 0;
     private Opts[] values;
 
@@ -45,7 +45,6 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
     @Override
     protected void act() {
 
-
         telemetry.addData("option", values[index]);
         if (driver1.x.justPressed()) {
             index++;
@@ -72,6 +71,17 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
 //                optionsFile.set(values[index].s, false);
 //            }
         }
+        if (driver1.right_bumper.justPressed()) {
+            if (values[index] == Opts.TEAM_COLOR) {
+                TeamColor teamColor = optionsFile.get(teamColorTag, teamColorDefault);
+                if (teamColor == TeamColor.BLUE) {
+                    teamColor = TeamColor.RED;
+                } else {
+                    teamColor = TeamColor.BLUE;
+                }
+                optionsFile.set(Opts.TEAM_COLOR.s, teamColor);
+            }
+        }
 //        if(driver1.right_bumper.justPressed()) {
 //            if (values[index] == Opts.WAIT_TIME) {
 //                double waitTime = optionsFile.get(wait, waitDefault);
@@ -90,6 +100,7 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
 //            }
         if (values[index] == Opts.TEAM_COLOR) {
             telemetry.addData("teamColor", optionsFile.get(values[index].s, teamColorDefault));
+            telemetry.addData("index", index);
         }
 
 

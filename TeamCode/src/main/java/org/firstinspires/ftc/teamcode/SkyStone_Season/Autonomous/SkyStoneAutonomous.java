@@ -20,6 +20,7 @@ import ftc.electronvolts.util.TeamColor;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.files.OptionsFile;
 import ftc.electronvolts.util.units.Angle;
+import ftc.electronvolts.util.units.Distance;
 import ftc.evlib.hardware.control.MecanumControl;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.opmodes.AbstractAutoOp;
@@ -34,11 +35,11 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     MecanumControl mecanumControl;
     OpenCvCamera camera;
     private BasicResultReceiver<Boolean> rr = new BasicResultReceiver<>();
-    TeamColor tc = TeamColor.RED;
     InputExtractor<StateName> s;
+    TeamColor teamColor = TeamColor.BLUE;
     int minCycles = 10;
     private BasicResultReceiver<StateName> srr = new BasicResultReceiver<>();
-    ProcessPipeline pipeline = new ProcessPipeline(srr, minCycles, tc);
+    private ProcessPipeline pipeline;
 
     @Override
     protected SkystoneRobotCfg createRobotCfg() {
@@ -105,12 +106,12 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
     @Override
     public StateMachine buildStates() {
-        TeamColor teamColor = TeamColor.RED;
         OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
-
+        pipeline = new ProcessPipeline(srr, minCycles, teamColor);
+        teamColor = optionsFile.get(SkyStoneOptionsOp.teamColorTag, SkyStoneOptionsOp.teamColorDefault);
         ResultReceiver<Boolean> cont = new BasicResultReceiver<>();
         EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.DRIVE_1, teamColor, Angle.fromDegrees(3));
-//        b.addDrive(S.DRIVE_1, S.PROCESS_SKYSTONE, Distance.fromFeet(.6), 0.1, 270,0);
+        b.addDrive(S.DRIVE_1, S.STOP, Distance.fromFeet(.0), 0.1, 270, 0);
 //        b.addDrive(S.DRIVE_1, S.PROCESS_SKYSTONE, Distance.fromFeet(1.1), 0.1, 0,0);
 //        b.addBranch(S.DETECTION_1, S.GETRIGHTBLOCK, S.MIDDLE, S.GETLEFTBLOCK, cont);
 //

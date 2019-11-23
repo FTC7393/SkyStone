@@ -1,17 +1,19 @@
 package org.firstinspires.ftc.teamcode.RoverRuckus;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import ftc.evlib.opmodes.AbstractOptionsOp;
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
 import ftc.electronvolts.util.Utility;
+import ftc.evlib.opmodes.AbstractOptionsOp;
 
 
 /**
  * Created by ftc7393 on 12/6/2017.
  */
 @TeleOp(name = "OptionsOp")
+@Disabled
 public class RoverRuckusOptionsOp extends AbstractOptionsOp {
 
     public enum Opts {
