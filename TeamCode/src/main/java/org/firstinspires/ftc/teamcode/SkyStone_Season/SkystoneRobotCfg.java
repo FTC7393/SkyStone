@@ -3,10 +3,10 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import java.util.Map;
-
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FlyWheels;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.LiftArm;
+
+import java.util.Map;
 
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.TeamColor;
@@ -131,8 +131,11 @@ public class SkystoneRobotCfg extends RobotCfg {
         gyro = new IMUGyro(hardwareMap.get(BNO055IMU.class, "imu"));
 
         flyWheels = new FlyWheels(
-                Motors.withoutEncoder(hardwareMap.dcMotor.get("leftFlywheel"), false, false, stoppers),
-                Motors.withoutEncoder(hardwareMap.dcMotor.get("rightFlywheel"), false, false, stoppers)
+//                Motors.withoutEncoder(hardwareMap.dcMotor.get("leftFlywheel"), false, false, stoppers),
+//                Motors.withoutEncoder(hardwareMap.dcMotor.get("rightFlywheel"), false, false, stoppers)
+                Motors.withoutEncoder(hardwareMap.dcMotor.get("frontLeft"), false, false, stoppers),
+                Motors.withoutEncoder(hardwareMap.dcMotor.get("frontRight"), false, false, stoppers)
+
         );
 
         liftArm = new LiftArm(

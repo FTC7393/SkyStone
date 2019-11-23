@@ -8,7 +8,9 @@ import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import ftc.electronvolts.statemachine.StateName;
+import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.InputExtractor;
+import ftc.electronvolts.util.TeamColor;
 
 class ProcessPipeline extends OpenCvPipeline {
 
@@ -27,9 +29,10 @@ class ProcessPipeline extends OpenCvPipeline {
             return stoneratio;
         }
     };
-
-    private int x1 = 100, y1 = 100, w1 = 75, h1 = 50;
-    private int x2 = 225, y2 = 100, w2 = 75, h2 = 50;
+    private final BasicResultReceiver<StateName> StateRR;
+    private final TeamColor tc;
+    private final int x1 = 158, y1 = 423, w1 = 73, h1 = 53;
+    private int x2 = 370, y2 = 428, w2 = w1, h2 = h1;
     private Mat m1;
     private Mat m2;
     private final int minStabalizationCycles;
@@ -41,8 +44,10 @@ class ProcessPipeline extends OpenCvPipeline {
     private StateName option;
     private double stoneratio;
 
-    public ProcessPipeline(int minStabalizationCycles) {
+    public ProcessPipeline(BasicResultReceiver<StateName> stateRR, int minStabalizationCycles, TeamColor tc) {
+        StateRR = stateRR;
         this.minStabalizationCycles = minStabalizationCycles;
+        this.tc = tc;
     }
 
     @Override
@@ -55,12 +60,9 @@ class ProcessPipeline extends OpenCvPipeline {
                 blue2 = 0.1;
             }
             double ratio = blue / blue2;
-            if (ratio < 0.75) {
-                option = S.SKYSTONE_MIDDLE;
-            } else if (ratio > 1.5) {
-                option = S.SKYSTONE_RIGHT;
-            } else option = S.SKYSTONE_LEFT;
+            option = getNextStateName(ratio);
             stoneratio = blue / blue2;
+            StateRR.setValue(option);
         }
         Imgproc.rectangle(input, rect1, new Scalar(255, 0, 0), 3);
         Imgproc.rectangle(input, rect2, new Scalar(255, 0, 0), 3);
@@ -68,11 +70,26 @@ class ProcessPipeline extends OpenCvPipeline {
         return input;
     }
 
-    public enum S implements StateName {
-        SKYSTONE_MIDDLE,
-        SKYSTONE_LEFT,
-        SKYSTONE_RIGHT
+    private StateName getNextStateName(double ratio) {
+        StateName opt;
+        double maxBlueRatioLeft = 0.5; //all values below this indicate that the dark stone is on the left
+        double minBlueRatioRight = 2.0; //all values above this indicate that the dark stone is on the right
+        if (tc == TeamColor.BLUE) {
+            if (ratio < maxBlueRatioLeft) {
+                opt = SkyStoneAutonomous.S.SKYSTONE_MIDDLE;
+            } else if (ratio > minBlueRatioRight) {
+                opt = SkyStoneAutonomous.S.SKYSTONE_RIGHT;
+            } else opt = SkyStoneAutonomous.S.SKYSTONE_LEFT;
+        } else {
+            if (ratio < maxBlueRatioLeft) {
+                opt = SkyStoneAutonomous.S.SKYSTONE_LEFT;
+            } else if (ratio > minBlueRatioRight) {
+                opt = SkyStoneAutonomous.S.SKYSTONE_MIDDLE;
+            } else opt = SkyStoneAutonomous.S.SKYSTONE_RIGHT;
+        }
+        return opt;
     }
+
 
     public InputExtractor<StateName> getStateNameII() {
         return StateNameII;
