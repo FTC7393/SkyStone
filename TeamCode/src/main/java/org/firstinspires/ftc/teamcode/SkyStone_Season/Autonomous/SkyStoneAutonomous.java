@@ -15,6 +15,7 @@ import ftc.electronvolts.statemachine.StateMachine;
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.InputExtractor;
+import ftc.electronvolts.util.ResultReceiver;
 import ftc.electronvolts.util.TeamColor;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.units.Angle;
@@ -103,21 +104,40 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     public StateMachine buildStates() {
         TeamColor teamColor = TeamColor.RED;
 
+        ResultReceiver <Boolean> cont = new ResultReceiver<>();
         EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.DRIVE_1, teamColor, Angle.fromDegrees(3));
         b.addDrive(S.DRIVE_1, S.PROCESS_SKYSTONE, Distance.fromFeet(.6), 0.1, 270,0);
         b.addDrive(S.DRIVE_1, S.PROCESS_SKYSTONE, Distance.fromFeet(1.1), 0.1, 0,0);
-        b.addBranch(S.DETECTION_1, S.GETRIGHTBLOCK, S.MIDDLE, S.GETLEFTBLOCK, true);
+        b.addBranch(S.DETECTION_1, S.GETRIGHTBLOCK, S.MIDDLE, S.GETLEFTBLOCK, cont);
 
         //Move to different blocks depending on the webcam detection
         b.addDrive(S.GETRIGHTBLOCK, S.GRABBLOCK, Distance.fromFeet(.1), 1, 180, 0);
         b.addDrive(S.MIDDLE, S.GRABBLOCK, Distance.fromFeet(.2), 1, 0, 0);
         b.addDrive(S.GETLEFTBLOCK, S.GRABBLOCK, Distance.fromFeet(.5), 1, 0, 0);
 
-        b.addServo(S.GRABBLOCK, S.GOBACKUP, SkystoneRobotCfg.SkystoneServoEnum.FINGERS_SERVO, SkystoneRobotCfg.FingersServoPresets.RELEASE, true);
+        b.addServo(S.GRABBLOCK, S.GOBACKUP, SkystoneRobotCfg.SkystoneServoEnum.FINGERS_SERVO, SkystoneRobotCfg.FingersServoPresets.GRAB, true);
         b.addDrive(S.GOBACKUP, S.GOTOSIDE, Distance.fromFeet(1), 1, 90, 0);
         b.addDrive(S.GOTOSIDE, S.UNLOAD, Distance.fromFeet(4.5), 1, 180, 0);
         //need to change this to servo for unload
-        b.addDrive(S.UNLOAD, S.STOP, Distance.fromFeet(1), 1, 0, 0);
+        b.addServo(S.GRABBLOCK, S.GOBACKUP, SkystoneRobotCfg.SkystoneServoEnum.FINGERS_SERVO, SkystoneRobotCfg.FingersServoPresets.RELEASE, true);
+
+        b.addDrive(S.GOBACK, S.MOVETOBLOCKSAGAIN, Distance.fromFeet(4.5), 0.1, 0, 0);
+        b.addDrive(S.MOVETOBLOCKSAGAIN, S.DETECTION_2 , Distance.fromFeet(1), 0.1, 270, 0);
+
+        // Picks up different block depending on original detection
+        b.addBranch(S.DETECTION_2, S.GETRIGHTBLOCKAGAIN, S.MIDDLEAGAIN, S.GETLEFTBLOCKAGAIN, cont);
+        b.addDrive(S.GETRIGHTBLOCKAGAIN, S.GRABBLOCK, Distance.fromFeet(.1), 1, 180, 0);
+        b.addDrive(S.MIDDLEAGAIN, S.GRABBLOCK, Distance.fromFeet(.2), 1, 0, 0);
+        b.addDrive(S.GETLEFTBLOCKAGAIN, S.GRABBLOCK, Distance.fromFeet(.5), 1, 0, 0);
+        b.addServo(S.GRABBLOCK, S.GOBACKUP, SkystoneRobotCfg.SkystoneServoEnum.FINGERS_SERVO, SkystoneRobotCfg.FingersServoPresets.GRAB, true);
+
+        b.addDrive(S.GOBACKUP, S.GOTOSIDE, Distance.fromFeet(1), 1, 90, 0);
+        b.addDrive(S.GOTOSIDE, S.UNLOAD, Distance.fromFeet(4.5), 1, 180, 0);
+        //need to change this to servo for unload
+        b.addServo(S.GRABBLOCK, S.GOBACKUP, SkystoneRobotCfg.SkystoneServoEnum.FINGERS_SERVO, SkystoneRobotCfg.FingersServoPresets.RELEASE, true);
+
+        // THIS WILL BE THE AREA OF CODE FOR MOVING THE FOUNDATION ONCE IT THE MECHANISM IS MADE
+        // ADD DISTANCES ARE NOT SET IN STONE AND ARE NEEDED TO BE CHANGED (ARBITRARY VALUES)
 
         b.add(S.PROCESS_SKYSTONE, createProcessState());
         b.addStop(S.STOP);
@@ -150,7 +170,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         DRIVE_1,
         PROCESS_SKYSTONE,
         DRIVE_STONE,
-        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, STOP
+        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, GOBACK, MOVETOBLOCKSAGAIN, GETLEFTBLOCKAGAIN, MIDDLEAGAIN, GETRIGHTBLOCKAGAIN, DETECTION_2, STOP
 
     }
 }
