@@ -7,6 +7,7 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
+import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.InputExtractor;
 
 class ProcessPipeline extends OpenCvPipeline {
@@ -35,14 +36,10 @@ class ProcessPipeline extends OpenCvPipeline {
     private int numStabalizationCycles = 0;
     Rect rect1 = new Rect(x1, y1, w1, h1);
     Rect rect2 = new Rect(x2, y2, w2, h2);
-    public double blue;
-    public double blue2;
-    public int option = -1;
-    public double stoneratio;
-    private int middle = 0;
-    private int right = 1;
-    private int left = 2;
-
+    private double blue;
+    private double blue2;
+    private StateName option;
+    private double stoneratio;
 
     public ProcessPipeline(int minStabalizationCycles) {
         this.minStabalizationCycles = minStabalizationCycles;
@@ -59,16 +56,22 @@ class ProcessPipeline extends OpenCvPipeline {
             }
             double ratio = blue / blue2;
             if (ratio < 0.75) {
-                option = middle;
+                option = S.SKYSTONE_MIDDLE;
             } else if (ratio > 1.5) {
-                option = right;
-            } else option = left;
+                option = S.SKYSTONE_RIGHT;
+            } else option = S.SKYSTONE_LEFT;
             stoneratio = blue / blue2;
         }
         Imgproc.rectangle(input, rect1, new Scalar(255, 0, 0), 3);
         Imgproc.rectangle(input, rect2, new Scalar(255, 0, 0), 3);
         numStabalizationCycles++;
         return input;
+    }
+
+    public enum S implements StateName {
+        SKYSTONE_MIDDLE,
+        SKYSTONE_LEFT,
+        SKYSTONE_RIGHT
     }
 
     public InputExtractor<Double> getAvgColorII() {
