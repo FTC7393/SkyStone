@@ -7,6 +7,7 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
+import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.InputExtractor;
 
 class ProcessPipeline extends OpenCvPipeline {
@@ -14,35 +15,31 @@ class ProcessPipeline extends OpenCvPipeline {
     private double blueDiff = 0;
     private double ac = 0;
 
-    private final InputExtractor<Double> AvgColorII = new InputExtractor<Double>() {
+    private final InputExtractor<StateName> StateNameII = new InputExtractor<StateName>() {
         @Override
-        public Double getValue() {
-            return ac;
+        public StateName getValue() {
+            return option;
         }
     };
-    private final InputExtractor<Double> blueDiffII = new InputExtractor<Double>() {
+    private final InputExtractor<Double> stoneRatioII = new InputExtractor<Double>() {
         @Override
         public Double getValue() {
-            return blueDiff;
+            return stoneratio;
         }
     };
 
-    int x1 = 100, y1 = 100, w1 = 75, h1 = 50;
-    int x2 = 225, y2 = 100, w2 = 75, h2 = 50;
-    Mat m1;
-    Mat m2;
+    private int x1 = 100, y1 = 100, w1 = 75, h1 = 50;
+    private int x2 = 225, y2 = 100, w2 = 75, h2 = 50;
+    private Mat m1;
+    private Mat m2;
     private final int minStabalizationCycles;
     private int numStabalizationCycles = 0;
     Rect rect1 = new Rect(x1, y1, w1, h1);
     Rect rect2 = new Rect(x2, y2, w2, h2);
-    public double blue;
-    public double blue2;
-    public int option = -1;
-    public double stoneratio;
-    private int middle = 0;
-    private int right = 1;
-    private int left = 2;
-
+    private double blue;
+    private double blue2;
+    private StateName option;
+    private double stoneratio;
 
     public ProcessPipeline(int minStabalizationCycles) {
         this.minStabalizationCycles = minStabalizationCycles;
@@ -59,10 +56,10 @@ class ProcessPipeline extends OpenCvPipeline {
             }
             double ratio = blue / blue2;
             if (ratio < 0.75) {
-                option = middle;
+                option = S.SKYSTONE_MIDDLE;
             } else if (ratio > 1.5) {
-                option = right;
-            } else option = left;
+                option = S.SKYSTONE_RIGHT;
+            } else option = S.SKYSTONE_LEFT;
             stoneratio = blue / blue2;
         }
         Imgproc.rectangle(input, rect1, new Scalar(255, 0, 0), 3);
@@ -71,12 +68,18 @@ class ProcessPipeline extends OpenCvPipeline {
         return input;
     }
 
-    public InputExtractor<Double> getAvgColorII() {
-        return AvgColorII;
+    public enum S implements StateName {
+        SKYSTONE_MIDDLE,
+        SKYSTONE_LEFT,
+        SKYSTONE_RIGHT
     }
 
-    public InputExtractor<Double> getBlueDiffII() {
-        return blueDiffII;
+    public InputExtractor<StateName> getStateNameII() {
+        return StateNameII;
+    }
+
+    public InputExtractor<Double> getStoneRatioII() {
+        return stoneRatioII;
     }
 
     private double avgMiddleBlue(Mat input, Rect rect) {
