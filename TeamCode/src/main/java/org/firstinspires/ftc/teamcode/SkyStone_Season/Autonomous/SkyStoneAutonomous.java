@@ -18,11 +18,14 @@ import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.ResultReceiver;
 import ftc.electronvolts.util.TeamColor;
 import ftc.electronvolts.util.files.Logger;
+import ftc.electronvolts.util.files.OptionsFile;
 import ftc.electronvolts.util.units.Angle;
 import ftc.evlib.hardware.control.MecanumControl;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
+import ftc.evlib.util.EVConverters;
+import ftc.evlib.util.FileUtil;
 
 @Autonomous(name = "SkyStoneAuto")
 
@@ -103,6 +106,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     @Override
     public StateMachine buildStates() {
         TeamColor teamColor = TeamColor.RED;
+        OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
 
         ResultReceiver<Boolean> cont = new BasicResultReceiver<>();
         EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.DRIVE_1, teamColor, Angle.fromDegrees(3));
