@@ -147,9 +147,9 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
             public void run() {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
                 camera = new OpenCvWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-                phoneCam.openCameraDevice();
-                phoneCam.setPipeline(new SamplePipeline(xii, yii, wii, hii));
-                phoneCam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
+                camera.openCameraDevice();
+                camera.setPipeline(new SamplePipeline(xii, yii, wii, hii));
+                camera.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
                 rr.setValue(true);
             }
         };

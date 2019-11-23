@@ -31,10 +31,11 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     MecanumControl mecanumControl;
     OpenCvCamera camera;
     private BasicResultReceiver<Boolean> rr = new BasicResultReceiver<>();
+    TeamColor tc = TeamColor.RED;
     InputExtractor<StateName> s;
-    InputExtractor<Double> ratio;
     int minCycles = 10;
-    ProcessPipeline p = new ProcessPipeline(minCycles);
+    private BasicResultReceiver<StateName> srr = new BasicResultReceiver<>();
+    ProcessPipeline p = new ProcessPipeline(srr, minCycles, tc);
 
     @Override
     protected SkystoneRobotCfg createRobotCfg() {
@@ -57,7 +58,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
                 camera = new OpenCvWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
                 camera.openCameraDevice();
                 s = p.getStateNameII();
-                ratio = p.getStoneRatioII();
+                p.getStoneRatioII();
                 camera.setPipeline(p);
                 camera.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
                 rr.setValue(true);
@@ -86,8 +87,8 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         telemetry.addData("gyro", robotCfg.getGyro().getHeading());
         telemetry.addData("state", stateMachine.getCurrentStateName());
         telemetry.addData("current thread", Thread.currentThread().getName());
-        telemetry.addData("state for detetcting skystone", s);
-        telemetry.addData("ratio of both stones", ratio);
+        telemetry.addData("state for detetcting skystone", srr.getValue());
+        telemetry.addData("ratio of both stones", p.getStoneRatioII().getValue());
     }
 
 
@@ -104,7 +105,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         TeamColor teamColor = TeamColor.RED;
 
         EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.DRIVE_1, teamColor, Angle.fromDegrees(3));
-        b.addDrive(S.DRIVE_1, S.PROCESS_SKYSTONE, Distance.fromFeet(0.1), 0.1, 90,0 );
+        b.addDrive(S.DRIVE_1, S.PROCESS_SKYSTONE, Distance.fromFeet(0.0), 0.1, 90, 0);
         b.add(S.PROCESS_SKYSTONE, createProcessState());
 
 
@@ -133,12 +134,16 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     }
 
 
-    private enum S implements StateName {
+    public enum S implements StateName {
 
         DRIVE_1,
         PROCESS_SKYSTONE,
         DRIVE_STONE,
+        SKYSTONE_MIDDLE,
+        SKYSTONE_LEFT,
+        SKYSTONE_RIGHT,
         STOP
 
     }
+
 }
