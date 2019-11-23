@@ -152,12 +152,7 @@ public class LinearSlide {
 
     //    public boolean getExtensionLimitSwitch(){return extensionLimit.isPressed();}
 
-    boolean getLimitSwitchCount(){
-        return limitSwitchCount;
-    }
-
-
-
+    boolean getLimitSwitchCount(){ return limitSwitchCount; }
 }
 
 
