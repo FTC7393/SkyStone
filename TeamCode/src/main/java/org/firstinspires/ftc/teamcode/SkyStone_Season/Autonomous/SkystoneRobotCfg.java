@@ -44,13 +44,13 @@ public class SkystoneRobotCfg extends RobotCfg {
         RIGHT
     }
 
-    public enum extendServoPresets {
+    public enum ExtendServoPresets {
         RETRACT,
         EXTEND,
         GRAB
     }
 
-    public enum pushServoPresets {
+    public enum PushServoPresets {
         RETRACT,
         EJECT
     }
@@ -58,36 +58,36 @@ public class SkystoneRobotCfg extends RobotCfg {
     /**
      * defines all the servos on the robot
      */
-//    public enum FutureFestServoEnum implements ServoName {
-//        //enum name("hardware name", preset enum.values()),
-//        GRAB_SERVO("grabServo", GrabServoPresets.values()),
-//        ROTATE_SERVO("rotateServo", RotateServoPresets.values()),
-//        EXTEND_SERVO("extendServo", extendServoPresets.values()),
-//        PUSH_SERVO("pushServo", RotateServoPresets.values());
-//
-//        private final String hardwareName;
-//        private final Enum[] presets;
-//
-//        FutureFestServoEnum(String hardwareName, Enum[] presets) {
-//            this.hardwareName = hardwareName;
-//            this.presets = presets;
-//        }
-//
-//        @Override
-//        public String getHardwareName() {
-//            return hardwareName;
-//        }
-//
-//        @Override
-//        public Enum[] getPresets() {
-//            return presets;
-//        }
-//
-//        @Override
-//        public Class<SkystoneRobotCfg> getRobotCfg() {
-//            return SkystoneRobotCfg.class;
-//        }
-//    }
+    public enum SkystoneServoEnum implements ServoName {
+        //enum name("hardware name", preset enum.values()),
+        GRAB_SERVO("grabServo", GrabServoPresets.values()),
+        ROTATE_SERVO("rotateServo", RotateServoPresets.values()),
+        EXTEND_SERVO("extendServo", ExtendServoPresets.values()),
+        PUSH_SERVO("pushServo", PushServoPresets.values());
+
+        private final String hardwareName;
+        private final Enum[] presets;
+
+        SkystoneServoEnum(String hardwareName, Enum[] presets) {
+            this.hardwareName = hardwareName;
+            this.presets = presets;
+        }
+
+        @Override
+        public String getHardwareName() {
+            return hardwareName;
+        }
+
+        @Override
+        public Enum[] getPresets() {
+            return presets;
+        }
+
+        @Override
+        public Class<SkystoneRobotCfg> getRobotCfg() {
+            return SkystoneRobotCfg.class;
+        }
+    }
 
 
 
@@ -100,8 +100,8 @@ public class SkystoneRobotCfg extends RobotCfg {
     private static final Velocity MAX_ROBOT_SPEED_SIDEWAYS = new Velocity(Distance.fromInches(21.2441207039), Time.fromSeconds(1));
 
     public SkystoneRobotCfg(HardwareMap hardwareMap) {
-        //this(hardwareMap, ServoCfg.defaultServoStartPresetMap(FutureFestServoEnum.values()));
-        this(hardwareMap, ServoCfg.defaultServoStartPresetMap(new ServoName[0]));
+        this(hardwareMap, ServoCfg.defaultServoStartPresetMap(SkystoneServoEnum.values()));
+//        this(hardwareMap, ServoCfg.defaultServoStartPresetMap(new ServoName[0]));
    }
     public SkystoneRobotCfg(HardwareMap hardwareMap, Map<ServoName, Enum> servoStartPresetMap) {
         super(hardwareMap);
