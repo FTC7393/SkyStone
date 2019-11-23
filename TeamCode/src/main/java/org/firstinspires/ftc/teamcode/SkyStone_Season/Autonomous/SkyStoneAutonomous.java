@@ -35,7 +35,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     InputExtractor<StateName> s;
     int minCycles = 10;
     private BasicResultReceiver<StateName> srr = new BasicResultReceiver<>();
-    ProcessPipeline p = new ProcessPipeline(srr, minCycles, tc);
+    ProcessPipeline pipeline = new ProcessPipeline(srr, minCycles, tc);
 
     @Override
     protected SkystoneRobotCfg createRobotCfg() {
@@ -57,9 +57,9 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 //                phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
                 camera = new OpenCvWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
                 camera.openCameraDevice();
-                s = p.getStateNameII();
-                p.getStoneRatioII();
-                camera.setPipeline(p);
+                s = pipeline.getStateNameII();
+                pipeline.getStoneRatioII();
+                camera.setPipeline(pipeline);
                 camera.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
                 rr.setValue(true);
             }
@@ -88,7 +88,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         telemetry.addData("state", stateMachine.getCurrentStateName());
         telemetry.addData("current thread", Thread.currentThread().getName());
         telemetry.addData("state for detetcting skystone", srr.getValue());
-        telemetry.addData("ratio of both stones", p.getStoneRatioII().getValue());
+        telemetry.addData("ratio of both stones", pipeline.getStoneRatioII().getValue());
     }
 
 
