@@ -74,7 +74,7 @@ class ProcessPipeline extends OpenCvPipeline {
         StateName opt;
         double maxBlueRatioLeft = 0.5; //all values below this indicate that the dark stone is on the left
         double minBlueRatioRight = 2.0; //all values above this indicate that the dark stone is on the right
-        if (tc == TeamColor.RED) {
+        if (tc == TeamColor.BLUE) {
             if (ratio < maxBlueRatioLeft) {
                 opt = SkyStoneAutonomous.S.SKYSTONE_MIDDLE;
             } else if (ratio > minBlueRatioRight) {
