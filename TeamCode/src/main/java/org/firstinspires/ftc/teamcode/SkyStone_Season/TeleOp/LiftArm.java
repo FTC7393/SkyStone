@@ -4,11 +4,11 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 import ftc.evlib.hardware.servos.ServoControl;
 
-public class LiftArmClass {
+public class LiftArm {
 
     private Servo elbow, wrist, fingers;
 
-    public LiftArmClass(Servo elbow, Servo wrist, Servo fingers){
+    public LiftArm(Servo elbow, Servo wrist, Servo fingers){
         this.elbow = elbow;
         this.wrist = wrist;
         this.fingers = fingers;
