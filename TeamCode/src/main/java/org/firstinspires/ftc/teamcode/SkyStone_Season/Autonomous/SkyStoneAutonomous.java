@@ -3,9 +3,11 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 import ftc.electronvolts.statemachine.BasicAbstractState;
 import ftc.electronvolts.statemachine.State;
@@ -27,10 +29,12 @@ import ftc.evlib.statemachine.EVStateMachineBuilder;
 public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     Gyro gyro;
     MecanumControl mecanumControl;
-    OpenCvCamera phoneCam;
+    OpenCvCamera camera;
     private BasicResultReceiver<Boolean> rr = new BasicResultReceiver<>();
-    InputExtractor<Double> avgColor;
-    InputExtractor<Double> blue;
+    InputExtractor<StateName> s;
+    InputExtractor<Double> ratio;
+    int minCycles = 10;
+    ProcessPipeline p = new ProcessPipeline(minCycles);
 
     @Override
     protected SkystoneRobotCfg createRobotCfg() {
@@ -49,14 +53,13 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
             @Override
             public void run() {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-                phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
-                phoneCam.openCameraDevice();
-                int minCycles = 10;
-                ProcessPipeline p = new ProcessPipeline(minCycles);
-                avgColor = p.getAvgColorII();
-                blue = p.getBlueDiffII();
-                phoneCam.setPipeline(p);
-                phoneCam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
+//                phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+                camera = new OpenCvWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+                camera.openCameraDevice();
+                s = p.getStateNameII();
+                ratio = p.getStoneRatioII();
+                camera.setPipeline(p);
+                camera.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
                 rr.setValue(true);
             }
         };
@@ -82,14 +85,9 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     protected void act() {
         telemetry.addData("gyro", robotCfg.getGyro().getHeading());
         telemetry.addData("state", stateMachine.getCurrentStateName());
-        telemetry.addData("thread", ProcessPipeline.threadName);
         telemetry.addData("current thread", Thread.currentThread().getName());
-        telemetry.addData("average color", avgColor.getValue());
-        telemetry.addData("blue", blue.getValue());
-        if(blue.getValue() < 150) {
-            telemetry.addData("found skystone!", blue);
-        }
-
+        telemetry.addData("state for detetcting skystone", s);
+        telemetry.addData("ratio of both stones", ratio);
     }
 
 

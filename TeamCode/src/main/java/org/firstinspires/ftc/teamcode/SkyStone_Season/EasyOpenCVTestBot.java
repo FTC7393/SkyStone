@@ -3,14 +3,15 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.Function;
@@ -52,6 +53,7 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
             return h;
         }
     };
+    private OpenCvWebcam camera;
 
 
 //        public void runOpMode()
@@ -144,7 +146,7 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
             @Override
             public void run() {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-                phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+                camera = new OpenCvWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
                 phoneCam.openCameraDevice();
                 phoneCam.setPipeline(new SamplePipeline(xii, yii, wii, hii));
                 phoneCam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
@@ -214,8 +216,8 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
              * time. Of course, this comment is irrelevant in light of the use case described in
              * the above "important note".
              */
-            phoneCam.stopStreaming();
-            //webcam.closeCameraDevice();
+            //phoneCam.stopStreaming();
+            camera.closeCameraDevice();
 
         }
         if (gamepad1.dpad_left){
@@ -255,14 +257,17 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
                 h = 0;
             }
         }
-        if(gamepad1.left_stick_button) {
-            xStatic = x;
-            yStatic = y;
-            wStatic = w;
-            hStatic = h;
-            isLocked = true;
-        }
-
+//        if(gamepad1.left_stick_button) {
+//            xStatic = x;
+//            yStatic = y;
+//            wStatic = w;
+//            hStatic = h;
+//            isLocked = true;
+//        }
+        telemetry.addData("x", x);
+        telemetry.addData("y", y);
+        telemetry.addData("w", w);
+        telemetry.addData("h", h);
 
     }
 
@@ -290,7 +295,6 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
 
 class SamplePipeline extends OpenCvPipeline {
 
-    EasyOpenCVTestBot easyCV = new EasyOpenCVTestBot();
 
 
 
@@ -334,26 +338,25 @@ class SamplePipeline extends OpenCvPipeline {
         /*
          * Draw a simple box around the middle 1/2 of the entire frame
          */
-        Imgproc.rectangle(
-                input,
-                new Point(
-                        input.cols() / 4,
-                        input.rows() / 4),
-                new Point(
-                        input.cols() * (3f / 4f),
-                        input.rows() * (3f / 4f)),
-                new Scalar(0, 255, 0), 4);
+//        Imgproc.rectangle(
+//                input,
+//                new Point(
+//                        input.cols() / 4,
+//                        input.rows() / 4),
+//                new Point(
+//                        input.cols() * (3f / 4f),
+//                        input.rows() * (3f / 4f)),
+//                new Scalar(0, 255, 0), 4);
 
 
         Imgproc.rectangle(input, new Point(xii.getValue(), yii.getValue()),
                 new Point(xii.getValue()+wii.getValue(), yii.getValue()+hii.getValue()), new Scalar(255, 0, 0), 4);
 
 
-
-        if (easyCV.isLocked) {
-            Imgproc.rectangle(input, new Point(easyCV.xStatic, easyCV.yStatic), new Point(easyCV.xStatic+easyCV.wStatic,
-                            easyCV.yStatic+easyCV.hStatic), new Scalar(0, 0, 255), 4);
-        }
+//        if (easyCV.isLocked) {
+//            Imgproc.rectangle(input, new Point(easyCV.xStatic, easyCV.yStatic), new Point(easyCV.xStatic+easyCV.wStatic,
+//                            easyCV.yStatic+easyCV.hStatic), new Scalar(0, 0, 255), 4);
+//        }
 
 
 

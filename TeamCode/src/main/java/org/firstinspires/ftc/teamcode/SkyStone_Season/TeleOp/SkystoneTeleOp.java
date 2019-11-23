@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.SkyStone_Season;
+package org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.futurefest2019.FutureFestRobotCfg;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
 
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
@@ -22,9 +22,10 @@ import ftc.evlib.opmodes.AbstractTeleOp;
  */
 @TeleOp(name = "SkyStone Ri3D")
 @Disabled
-public class SkystoneTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
+public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     private ServoControl dump = null;
     private DcMotor collector = null;
+    private FlyWheels flywheels = null;
     int dumpPosition;
     boolean driver1CollectorEnabled = true;
     @Override
@@ -71,8 +72,8 @@ public class SkystoneTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
     }
 
     @Override
-    protected FutureFestRobotCfg createRobotCfg() {
-        return new FutureFestRobotCfg(hardwareMap);
+    protected SkystoneRobotCfg createRobotCfg() {
+        return new SkystoneRobotCfg(hardwareMap);
     }
 
     @Override
@@ -107,8 +108,6 @@ public class SkystoneTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
     @Override
     protected void act() {
         forwardControl();
-
-        collector=robotCfg.getCollector();
         dump  = null; // robotCfg.getServo(FutureFestRobotCfg.FutureFestServoEnum.DUMP_SERVO);
 
         if(driver2.x.isPressed()) {
@@ -117,15 +116,29 @@ public class SkystoneTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
             driver1CollectorEnabled = true;
         }
 
-        // Collector logic: Driver 2 has priority, Driver 1 can be disabled as well
-        if(driver2.right_bumper.isPressed() ||
-                (driver1.right_bumper.isPressed() && driver1CollectorEnabled) ){
-            collector.setPower(-0.8);
-        } else if(driver2.left_bumper.isPressed()) {
-            collector.setPower(0.8);
+        // Collector logic: Driver1 has control and can press right bumper for intake or left bumper for output
+        // But is the right trigger is pressed in different levels (0.9, 0.6 and 0.3) it can set the collector power to different speeds
+        if(driver1.right_bumper.isPressed() && !driver1.left_bumper.isPressed())  {
+            robotCfg.getFlyWheels().setPower(0.45);
+        } else if(driver1.left_bumper.isPressed() && !driver1.right_bumper.isPressed()) {
+            robotCfg.getFlyWheels().setPower(-0.45);
+        }else if (driver1.right_trigger.getValue() >= 0.95) {
+            robotCfg.getFlyWheels().setPower(1.0);
+        }else if (driver1.right_trigger.getValue() >= 0.8) {
+            robotCfg.getFlyWheels().setPower(0.5);
+        }else if (driver1.right_trigger.getValue() >= 0.65) {
+            robotCfg.getFlyWheels().setPower(0.4);
+        }else if (driver1.right_trigger.getValue() >= 0.5) {
+            robotCfg.getFlyWheels().setPower(0.3);
+        }else if (driver1.right_trigger.getValue() >= 0.35) {
+            robotCfg.getFlyWheels().setPower(0.2);
+        }else if (driver1.right_trigger.getValue() >= 0.2) {
+            robotCfg.getFlyWheels().setPower(0.1);
         } else {
-            collector.setPower(0);
+            robotCfg.getFlyWheels().stop();
         }
+
+
 
 //        // Dumper control
 //        if(driver2.y.isPressed()) {

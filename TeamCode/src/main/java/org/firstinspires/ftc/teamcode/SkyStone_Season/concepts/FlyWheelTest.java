@@ -6,11 +6,11 @@ import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.files.Logger;
 import ftc.evlib.driverstation.GamepadManager;
 import ftc.evlib.opmodes.AbstractTeleOp;
-@TeleOp(name = "FlyWheelTest")
+@TeleOp(name = "FlyWheel Test OpMode")
 public class FlyWheelTest extends AbstractTeleOp<HardwareTestRobotCfg> {
 
-    double leftValue = 0.5;
-    double rightValue = -0.5;
+
+    double savedJoyStickValue = 0;
     @Override
     protected Function getJoystickScalingFunction() {
         return null;
@@ -41,15 +41,23 @@ public class FlyWheelTest extends AbstractTeleOp<HardwareTestRobotCfg> {
 
     }
 
+    public void setFlyWheelPower (double newPower) {
+        robotCfg.getTwoMotors().runMotors(newPower, -newPower);
+    }
+
+
     @Override
     protected void act() {
-        if(driver1.right_stick_button.justPressed()) {
-            robotCfg.getTwoMotors().runMotors(leftValue, rightValue);
-        }
-        if(driver1.left_stick_button.justPressed()) {
+        if(driver1.right_bumper.isPressed()) {
             robotCfg.getTwoMotors().stop();
-        }
+        }else{
+            if(driver1.x.isPressed()) {
+                savedJoyStickValue =  driver1.left_stick_x.getValue() * .5;
+            }
+            setFlyWheelPower(savedJoyStickValue);
 
+        }
+        telemetry.addData("collector power", savedJoyStickValue);
     }
 
     @Override

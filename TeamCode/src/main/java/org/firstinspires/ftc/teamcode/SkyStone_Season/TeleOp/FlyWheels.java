@@ -1,18 +1,31 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp;
 
+import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
+
 import ftc.evlib.hardware.motors.Motor;
 
 public class FlyWheels {
 
-    private Motor collection;
+    private Motor leftFlywheel,rightFlywheel;
 
-    public FlyWheels(Motor Collection){
-        this.collection = collection;
+    public FlyWheels(Motor leftFlywheel, Motor rightFlywheel){
+        this.leftFlywheel = leftFlywheel;
+        this.rightFlywheel = rightFlywheel;
     }
 
     public void act() {
-        collection.update();
+        leftFlywheel.update();
+        rightFlywheel.update();
     }
 
-    public void collectionPower(double a){collection.setPower(a);}
+    public void setPower (double newPower) {
+        leftFlywheel.setPower(newPower);
+        rightFlywheel.setPower(-newPower);
+    }
+
+    public void stop() {
+        leftFlywheel.setPower(0);
+        rightFlywheel.setPower(0);
+    }
+
 }
