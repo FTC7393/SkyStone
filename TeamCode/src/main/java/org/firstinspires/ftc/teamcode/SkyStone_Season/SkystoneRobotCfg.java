@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import java.util.Map;
 
-import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FlyWheelsClass;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FlyWheels;
 
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.TeamColor;
@@ -20,6 +20,7 @@ import ftc.evlib.hardware.motors.Motors;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.hardware.sensors.IMUGyro;
 import ftc.evlib.hardware.servos.ServoCfg;
+import ftc.evlib.hardware.servos.ServoControl;
 import ftc.evlib.hardware.servos.ServoName;
 import ftc.evlib.hardware.servos.Servos;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
@@ -30,66 +31,66 @@ import ftc.evlib.statemachine.EVStateMachineBuilder;
 
 public class SkystoneRobotCfg extends RobotCfg {
 
-    private final FlyWheelsClass flyWheels;
+    private final FlyWheels flyWheels;
     private Gyro gyro;
 
 
 
-    public enum GrabServoPresets {
-        CLOSE,
-        OPEN
+    public enum ElbowServoPresets {
+        RETRACT,
+        EXTEND
     }
 
-    public enum RotateServoPresets {
-        LEFT,
-        MIDDLE,
-        RIGHT
-    }
-
-    public enum extendServoPresets {
+    public enum WristServoPresets {
         RETRACT,
         EXTEND,
+        RIGHT,
+        LEFT
+    }
+
+    public enum FingersServoPresets {
+        RELEASE,
         GRAB
     }
 
-    public enum pushServoPresets {
-        RETRACT,
-        EJECT
-    }
+//    public enum pushServoPresets {
+//        RETRACT,
+//        EJECT
+//    }
 
     /**
      * defines all the servos on the robot
      */
-//    public enum FutureFestServoEnum implements ServoName {
-//        //enum name("hardware name", preset enum.values()),
-//        GRAB_SERVO("grabServo", GrabServoPresets.values()),
-//        ROTATE_SERVO("rotateServo", RotateServoPresets.values()),
-//        EXTEND_SERVO("extendServo", extendServoPresets.values()),
+    public enum SkystoneServoEnum implements ServoName {
+        //enum name("hardware name", preset enum.values()),
+        ELBOW_SERVO("elbowServo", ElbowServoPresets.values()),
+        WRIST_SERVO("wristServo", WristServoPresets.values()),
+        FINGERS_SERVO("fingersServo", FingersServoPresets.values());
 //        PUSH_SERVO("pushServo", RotateServoPresets.values());
-//
-//        private final String hardwareName;
-//        private final Enum[] presets;
-//
-//        FutureFestServoEnum(String hardwareName, Enum[] presets) {
-//            this.hardwareName = hardwareName;
-//            this.presets = presets;
-//        }
-//
-//        @Override
-//        public String getHardwareName() {
-//            return hardwareName;
-//        }
-//
-//        @Override
-//        public Enum[] getPresets() {
-//            return presets;
-//        }
-//
-//        @Override
-//        public Class<SkystoneRobotCfg> getRobotCfg() {
-//            return SkystoneRobotCfg.class;
-//        }
-//    }
+
+        private final String hardwareName;
+        private final Enum[] presets;
+
+        SkystoneServoEnum(String hardwareName, Enum[] presets) {
+            this.hardwareName = hardwareName;
+            this.presets = presets;
+        }
+
+        @Override
+        public String getHardwareName() {
+            return hardwareName;
+        }
+
+        @Override
+        public Enum[] getPresets() {
+            return presets;
+        }
+
+        @Override
+        public Class<SkystoneRobotCfg> getRobotCfg() {
+            return SkystoneRobotCfg.class;
+        }
+    }
 
 
 
@@ -122,7 +123,7 @@ public class SkystoneRobotCfg extends RobotCfg {
 
         gyro = new IMUGyro(hardwareMap.get(BNO055IMU.class, "imu"));
 
-        flyWheels = new FlyWheelsClass(
+        flyWheels = new FlyWheels(
                 Motors.withoutEncoder(hardwareMap.dcMotor.get("leftFlywheel"), false, false, stoppers),
                 Motors.withoutEncoder(hardwareMap.dcMotor.get("rightFlywheel"), false, false, stoppers)
         );
@@ -147,9 +148,19 @@ public class SkystoneRobotCfg extends RobotCfg {
 
 
     }
-//    public Servos getServos(){
-//        return servos;
-//    }
+    public Servos getServos(){
+        return servos;
+    }
+    public ServoControl getElbow() {
+        return getServo(SkystoneServoEnum.ELBOW_SERVO);
+    }
+    public ServoControl getWrist() {
+        return getServo(SkystoneServoEnum.WRIST_SERVO);
+    }
+    public ServoControl getFingers() {
+        return getServo(SkystoneServoEnum.FINGERS_SERVO);
+    }
+
 //    public DcMotor getCollector(){
 //        return collector;
 //    }
@@ -160,7 +171,7 @@ public class SkystoneRobotCfg extends RobotCfg {
         return gyro;
     }
 
-    public FlyWheelsClass getFlyWheels() {
+    public FlyWheels getFlyWheels() {
         return flyWheels;
     }
 
