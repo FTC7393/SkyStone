@@ -145,7 +145,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 //
         b.add(S.PROCESS_SKYSTONE, createProcessState());
         b.addDrive(S.DRIVE_LEFT_BLUE, S.GRABBLOCK, Distance.fromFeet(0.1), 0.4, 90, 90);
-        b.add(S.GRABBLOCK, S.DRIVE_2);
+        b.add(S.GRABBLOCK, new grabState());
         b.addStop(S.STOP);
 
       return b.build();
