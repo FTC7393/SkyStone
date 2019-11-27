@@ -92,6 +92,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         telemetry.addData("current thread", Thread.currentThread().getName());
         telemetry.addData("state for detetcting skystone", srr.getValue());
         telemetry.addData("ratio of both stones", pipeline.getStoneRatioII().getValue());
+        telemetry.addData("state", stateMachine.getCurrentStateName());
     }
 
 
@@ -129,7 +130,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 //        b.addDrive(S.MOVETOBLOCKSAGAIN, S.DETECTION_2 , Distance.fromFeet(1), 0.1, 270, 0);
 //
 //        // Picks up different block depending on original detection
-//        b.addBranch(S.DETECTION_2, S.GETRIGHTBLOCKAGAIN, S.MIDDLEAGAIN, S.GETLEFTBLOCKAGAIN, cont);
+        b.addBranch(S.DETECTION_2, S.GETRIGHTBLOCKAGAIN, S.MIDDLEAGAIN, S.GETLEFTBLOCKAGAIN, cont);
 //        b.addDrive(S.GETRIGHTBLOCKAGAIN, S.GRABBLOCK, Distance.fromFeet(.1), 1, 180, 0);
 //        b.addDrive(S.MIDDLEAGAIN, S.GRABBLOCK, Distance.fromFeet(.2), 1, 0, 0);
 //        b.addDrive(S.GETLEFTBLOCKAGAIN, S.GRABBLOCK, Distance.fromFeet(.5), 1, 0, 0);
@@ -145,7 +146,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 //
         b.add(S.PROCESS_SKYSTONE, createProcessState());
         b.addDrive(S.DRIVE_LEFT_BLUE, S.GRABBLOCK, Distance.fromFeet(0.1), 0.4, 90, 90);
-        b.add(S.GRABBLOCK, new grabState());
+        b.addServo(S.GRABBLOCK, S.GOBACKUP, SkystoneRobotCfg.SkystoneServoEnum.FINGERS_SERVO, SkystoneRobotCfg.FingersServoPresets.GRAB, true);
         b.addStop(S.STOP);
 
       return b.build();
