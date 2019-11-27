@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FlyWheels;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.LiftArm;
 
 import java.util.Map;
 
@@ -16,9 +17,12 @@ import ftc.electronvolts.util.units.Velocity;
 import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.hardware.control.MecanumControl;
 import ftc.evlib.hardware.motors.MecanumMotors;
+import ftc.evlib.hardware.motors.MotorEnc;
 import ftc.evlib.hardware.motors.Motors;
+import ftc.evlib.hardware.sensors.DigitalSensor;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.hardware.sensors.IMUGyro;
+import ftc.evlib.hardware.sensors.Sensors;
 import ftc.evlib.hardware.servos.ServoCfg;
 import ftc.evlib.hardware.servos.ServoControl;
 import ftc.evlib.hardware.servos.ServoName;
@@ -33,8 +37,7 @@ public class SkystoneRobotCfg extends RobotCfg {
 
     private final FlyWheels flyWheels;
     private Gyro gyro;
-
-
+    private final LiftArm liftArm;
 
     public enum ElbowServoPresets {
         RETRACT,
@@ -130,6 +133,17 @@ public class SkystoneRobotCfg extends RobotCfg {
                 Motors.withoutEncoder(hardwareMap.dcMotor.get("frontRight"), false, false, stoppers)
 
         );
+
+        liftArm = new LiftArm(
+                getElbow(),
+                getWrist(),
+                getFingers(),
+                Motors.withEncoder(hardwareMap.dcMotor.get("extension"),false,true,stoppers),
+                Sensors.inv(Sensors.digital(hardwareMap,"lowerLimit")),
+                Sensors.inv(Sensors.digital(hardwareMap,"upperLimit"))
+        );
+
+
     }
 
     @Override
@@ -142,14 +156,14 @@ public class SkystoneRobotCfg extends RobotCfg {
         mecanumControl.act();
 //        servos.act();
         flyWheels.act();
+        liftArm.act();
+        servos.act();
     }
 
     @Override
     public void stop() {
         mecanumControl.stop();
         flyWheels.stop();
-
-
     }
     public Servos getServos(){
         return servos;
@@ -182,4 +196,7 @@ public class SkystoneRobotCfg extends RobotCfg {
         return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, servos, mecanumControl);
     }
 
+    public LiftArm getLiftArm() {
+        return liftArm;
+    }
 }

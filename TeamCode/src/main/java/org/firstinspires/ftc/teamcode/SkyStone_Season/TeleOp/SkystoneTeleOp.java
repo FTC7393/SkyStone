@@ -28,6 +28,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     private FlyWheels flywheels = null;
     int dumpPosition;
     boolean driver1CollectorEnabled = true;
+
     @Override
     public Time getMatchTime() {
         return Time.fromMinutes(180); //teleop is 2 minutes
@@ -137,6 +138,37 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
         } else {
             robotCfg.getFlyWheels().stop();
         }
+
+        robotCfg.getLiftArm().liftControlExtension(driver2.left_stick_y.getValue());
+
+        if(driver2.y.justPressed()){
+            robotCfg.getLiftArm().armExtend();
+        }
+
+        if(driver2.a.justPressed()){
+            robotCfg.getLiftArm().armRetract();
+        }
+
+        if(driver2.x.justPressed()){
+            if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.RIGHT){
+                robotCfg.getLiftArm().wristStraight();
+            }else if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.STRAIGHT){
+                robotCfg.getLiftArm().wristLeft();
+            }
+        }
+
+        if(driver2.b.justPressed()){
+            if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.LEFT){
+                robotCfg.getLiftArm().wristStraight();
+            }else if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.STRAIGHT){
+                robotCfg.getLiftArm().wristRight();
+            }
+        }
+
+        telemetry.addData("lift position =", robotCfg.getLiftArm().getLiftEncoder() );
+        telemetry.addData("lift Target Position =", robotCfg.getLiftArm().getLiftTargetPosition() );
+
+
 
 
 

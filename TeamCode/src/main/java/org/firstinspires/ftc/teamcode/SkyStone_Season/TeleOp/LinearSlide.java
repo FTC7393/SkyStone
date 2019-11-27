@@ -1,28 +1,11 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp;
 
-import android.util.Log;
-
-import java.util.List;
-
 import ftc.electronvolts.util.DigitalInputEdgeDetector;
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
 import ftc.electronvolts.util.PIDController;
 import ftc.evlib.hardware.motors.MotorEnc;
-import ftc.evlib.hardware.sensors.AnalogSensor;
 import ftc.evlib.hardware.sensors.DigitalSensor;
-import ftc.evlib.util.StepTimer;
-
-import android.util.Log;
-
-import ftc.evlib.hardware.motors.MotorEnc;
-import ftc.evlib.hardware.sensors.AnalogSensor;
-import ftc.evlib.hardware.sensors.DigitalSensor;
-import ftc.evlib.util.StepTimer;
-import ftc.electronvolts.util.DigitalInputEdgeDetector;
-import ftc.electronvolts.util.Function;
-import ftc.electronvolts.util.Functions;
-import ftc.electronvolts.util.PIDController;
 
 public class LinearSlide {
     /**
@@ -33,16 +16,18 @@ public class LinearSlide {
     private MotorEnc extension;
     double a=1.5;
     Function expo= Functions.eBased(a);
-    boolean limitSwitchCount= false;
+    boolean lowerLimitResetComplete = false;
 
 
-    private final DigitalInputEdgeDetector extensionLimit;
+    private final DigitalInputEdgeDetector lowerLimit;
+    private final DigitalInputEdgeDetector upperLimit;
     private PIDController extensionPID;
 
     private double extensionEncoder=0;
 
 
     int maxExtensionPosition;
+    
 
 
     int minExtensionPosition=-10000;   // !!! Change this to -10000 when limit switch is reinstalled !!!
@@ -51,20 +36,51 @@ public class LinearSlide {
 
 
 
-    public LinearSlide(MotorEnc extension, PIDController extensionPID, DigitalSensor extensionLimit, int maxExtensionPosition) {
+    public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition) {
         this.extension = extension;
-        this.extensionLimit= new DigitalInputEdgeDetector(extensionLimit);
+        this.lowerLimit= null;
         this.extensionPID= extensionPID;
         this.maxExtensionPosition = maxExtensionPosition;
+        this.minExtensionPosition = 0;
+        this.upperLimit = null;
     }
+
+    public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, 
+                       DigitalSensor lowerLimit) {
+        this.extension = extension;
+        this.lowerLimit= new DigitalInputEdgeDetector(lowerLimit);
+        this.extensionPID= extensionPID;
+        this.maxExtensionPosition = maxExtensionPosition;
+        this.minExtensionPosition = -10000;
+        this.upperLimit = null;
+    }
+
+    public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, 
+                       DigitalSensor lowerLimit, DigitalSensor upperLimit) {
+        this.extension = extension;
+        this.lowerLimit= new DigitalInputEdgeDetector(lowerLimit);
+        this.extensionPID= extensionPID;
+        this.maxExtensionPosition = maxExtensionPosition;
+        this.minExtensionPosition = -10000;
+        this.upperLimit = new DigitalInputEdgeDetector(upperLimit);
+        
+    }
+    
+    
 
     //StepTimer t = new StepTimer("Arm", Log.VERBOSE);
 
     public void act() {
 //            t.start();
 //            t.step("update limit switches");
+        
+        if (lowerLimit != null) {
+            lowerLimit.update();
+        }
 
-        extensionLimit.update();
+        if (upperLimit != null) {
+            upperLimit.update();
+        }
 
 //            t.step("update encoders");
 
@@ -76,21 +92,21 @@ public class LinearSlide {
 //        t.step("extension limit switch");
 
 
-        if((limitSwitchCount == false && extensionLimit.isPressed()==true) || extensionLimit.justPressed()==true){
-            limitSwitchCount= true;
+        if (lowerLimit != null) {
+            if ((lowerLimitResetComplete == false && lowerLimit.isPressed() == true) || lowerLimit.justPressed() == true) {
+                lowerLimitResetComplete = true;
 
-            extension.resetEncoder();
-            //minExtensionPosition=(int)extensionEncoder;
-            minExtensionPosition=0;
+                extension.resetEncoder();
+                minExtensionPosition = 0;
+            }
         }
 
-//        t.step("extension logic");
+        if (upperLimit != null) {
+            if (upperLimit.isPressed() && extensionSetPoint >= extensionEncoder){
+                extensionSetPoint = extensionEncoder;
+            }
+        }
 
-//        rotation.setSpeed(rotationPower);
-
-//        if(rotationSetPoint<minRotationPosition){
-//            rotationSetPoint=minRotationPosition;
-//        }
         if(extensionSetPoint>maxExtensionPosition){
             extensionSetPoint=maxExtensionPosition;
         }
@@ -100,13 +116,11 @@ public class LinearSlide {
         extensionPower=extensionPID.computeCorrection(extensionSetPoint,extensionEncoder);
 
 //        t.step("extension set power");
-        //        rotation.setPower(rotationPower);
+
         extension.setPower(extensionPower);
 
 
 //        t.step("arm updates");
-//        torque=-1*extensionLength*mass*gravity*java.lang.Math.cos(angle);
-//        extensionForce=-1*mass*gravity*java.lang.Math.sin(angle);
         extension.update();
 //        t.stop();
 
@@ -152,7 +166,7 @@ public class LinearSlide {
 
     //    public boolean getExtensionLimitSwitch(){return extensionLimit.isPressed();}
 
-    boolean getLimitSwitchCount(){ return limitSwitchCount; }
+    boolean getLowerLimitResetComplete(){ return lowerLimitResetComplete; }
 }
 
 
