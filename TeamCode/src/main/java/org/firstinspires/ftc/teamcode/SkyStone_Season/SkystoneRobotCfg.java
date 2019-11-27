@@ -38,10 +38,6 @@ public class SkystoneRobotCfg extends RobotCfg {
     private final FlyWheels flyWheels;
     private Gyro gyro;
     private final LiftArm liftArm;
-    private MotorEnc extension;
-    private DigitalSensor extensionLimitSwitch;
-
-
 
     public enum ElbowServoPresets {
         RETRACT,
@@ -143,7 +139,8 @@ public class SkystoneRobotCfg extends RobotCfg {
                 getWrist(),
                 getFingers(),
                 Motors.withEncoder(hardwareMap.dcMotor.get("extension"),false,true,stoppers),
-                Sensors.inv(Sensors.digital(hardwareMap,"extensionLimit"))
+                Sensors.inv(Sensors.digital(hardwareMap,"lowerLimit")),
+                Sensors.inv(Sensors.digital(hardwareMap,"upperLimit"))
         );
 
 

@@ -166,6 +166,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
         }
 
         telemetry.addData("lift position =", robotCfg.getLiftArm().getLiftEncoder() );
+        telemetry.addData("lift Target Position =", robotCfg.getLiftArm().getLiftTargetPosition() );
 
 
 

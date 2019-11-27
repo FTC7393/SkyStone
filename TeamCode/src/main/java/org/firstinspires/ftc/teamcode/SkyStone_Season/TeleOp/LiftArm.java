@@ -25,11 +25,13 @@ public class LiftArm {
     }
     private WristPositions wristPosition = WristPositions.STRAIGHT;
 
-    public LiftArm(ServoControl elbow, ServoControl wrist, ServoControl fingers, MotorEnc extension, DigitalSensor extensionLimit ) {
+    public LiftArm(ServoControl elbow, ServoControl wrist, ServoControl fingers, MotorEnc extension,
+                   DigitalSensor lowerLimit, DigitalSensor upperLimit ) {
         this.elbow = elbow;
         this.wrist = wrist;
         this.fingers = fingers;
-        this.lift = new LinearSlide( extension, new PIDController(0.3,0,0,1), extensionLimit,  maxExtensionPosition);
+        this.lift = new LinearSlide( extension, new PIDController(0.3,0,0,1),
+              maxExtensionPosition, lowerLimit, upperLimit);
     }
 
     public void armExtend() {
@@ -80,19 +82,11 @@ public class LiftArm {
         fingers.goToPreset(SkystoneRobotCfg.FingersServoPresets.GRAB);
     }
 
-    public void liftControlExtension(double x) {
-        lift.controlExtension(x);
-    }
-
-    public void liftStopExtension () {
-        lift.stopExtension();
-    }
-    public double getLiftEncoder(){
-        return lift.getExtensionEncoder();
-    }
-
     public void release() { fingers.goToPreset(SkystoneRobotCfg.FingersServoPresets.RELEASE); }
 
+    public LinearSlide getLift() {
+        return lift;
+    }
 
     public void act() {
         elbow.act();
