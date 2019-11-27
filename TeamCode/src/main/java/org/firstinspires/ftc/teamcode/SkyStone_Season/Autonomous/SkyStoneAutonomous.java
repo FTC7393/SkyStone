@@ -62,7 +62,6 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
                 camera = new OpenCvWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
                 camera.openCameraDevice();
                 s = pipeline.getStateNameII();
-                pipeline.getStoneRatioII();
                 camera.setPipeline(pipeline);
                 camera.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
                 rr.setValue(true);
@@ -144,27 +143,47 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 //        // THIS WILL BE THE AREA OF CODE FOR MOVING THE FOUNDATION ONCE IT THE MECHANISM IS MADE
 //        // ADD DISTANCES ARE NOT SET IN STONE AND ARE NEEDED TO BE CHANGED (ARBITRARY VALUES)
 //
-//        b.add(S.PROCESS_SKYSTONE, createProcessState());
+        b.add(S.PROCESS_SKYSTONE, createProcessState());
+        b.addDrive(S.DRIVE_LEFT_BLUE, S.GRABBLOCK, Distance.fromFeet(0.1), 0.4, 90, 90);
+        b.add(S.GRABBLOCK, S.DRIVE_2);
         b.addStop(S.STOP);
 
       return b.build();
     }
 
+
     private State createProcessState() {
         return new BasicAbstractState() {
             @Override
             public void init() {
-
             }
 
             @Override
             public boolean isDone() {
-                return false;
+                return true;
             }
 
             @Override
             public StateName getNextStateName() {
-                return null;
+                if (s.getValue() == S.SKYSTONE_LEFT && teamColor == TeamColor.BLUE) {
+                    return S.DRIVE_LEFT_BLUE;
+                }
+                if (s.getValue() == S.SKYSTONE_RIGHT && teamColor == TeamColor.BLUE) {
+                    return S.DRIVE_RIGHT_BLUE;
+                }
+                if (s.getValue() == S.SKYSTONE_MIDDLE && teamColor == TeamColor.BLUE) {
+                    return S.DRIVE_MIDDLE;
+                }
+                if (s.getValue() == S.SKYSTONE_LEFT && teamColor == TeamColor.RED) {
+                    return S.DRIVE_LEFT_RED;
+                }
+                if (s.getValue() == S.SKYSTONE_RIGHT && teamColor == TeamColor.RED) {
+                    return S.DRIVE_RIGHT_RED;
+                }
+                if (s.getValue() == S.SKYSTONE_MIDDLE && teamColor == TeamColor.RED) {
+                    return S.DRIVE_MIDDLE;
+                }
+                return S.DRIVE_MIDDLE; //we should never reach here, this is if everything somehow fails and to shut up the compiler
             }
         };
     }
@@ -178,8 +197,9 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         SKYSTONE_MIDDLE,
         SKYSTONE_LEFT,
         SKYSTONE_RIGHT,
+        DRIVE_2,
         STOP,
-        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, GOBACK, MOVETOBLOCKSAGAIN, GETLEFTBLOCKAGAIN, MIDDLEAGAIN, GETRIGHTBLOCKAGAIN, DETECTION_2
+        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, GOBACK, MOVETOBLOCKSAGAIN, GETLEFTBLOCKAGAIN, MIDDLEAGAIN, GETRIGHTBLOCKAGAIN, DRIVE_MIDDLE, DRIVE_RIGHT_BLUE, DRIVE_LEFT_BLUE, DRIVE_RIGHT_RED, DRIVE_LEFT_RED, DETECTION_2
 
     }
 }
