@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp;
 
-import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
-
 import ftc.evlib.hardware.servos.ServoControl;
 
 public class foundationMover {
 
     private ServoControl rightServo, leftServo;
+
     public enum rightServoPositions {
         UP,
         DOWN
