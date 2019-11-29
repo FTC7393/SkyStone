@@ -14,7 +14,6 @@ import ftc.electronvolts.statemachine.StateMachine;
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.InputExtractor;
-import ftc.electronvolts.util.ResultReceiver;
 import ftc.electronvolts.util.TeamColor;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.files.OptionsFile;
@@ -109,7 +108,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
         pipeline = new ProcessPipeline(srr, minCycles, teamColor);
         teamColor = optionsFile.get(SkyStoneOptionsOp.teamColorTag, SkyStoneOptionsOp.teamColorDefault);
-        ResultReceiver<Boolean> cont = new BasicResultReceiver<>();
+//        ResultReceiver<Boolean> cont = new BasicResultReceiver<>();
         EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.PROCESS_SKYSTONE, teamColor, Angle.fromDegrees(3));
         b.add(S.PROCESS_SKYSTONE, createProcessState());
         b.addDrive(S.SKYSTONE_LEFT, S.STOP, Distance.fromFeet(1.2), 0.5, -65, 0);
