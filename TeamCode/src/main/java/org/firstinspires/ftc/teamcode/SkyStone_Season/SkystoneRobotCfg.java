@@ -35,9 +35,9 @@ import ftc.evlib.statemachine.EVStateMachineBuilder;
 
 public class SkystoneRobotCfg extends RobotCfg {
 
-    private final FlyWheels flyWheels;
-    private Gyro gyro;
-    private final LiftArm liftArm;
+    private final FlyWheels flyWheels = null;
+    private final Gyro gyro;
+    private final LiftArm liftArm = null;
     private MotorEnc extension;
     private DigitalSensor extensionLimitSwitch;
 
@@ -117,10 +117,10 @@ public class SkystoneRobotCfg extends RobotCfg {
         super(hardwareMap);
         double scaleFactor = 1.0;
         mecanumControl = new MecanumControl(new MecanumMotors(
-                Motors.withEncoder(hardwareMap.dcMotor.get("frontLeft"), true, true, stoppers), // 0
-                Motors.withEncoder(hardwareMap.dcMotor.get("frontRight") , false, true, stoppers), // 1
-                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backRight") , true, true, stoppers),scaleFactor), // 2
-                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backLeft") , false, true, stoppers),scaleFactor), // 3
+                Motors.withEncoder(hardwareMap.dcMotor.get("frontLeft"), false, true, stoppers), // 0
+                Motors.withEncoder(hardwareMap.dcMotor.get("frontRight") , true, true, stoppers), // 1
+                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backLeft") , false, true, stoppers),scaleFactor), // 2
+                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backRight") , true, true, stoppers),scaleFactor), // 3
                 true, MAX_ROBOT_SPEED,MAX_ROBOT_SPEED_SIDEWAYS));
 //        collector  = hardwareMap.get(DcMotor.class, "collection");
 //        collector.setPower(0);
@@ -130,21 +130,18 @@ public class SkystoneRobotCfg extends RobotCfg {
 
         gyro = new IMUGyro(hardwareMap.get(BNO055IMU.class, "imu"));
 
-        flyWheels = new FlyWheels(
+//        flyWheels = new FlyWheels(
 //                Motors.withoutEncoder(hardwareMap.dcMotor.get("leftFlywheel"), false, false, stoppers),
 //                Motors.withoutEncoder(hardwareMap.dcMotor.get("rightFlywheel"), false, false, stoppers)
-                Motors.withoutEncoder(hardwareMap.dcMotor.get("frontLeft"), false, false, stoppers),
-                Motors.withoutEncoder(hardwareMap.dcMotor.get("frontRight"), false, false, stoppers)
+//        );
 
-        );
-
-        liftArm = new LiftArm(
-                getElbow(),
-                getWrist(),
-                getFingers(),
-                Motors.withEncoder(hardwareMap.dcMotor.get("extension"),false,true,stoppers),
-                Sensors.inv(Sensors.digital(hardwareMap,"extensionLimit"))
-        );
+//        liftArm = new LiftArm(
+//                getElbow(),
+//                getWrist(),
+//                getFingers(),
+//                Motors.withEncoder(hardwareMap.dcMotor.get("extension"),false,true,stoppers),
+//                Sensors.inv(Sensors.digital(hardwareMap,"extensionLimit"))
+//        );
 
 
     }
@@ -158,15 +155,16 @@ public class SkystoneRobotCfg extends RobotCfg {
     public void act() {
         mecanumControl.act();
 //        servos.act();
-        flyWheels.act();
-        liftArm.act();
-        servos.act();
+//        flyWheels.act();
+//        liftArm.act();
+//        servos.act();
     }
 
     @Override
     public void stop() {
         mecanumControl.stop();
-        flyWheels.stop();
+//        flyWheels.stop();
+        gyro.stop();
     }
     public Servos getServos(){
         return servos;

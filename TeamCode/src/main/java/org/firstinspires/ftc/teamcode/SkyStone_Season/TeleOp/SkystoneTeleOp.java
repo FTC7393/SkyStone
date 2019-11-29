@@ -14,14 +14,14 @@ import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.units.Time;
 import ftc.evlib.hardware.control.RotationControls;
 import ftc.evlib.hardware.control.TranslationControls;
+import ftc.evlib.hardware.motors.MecanumMotors;
 import ftc.evlib.hardware.servos.ServoControl;
 import ftc.evlib.opmodes.AbstractTeleOp;
 //comment
 /**
  * Created by ftc7393 on 9/22/2018.
  */
-@TeleOp(name = "SkyStone Ri3D")
-@Disabled
+@TeleOp(name = "SkyStone Teleop")
 public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     private ServoControl dump = null;
     private DcMotor collector = null;
@@ -93,9 +93,9 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     }
     private void forwardControl() {
         double f = currentSpeedFactor.getFactor();
-        rightY = new ScalingInputExtractor(driver1.right_stick_y, f);
-        leftX = new ScalingInputExtractor(driver1.left_stick_x, f);
-        rightX = new ScalingInputExtractor(InputExtractors.negative(driver1.right_stick_x), -1.0*f);
+        rightY = new ScalingInputExtractor(driver1.right_stick_y, -f);
+        leftX = new ScalingInputExtractor(driver1.left_stick_x, -f);
+        rightX = new ScalingInputExtractor(driver1.right_stick_x, -f);
         robotCfg.getMecanumControl().setTranslationControl(TranslationControls.inputExtractorXY(rightY, rightX));
 //        robotCfg.getMecanumControl().setRotationControl(RotationControls.teleOpGyro(leftX, robotCfg.getGyro()));
         robotCfg.getMecanumControl().setRotationControl(RotationControls.inputExtractor(leftX));
@@ -136,36 +136,42 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
         }else if (driver1.right_trigger.getValue() >= 0.2) {
             robotCfg.getFlyWheels().setPower(0.1);
         } else {
-            robotCfg.getFlyWheels().stop();
+//            robotCfg.getFlyWheels().stop();
         }
 
-        robotCfg.getLiftArm().liftControlExtension(driver2.left_stick_y.getValue());
-
-        if(driver2.y.justPressed()){
-            robotCfg.getLiftArm().armExtend();
-        }
-
-        if(driver2.a.justPressed()){
-            robotCfg.getLiftArm().armRetract();
-        }
-
-        if(driver2.x.justPressed()){
-            if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.RIGHT){
-                robotCfg.getLiftArm().wristStraight();
-            }else if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.STRAIGHT){
-                robotCfg.getLiftArm().wristLeft();
-            }
-        }
-
-        if(driver2.b.justPressed()){
-            if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.LEFT){
-                robotCfg.getLiftArm().wristStraight();
-            }else if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.STRAIGHT){
-                robotCfg.getLiftArm().wristRight();
-            }
-        }
-
-        telemetry.addData("lift position =", robotCfg.getLiftArm().getLiftEncoder() );
+//        robotCfg.getLiftArm().liftControlExtension(driver2.left_stick_y.getValue());
+//
+//        if(driver2.y.justPressed()){
+//            robotCfg.getLiftArm().armExtend();
+//        }
+//
+//        if(driver2.a.justPressed()){
+//            robotCfg.getLiftArm().armRetract();
+//        }
+//
+//        if(driver2.x.justPressed()){
+//            if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.RIGHT){
+//                robotCfg.getLiftArm().wristStraight();
+//            }else if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.STRAIGHT){
+//                robotCfg.getLiftArm().wristLeft();
+//            }
+//        }
+//
+//        if(driver2.b.justPressed()){
+//            if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.LEFT){
+//                robotCfg.getLiftArm().wristStraight();
+//            }else if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.STRAIGHT){
+//                robotCfg.getLiftArm().wristRight();
+//            }
+//        }
+//
+//
+//        telemetry.addData("lift position =", robotCfg.getLiftArm().getLiftEncoder() );
+        MecanumMotors mm = robotCfg.getMecanumControl().getMecanumMotors();
+        telemetry.addData("MEnc 0 FL", mm.getEncoder(0));
+        telemetry.addData("MEnc 1 FR", mm.getEncoder(1));
+        telemetry.addData("MEnc 2 BL", mm.getEncoder(2));
+        telemetry.addData("MEnc 3 BR", mm.getEncoder(3));
 
 
 

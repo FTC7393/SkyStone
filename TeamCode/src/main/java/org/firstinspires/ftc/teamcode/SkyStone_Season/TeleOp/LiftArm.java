@@ -95,10 +95,10 @@ public class LiftArm {
 
 
     public void act() {
-        elbow.act();
-        wrist.act();
-        fingers.act();
-        lift.act();
+//        elbow.act();
+//        wrist.act();
+//        fingers.act();
+//        lift.act();
     }
 
 }
