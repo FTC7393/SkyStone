@@ -56,6 +56,16 @@ public class SkystoneRobotCfg extends RobotCfg {
         GRAB
     }
 
+    public enum rightServoPresets {
+        UP,
+        DOWN
+    }
+
+    public enum leftServoPositions {
+        UP,
+        DOWN
+    }
+
 //    public enum pushServoPresets {
 //        RETRACT,
 //        EJECT
@@ -69,6 +79,8 @@ public class SkystoneRobotCfg extends RobotCfg {
         ELBOW_SERVO("elbowServo", ElbowServoPresets.values()),
         WRIST_SERVO("wristServo", WristServoPresets.values()),
         FINGERS_SERVO("fingersServo", FingersServoPresets.values());
+
+
 //        PUSH_SERVO("pushServo", RotateServoPresets.values());
 
         private final String hardwareName;
