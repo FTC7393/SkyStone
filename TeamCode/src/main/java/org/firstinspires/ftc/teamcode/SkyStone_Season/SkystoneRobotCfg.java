@@ -17,9 +17,7 @@ import ftc.electronvolts.util.units.Velocity;
 import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.hardware.control.MecanumControl;
 import ftc.evlib.hardware.motors.MecanumMotors;
-import ftc.evlib.hardware.motors.MotorEnc;
 import ftc.evlib.hardware.motors.Motors;
-import ftc.evlib.hardware.sensors.DigitalSensor;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.hardware.sensors.IMUGyro;
 import ftc.evlib.hardware.sensors.Sensors;
@@ -139,10 +137,10 @@ public class SkystoneRobotCfg extends RobotCfg {
         gyro = new IMUGyro(hardwareMap.get(BNO055IMU.class, "imu"));
 
         flyWheels = new FlyWheels(
-//                Motors.withoutEncoder(hardwareMap.dcMotor.get("leftFlywheel"), false, false, stoppers),
-//                Motors.withoutEncoder(hardwareMap.dcMotor.get("rightFlywheel"), false, false, stoppers)
-                Motors.withoutEncoder(hardwareMap.dcMotor.get("frontLeft"), false, false, stoppers),
-                Motors.withoutEncoder(hardwareMap.dcMotor.get("frontRight"), false, false, stoppers)
+                Motors.withoutEncoder(hardwareMap.dcMotor.get("leftFlywheel"), false, false, stoppers),
+                Motors.withoutEncoder(hardwareMap.dcMotor.get("rightFlywheel"), false, false, stoppers)
+//                Motors.withoutEncoder(hardwareMap.dcMotor.get("frontLeft"), false, false, stoppers),
+//                Motors.withoutEncoder(hardwareMap.dcMotor.get("frontRight"), false, false, stoppers)
 
         );
 
@@ -166,7 +164,6 @@ public class SkystoneRobotCfg extends RobotCfg {
     @Override
     public void act() {
         mecanumControl.act();
-//        servos.act();
         flyWheels.act();
         liftArm.act();
         servos.act();
