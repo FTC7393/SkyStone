@@ -52,7 +52,7 @@ class ProcessPipeline extends OpenCvPipeline {
 
     @Override
     public Mat processFrame(Mat input) {
-        if (!StateRR.isReady()) {
+//        if (!StateRR.isReady()) {
             if (numStabalizationCycles > minStabalizationCycles) {
                 blue = getLowestAvgBlue(input, rect1);
                 blue2 = getLowestAvgBlue(input, rect2);
@@ -65,7 +65,7 @@ class ProcessPipeline extends OpenCvPipeline {
                 StateRR.setValue(option);
             }
             numStabalizationCycles++;
-        }
+//        }
         Imgproc.rectangle(input, rect1, new Scalar(255, 0, 0), 3);
         Imgproc.rectangle(input, rect2, new Scalar(255, 0, 0), 3);
         return input;

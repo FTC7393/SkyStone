@@ -8,7 +8,6 @@ import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
 import ftc.electronvolts.util.InputExtractor;
-import ftc.electronvolts.util.InputExtractors;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.units.Time;
 import ftc.evlib.hardware.control.RotationControls;
@@ -93,9 +92,9 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     }
     private void forwardControl() {
         double f = currentSpeedFactor.getFactor();
-        rightY = new ScalingInputExtractor(driver1.right_stick_y, f);
-        leftX = new ScalingInputExtractor(driver1.left_stick_x, f);
-        rightX = new ScalingInputExtractor(InputExtractors.negative(driver1.right_stick_x), -1.0*f);
+        rightY = new ScalingInputExtractor(driver1.right_stick_y, -f);
+        leftX = new ScalingInputExtractor(driver1.left_stick_x, -f);
+        rightX = new ScalingInputExtractor(driver1.right_stick_x, -f);
         robotCfg.getMecanumControl().setTranslationControl(TranslationControls.inputExtractorXY(rightY, rightX));
 //        robotCfg.getMecanumControl().setRotationControl(RotationControls.teleOpGyro(leftX, robotCfg.getGyro()));
         robotCfg.getMecanumControl().setRotationControl(RotationControls.inputExtractor(leftX));
