@@ -13,8 +13,8 @@ public class LiftArm {
     private final ServoControl elbow, wrist, fingers;
     private boolean isArmExtended = false;
     private LinearSlide lift = null;
-    private final int maxExtensionPosition = 1000; //random number, don't know actual value yet.
-    private final int safeArmExtensionPosition = 0; // lift must be grater than a magic number to extend/retract arm.
+    private final int maxExtensionPosition = 3522; //random number, don't know actual value yet.
+    private final int safeArmExtensionPosition = maxExtensionPosition; // lift must be grater than a magic number to extend/retract arm.
     public enum WristPositions {
         STRAIGHT,
         LEFT,
@@ -28,7 +28,7 @@ public class LiftArm {
         this.elbow = elbow;
         this.wrist = wrist;
         this.fingers = fingers;
-        this.lift = new LinearSlide(extension, new PIDController(0.1, 0, 0, 1),
+        this.lift = new LinearSlide(extension, new PIDController(0.0025, 0, 0, 1),
               maxExtensionPosition, lowerLimit, upperLimit);
     }
 

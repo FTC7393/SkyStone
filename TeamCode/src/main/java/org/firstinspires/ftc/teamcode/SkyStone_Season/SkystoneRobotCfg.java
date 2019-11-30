@@ -81,7 +81,7 @@ public class SkystoneRobotCfg extends RobotCfg {
                 getElbow(),
                 getWrist(),
                 getFingers(),
-                Motors.withEncoder(hardwareMap.dcMotor.get("extension"),false,true,stoppers),
+                Motors.withEncoder(hardwareMap.dcMotor.get("extension"), true, true, stoppers),
                 Sensors.inv(Sensors.digital(hardwareMap,"lowerLimit")),
                 Sensors.inv(Sensors.digital(hardwareMap,"upperLimit"))
         );

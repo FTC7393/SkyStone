@@ -30,7 +30,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
 
     @Override
     public Time getMatchTime() {
-        return Time.fromMinutes(180); //teleop is 2 minutes
+        return Time.fromMinutes(2); //teleop is 2 minutes
     }
 
 
