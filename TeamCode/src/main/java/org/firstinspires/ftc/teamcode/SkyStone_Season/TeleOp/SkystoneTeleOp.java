@@ -28,6 +28,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     int dumpPosition;
     boolean driver1CollectorEnabled = true;
 
+
     @Override
     public Time getMatchTime() {
         return Time.fromMinutes(180); //teleop is 2 minutes
@@ -107,6 +108,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
 
     @Override
     protected void act() {
+
         forwardControl();
         dump  = null; // robotCfg.getServo(FutureFestRobotCfg.FutureFestServoEnum.DUMP_SERVO);
 
@@ -163,6 +165,14 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
                 robotCfg.getLiftArm().wristRight();
             }
         }
+        int m = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0);
+        int m1 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(1);
+        int m2 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(2);
+        int m3 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(3);
+        telemetry.addData("motor 0 - frontRight", m);
+        telemetry.addData("motor 1 - frontLeft", m1);
+        telemetry.addData("motor 2 - backLeft", m2);
+        telemetry.addData("motor 3 - backRight", m3);
 
 //        telemetry.addData("lift position =", robotCfg.getLiftArm().getLiftEncoder() );
 //        telemetry.addData("lift Target Position =", robotCfg.getLiftArm().getLiftTargetPosition() );
@@ -174,7 +184,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
 //        // Dumper control
 //        if(driver2.y.isPressed()) {
 //            dump.goToPreset(FutureFestRobotCfg.DumpServoPresets.OPEN);
-////        } else if(driver2.a.isPressed()) {
+//        } else if(driver2.a.isPressed()) {
 //        } else{
 //            dump.goToPreset(FutureFestRobotCfg.DumpServoPresets.OPEN);
 //        }

@@ -67,10 +67,11 @@ public class SkystoneRobotCfg extends RobotCfg {
         super(hardwareMap);
         double scaleFactor = 1.0;
         mecanumControl = new MecanumControl(new MecanumMotors(
-                Motors.withEncoder(hardwareMap.dcMotor.get("frontLeft"), true, true, stoppers), // 0
-                Motors.withEncoder(hardwareMap.dcMotor.get("frontRight") , false, true, stoppers), // 1
-                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backRight") , true, true, stoppers),scaleFactor), // 2
-                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backLeft") , false, true, stoppers),scaleFactor), // 3
+                Motors.withEncoder(hardwareMap.dcMotor.get("frontLeft"), false, true, stoppers), // 0
+                Motors.withEncoder(hardwareMap.dcMotor.get("frontRight"), true, true, stoppers), // 1
+
+                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backRight"), false, true, stoppers), scaleFactor), // 2
+                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backLeft"), true, true, stoppers), scaleFactor), // 3
                 true, MAX_ROBOT_SPEED,MAX_ROBOT_SPEED_SIDEWAYS));
 //        collector  = hardwareMap.get(DcMotor.class, "collection");
 //        collector.setPower(0);
