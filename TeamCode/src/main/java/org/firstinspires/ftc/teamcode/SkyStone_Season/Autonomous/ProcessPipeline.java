@@ -31,6 +31,7 @@ class ProcessPipeline extends OpenCvPipeline {
     };
     private final BasicResultReceiver<StateName> StateRR;
     private final TeamColor tc;
+    private final BasicResultReceiver<Boolean> canUpdateSRR;
     private final int x1 = 175, y1 = 378, w1 = 73, h1 = 53;
     private int x2 = 374, y2 = 374, w2 = w1, h2 = h1;
     private Mat m1;
@@ -44,15 +45,16 @@ class ProcessPipeline extends OpenCvPipeline {
     private StateName option;
     private double stoneratio;
 
-    public ProcessPipeline(BasicResultReceiver<StateName> stateRR, int minStabalizationCycles, TeamColor tc) {
+    public ProcessPipeline(BasicResultReceiver<StateName> stateRR, int minStabalizationCycles, TeamColor tc, BasicResultReceiver<Boolean> canUpdateSRR) {
         StateRR = stateRR;
         this.minStabalizationCycles = minStabalizationCycles;
         this.tc = tc;
+        this.canUpdateSRR = canUpdateSRR;
     }
 
     @Override
     public Mat processFrame(Mat input) {
-//        if (!StateRR.isReady()) {
+        if (!(canUpdateSRR.isReady()) || canUpdateSRR.getValue()) {
             if (numStabalizationCycles > minStabalizationCycles) {
                 blue = getLowestAvgBlue(input, rect1);
                 blue2 = getLowestAvgBlue(input, rect2);
@@ -65,7 +67,7 @@ class ProcessPipeline extends OpenCvPipeline {
                 StateRR.setValue(option);
             }
             numStabalizationCycles++;
-//        }
+        }
         Imgproc.rectangle(input, rect1, new Scalar(255, 0, 0), 3);
         Imgproc.rectangle(input, rect2, new Scalar(255, 0, 0), 3);
         return input;

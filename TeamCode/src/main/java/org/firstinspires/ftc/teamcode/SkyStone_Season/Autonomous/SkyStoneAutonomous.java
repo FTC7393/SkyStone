@@ -37,6 +37,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     TeamColor teamColor = TeamColor.BLUE;
     int minCycles = 10;
     private BasicResultReceiver<StateName> srr = new BasicResultReceiver<>();
+    private BasicResultReceiver<Boolean> canUpdateSRR = new BasicResultReceiver<>();
     private ProcessPipeline pipeline;
 
     @Override
@@ -51,7 +52,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
     @Override
     public void setup() {
-        super.setup();
+        super.setup(); //Note: the superclass init method builds the state machine
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -75,12 +76,12 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
     @Override
     protected void setup_act() {
-
+        telemetry.addData("Skystone position", srr.isReady() ? srr.getValue() : "not ready");
     }
 
     @Override
     protected void go() {
-
+        canUpdateSRR.setValue(false);
     }
 
 
@@ -106,7 +107,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     @Override
     public StateMachine buildStates() {
         OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
-        pipeline = new ProcessPipeline(srr, minCycles, teamColor);
+        pipeline = new ProcessPipeline(srr, minCycles, teamColor, canUpdateSRR);
         teamColor = optionsFile.get(SkyStoneOptionsOp.teamColorTag, SkyStoneOptionsOp.teamColorDefault);
 //        ResultReceiver<Boolean> cont = new BasicResultReceiver<>();
         EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.PROCESS_SKYSTONE, teamColor, Angle.fromDegrees(3));
