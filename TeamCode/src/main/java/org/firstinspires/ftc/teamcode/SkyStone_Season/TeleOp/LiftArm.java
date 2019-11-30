@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp;
 
 
-import com.qualcomm.robotcore.hardware.Servo;
-
 import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
 
 import ftc.electronvolts.util.PIDController;
@@ -12,7 +10,7 @@ import ftc.evlib.hardware.servos.ServoControl;
 
 public class LiftArm {
 
-    private ServoControl elbow, wrist, fingers;
+    private final ServoControl elbow, wrist, fingers;
     private boolean isArmExtended = false;
     private LinearSlide lift = null;
     private final int maxExtensionPosition = 1000; //random number, don't know actual value yet.

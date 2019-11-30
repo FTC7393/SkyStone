@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -20,8 +19,8 @@ import ftc.evlib.opmodes.AbstractTeleOp;
 /**
  * Created by ftc7393 on 9/22/2018.
  */
-@TeleOp(name = "SkyStone Ri3D")
-@Disabled
+@TeleOp(name = "SkyStone Tele")
+
 public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     private ServoControl dump = null;
     private DcMotor collector = null;

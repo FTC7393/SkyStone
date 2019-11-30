@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FlyWheels;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FoundationMover;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.LiftArm;
 
 import java.util.Map;
@@ -36,6 +37,7 @@ public class SkystoneRobotCfg extends RobotCfg {
     private final FlyWheels flyWheels;
     private Gyro gyro;
     private final LiftArm liftArm;
+    private final FoundationMover foundationMover;
 
     public enum ElbowServoPresets {
         RETRACT,
@@ -54,71 +56,13 @@ public class SkystoneRobotCfg extends RobotCfg {
         GRAB
     }
 
-    public enum rightServoPresets {
-        UP,
-        DOWN
-    }
-
-    public enum leftServoPositions {
-        UP,
-        DOWN
-    }
-
-//    public enum pushServoPresets {
-//        RETRACT,
-//        EJECT
-//    }
-
-    /**
-     * defines all the servos on the robot
-     */
-    public enum SkystoneServoEnum implements ServoName {
-        //enum name("hardware name", preset enum.values()),
-        ELBOW_SERVO("elbowServo", ElbowServoPresets.values()),
-        WRIST_SERVO("wristServo", WristServoPresets.values()),
-        FINGERS_SERVO("fingersServo", FingersServoPresets.values());
-
-
-//        PUSH_SERVO("pushServo", RotateServoPresets.values());
-
-        private final String hardwareName;
-        private final Enum[] presets;
-
-        SkystoneServoEnum(String hardwareName, Enum[] presets) {
-            this.hardwareName = hardwareName;
-            this.presets = presets;
-        }
-
-        @Override
-        public String getHardwareName() {
-            return hardwareName;
-        }
-
-        @Override
-        public Enum[] getPresets() {
-            return presets;
-        }
-
-        @Override
-        public Class<SkystoneRobotCfg> getRobotCfg() {
-            return SkystoneRobotCfg.class;
-        }
-    }
-
-
-
-
-    private final MecanumControl mecanumControl;
-    private Servos servos;
-//    private DcMotor collector = null;
-
-    private static final Velocity MAX_ROBOT_SPEED = new Velocity(Distance.fromInches(57 * 4), Time.fromSeconds(2.83));
-    private static final Velocity MAX_ROBOT_SPEED_SIDEWAYS = new Velocity(Distance.fromInches(21.2441207039), Time.fromSeconds(1));
+    private final Servos servos;
 
     public SkystoneRobotCfg(HardwareMap hardwareMap) {
         //this(hardwareMap, ServoCfg.defaultServoStartPresetMap(FutureFestServoEnum.values()));
-        this(hardwareMap, ServoCfg.defaultServoStartPresetMap(new ServoName[0]));
-   }
+        this(hardwareMap, ServoCfg.defaultServoStartPresetMap(SkystoneServoName.values()));
+    }
+
     public SkystoneRobotCfg(HardwareMap hardwareMap, Map<ServoName, Enum> servoStartPresetMap) {
         super(hardwareMap);
         double scaleFactor = 1.0;
@@ -153,7 +97,39 @@ public class SkystoneRobotCfg extends RobotCfg {
                 Sensors.inv(Sensors.digital(hardwareMap,"upperLimit"))
         );
 
+        foundationMover = new FoundationMover(
+                getRightFoundationMover(),
+                getLeftFoundationMover()
+        );
 
+    }
+
+//    public enum pushServoPresets {
+//        RETRACT,
+//        EJECT
+//    }
+
+    public ServoControl getElbow() {
+        return getServo(SkystoneServoName.ELBOW_SERVO);
+    }
+
+
+    private final MecanumControl mecanumControl;
+
+    public ServoControl getWrist() {
+        return getServo(SkystoneServoName.WRIST_SERVO);
+    }
+//    private DcMotor collector = null;
+
+    private static final Velocity MAX_ROBOT_SPEED = new Velocity(Distance.fromInches(57 * 4), Time.fromSeconds(2.83));
+    private static final Velocity MAX_ROBOT_SPEED_SIDEWAYS = new Velocity(Distance.fromInches(21.2441207039), Time.fromSeconds(1));
+
+    public ServoControl getFingers() {
+        return getServo(SkystoneServoName.FINGERS_SERVO);
+    }
+
+    public ServoControl getRightFoundationMover() {
+        return getServo(SkystoneServoName.RIGHT_FOUNDATION_MOVER_SERVO);
     }
 
     @Override
@@ -174,25 +150,41 @@ public class SkystoneRobotCfg extends RobotCfg {
         mecanumControl.stop();
         flyWheels.stop();
     }
+
     public Servos getServos(){
         return servos;
     }
-    public ServoControl getElbow() {
-        return getServo(SkystoneServoEnum.ELBOW_SERVO);
-    }
-    public ServoControl getWrist() {
-        return getServo(SkystoneServoEnum.WRIST_SERVO);
-    }
-    public ServoControl getFingers() {
-        return getServo(SkystoneServoEnum.FINGERS_SERVO);
+
+    public ServoControl getLeftFoundationMover() {
+        return getServo(SkystoneServoName.LEFT_FOUNDATION_MOVER_SERVO);
     }
 
-//    public DcMotor getCollector(){
+    //    public DcMotor getCollector(){
 //        return collector;
 //    }
     public MecanumControl getMecanumControl() {
         return mecanumControl;
     }
+
+    public FoundationMover getFoundationMover() {
+        return foundationMover;
+    }
+
+    public enum RightFoundationMoverServoPresets {
+        UP,
+        DOWN
+    }
+
+    public enum LeftFoundationMoverServoPresets {
+        UP,
+        DOWN
+    }
+
+    public enum StoneScraperServoPresets {
+        UP,
+        DOWN
+    }
+
     public Gyro getGyro() {
         return gyro;
     }
@@ -207,5 +199,43 @@ public class SkystoneRobotCfg extends RobotCfg {
 
     public LiftArm getLiftArm() {
         return liftArm;
+    }
+
+    /**
+     * defines all the servos on the robot
+     */
+    public enum SkystoneServoName implements ServoName {
+        //enum name("hardware name", preset enum.values()),
+        ELBOW_SERVO("elbowServo", ElbowServoPresets.values()),
+        WRIST_SERVO("wristServo", WristServoPresets.values()),
+        FINGERS_SERVO("fingersServo", FingersServoPresets.values()),
+        RIGHT_FOUNDATION_MOVER_SERVO("rightFoundationMoverServo", RightFoundationMoverServoPresets.values()),
+        LEFT_FOUNDATION_MOVER_SERVO("leftFoundationMoverServo", LeftFoundationMoverServoPresets.values()),
+        STONE_SCRAPER_SERVO("stoneScraperServo", StoneScraperServoPresets.values());
+
+//        PUSH_SERVO("pushServo", RotateServoPresets.values());
+
+        private final String hardwareName;
+        private final Enum[] presets;
+
+        SkystoneServoName(String hardwareName, Enum[] presets) {
+            this.hardwareName = hardwareName;
+            this.presets = presets;
+        }
+
+        @Override
+        public String getHardwareName() {
+            return hardwareName;
+        }
+
+        @Override
+        public Enum[] getPresets() {
+            return presets;
+        }
+
+        @Override
+        public Class<SkystoneRobotCfg> getRobotCfg() {
+            return SkystoneRobotCfg.class;
+        }
     }
 }
