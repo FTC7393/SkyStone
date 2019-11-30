@@ -48,9 +48,7 @@ public class TranslationControls {
         final Vector2D vector2D = new Vector2D(velocity, direction);
         return new ftc.evlib.hardware.control.TranslationControl() {
             @Override
-            public boolean act() {
-                return true;
-            }
+            public boolean act() { return true; }
 
             @Override
             public Vector2D getTranslation() {
