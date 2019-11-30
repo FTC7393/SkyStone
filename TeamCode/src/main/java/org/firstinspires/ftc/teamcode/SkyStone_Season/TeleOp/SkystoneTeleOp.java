@@ -175,6 +175,13 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
             robotCfg.getFoundationMover().servosUp();
         }
 
+        if (driver1.dpad_left.justPressed()) {
+            robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.UP);
+        }
+
+        if (driver1.dpad_left.justReleased()) {
+            robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.DOWN);
+        }
         
         int m = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0);
         int m1 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(1);
@@ -207,3 +214,4 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
 
     }
 }
+

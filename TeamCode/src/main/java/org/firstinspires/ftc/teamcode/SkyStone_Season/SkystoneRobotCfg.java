@@ -187,6 +187,7 @@ public class SkystoneRobotCfg extends RobotCfg {
         DOWN
     }
 
+
     public Gyro getGyro() {
         return gyro;
     }
@@ -201,6 +202,10 @@ public class SkystoneRobotCfg extends RobotCfg {
 
     public LiftArm getLiftArm() {
         return liftArm;
+    }
+
+    public ServoControl getStoneScraperServo() {
+        return getServo(SkystoneServoName.STONE_SCRAPER_SERVO);
     }
 
     /**
