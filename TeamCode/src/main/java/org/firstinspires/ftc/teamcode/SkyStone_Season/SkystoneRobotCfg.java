@@ -150,6 +150,7 @@ public class SkystoneRobotCfg extends RobotCfg {
     public void stop() {
         mecanumControl.stop();
         flyWheels.stop();
+        gyro.stop();
     }
 
     public Servos getServos(){

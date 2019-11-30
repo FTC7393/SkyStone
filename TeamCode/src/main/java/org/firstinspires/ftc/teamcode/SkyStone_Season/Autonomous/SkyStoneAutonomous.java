@@ -110,7 +110,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         pipeline = new ProcessPipeline(srr, minCycles, teamColor, canUpdateSRR);
         teamColor = optionsFile.get(SkyStoneOptionsOp.teamColorTag, SkyStoneOptionsOp.teamColorDefault);
 //        ResultReceiver<Boolean> cont = new BasicResultReceiver<>();
-        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.PROCESS_SKYSTONE, teamColor, Angle.fromDegrees(3));
+        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.STOP, teamColor, Angle.fromDegrees(3));
         b.addDrive(S.DRIVE_1, S.STOP, Distance.fromFeet(1), 0.3, 45, 0);
         b.add(S.PROCESS_SKYSTONE, createProcessState());
         b.addDrive(S.SKYSTONE_LEFT, S.STOP, Distance.fromFeet(0.7), 0.5, 115, 0);
