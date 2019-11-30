@@ -119,25 +119,26 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
 
         // Collector logic: Driver1 has control and can press right bumper for intake or left bumper for output
         // But is the right trigger is pressed in different levels (0.9, 0.6 and 0.3) it can set the collector power to different speeds
-        if(driver1.right_bumper.isPressed() && !driver1.left_bumper.isPressed())  {
-            robotCfg.getFlyWheels().setPower(0.45);
-        } else if(driver1.left_bumper.isPressed() && !driver1.right_bumper.isPressed()) {
+        if(driver1.right_bumper.isPressed()) {
             robotCfg.getFlyWheels().setPower(-0.45);
-        }else if (driver1.right_trigger.getValue() >= 0.95) {
-            robotCfg.getFlyWheels().setPower(1.0);
-        }else if (driver1.right_trigger.getValue() >= 0.8) {
-            robotCfg.getFlyWheels().setPower(0.5);
-        }else if (driver1.right_trigger.getValue() >= 0.65) {
-            robotCfg.getFlyWheels().setPower(0.4);
-        }else if (driver1.right_trigger.getValue() >= 0.5) {
-            robotCfg.getFlyWheels().setPower(0.3);
-        }else if (driver1.right_trigger.getValue() >= 0.35) {
-            robotCfg.getFlyWheels().setPower(0.2);
-        }else if (driver1.right_trigger.getValue() >= 0.2) {
-            robotCfg.getFlyWheels().setPower(0.1);
         } else {
-            robotCfg.getFlyWheels().stop();
+            robotCfg.getFlyWheels().setPower(0.45*driver1.right_trigger.getValue());
         }
+//        }else if (driver1.right_trigger.getValue() >= 0.95) {
+//            robotCfg.getFlyWheels().setPower(1.0);
+//        }else if (driver1.right_trigger.getValue() >= 0.8) {
+//            robotCfg.getFlyWheels().setPower(0.5);
+//        }else if (driver1.right_trigger.getValue() >= 0.65) {
+//            robotCfg.getFlyWheels().setPower(0.4);
+//        }else if (driver1.right_trigger.getValue() >= 0.5) {
+//            robotCfg.getFlyWheels().setPower(0.3);
+//        }else if (driver1.right_trigger.getValue() >= 0.35) {
+//            robotCfg.getFlyWheels().setPower(0.2);
+//        }else if (driver1.right_trigger.getValue() >= 0.2) {
+//            robotCfg.getFlyWheels().setPower(0.1);
+//        } else {
+//            robotCfg.getFlyWheels().stop();
+//        }
 
 //        robotCfg.getLiftArm().liftControlExtension(driver2.left_stick_y.getValue());
 
@@ -165,7 +166,16 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
             }
         }
 
+        if ((driver1.left_bumper.justPressed() && !driver2.left_bumper.isPressed()) ||
+                (driver2.left_bumper.justPressed() && !driver1.left_bumper.isPressed())){
+            robotCfg.getFoundationMover().servosDown();
+        }
+        if ((driver1.left_bumper.justReleased() && !driver2.left_bumper.isPressed()) ||
+                (driver2.left_bumper.justReleased() && !driver1.left_bumper.isPressed())){
+            robotCfg.getFoundationMover().servosUp();
+        }
 
+        
         int m = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0);
         int m1 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(1);
         int m2 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(2);

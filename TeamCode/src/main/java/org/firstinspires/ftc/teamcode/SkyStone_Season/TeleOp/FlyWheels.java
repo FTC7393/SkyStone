@@ -19,8 +19,8 @@ public class FlyWheels {
     }
 
     public void setPower (double newPower) {
-        leftFlywheel.setPower(newPower);
-        rightFlywheel.setPower(-newPower);
+        leftFlywheel.setPower(-newPower);
+        rightFlywheel.setPower(newPower);
     }
 
     public void stop() {
