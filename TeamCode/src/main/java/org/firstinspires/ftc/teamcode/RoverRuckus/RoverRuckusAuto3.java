@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.RoverRuckus;
 
 import ftc.evlib.util.ImmutableList;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.List;
@@ -27,6 +28,7 @@ import ftc.electronvolts.util.units.Distance;
 import ftc.electronvolts.util.units.Time;
 
 @Autonomous(name = "RoverRuckusAutoOp3")
+@Disabled
 
 public class RoverRuckusAuto3 extends AbstractAutoOp<RoverRuckusRobotCfg> {
     Gyro gyro;

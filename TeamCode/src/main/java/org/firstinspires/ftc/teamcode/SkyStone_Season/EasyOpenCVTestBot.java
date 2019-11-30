@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season;
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -20,6 +21,7 @@ import ftc.electronvolts.util.files.Logger;
 import ftc.evlib.opmodes.AbstractTeleOp;
 
 @TeleOp(name = "EasyOpenCVTele")
+@Disabled
 public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
     OpenCvCamera phoneCam;
     private BasicResultReceiver<Boolean> rr = new BasicResultReceiver<>();

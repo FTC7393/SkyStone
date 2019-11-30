@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.concepts;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import ftc.electronvolts.util.Function;
@@ -7,6 +8,7 @@ import ftc.electronvolts.util.files.Logger;
 import ftc.evlib.driverstation.GamepadManager;
 import ftc.evlib.opmodes.AbstractTeleOp;
 @TeleOp(name = "FlyWheel Test OpMode")
+@Disabled
 public class FlyWheelTest extends AbstractTeleOp<HardwareTestRobotCfg> {
 
 

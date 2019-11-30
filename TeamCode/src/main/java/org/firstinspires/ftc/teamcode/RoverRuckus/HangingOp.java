@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.RoverRuckus;
 
 import android.util.Log;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import ftc.evlib.opmodes.AbstractTeleOp;
@@ -15,7 +16,7 @@ import ftc.electronvolts.util.units.Time;
  * Created by ftc7393 on 10/13/2018.
  */
 @TeleOp(name = "HangingOp")
-
+@Disabled
 public class HangingOp extends AbstractTeleOp<RoverRuckusRobotCfg> {
 
     public Time getMatchTime() {

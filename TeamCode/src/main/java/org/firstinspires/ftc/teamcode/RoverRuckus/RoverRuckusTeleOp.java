@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.RoverRuckus;
 import android.util.Log;
 
 import ftc.evlib.util.ImmutableList;
+
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.util.ArrayList;
@@ -23,7 +25,7 @@ import ftc.electronvolts.util.units.Time;
  * Created by ftc7393 on 10/13/2018.
  */
 @TeleOp(name = "RoverRuckusTeleOp")
-
+@Disabled
 public class RoverRuckusTeleOp extends AbstractTeleOp<RoverRuckusRobotCfg> {
     public Time getMatchTime() {
         return Time.fromMinutes(2000); //teleop is 2 minutes
