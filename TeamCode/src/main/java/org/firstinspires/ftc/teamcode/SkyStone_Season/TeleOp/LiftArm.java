@@ -28,7 +28,7 @@ public class LiftArm {
         this.elbow = elbow;
         this.wrist = wrist;
         this.fingers = fingers;
-        this.lift = new LinearSlide(extension, new PIDController(-0.1, 0, 0, 1),
+        this.lift = new LinearSlide(extension, new PIDController(0.1, 0, 0, 1),
               maxExtensionPosition, lowerLimit, upperLimit);
     }
 

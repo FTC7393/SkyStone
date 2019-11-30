@@ -93,7 +93,7 @@ public class LinearSlide {
 
 
         if (lowerLimit != null) {
-            if ((lowerLimitResetComplete == false && lowerLimit.isPressed() == true) || lowerLimit.justPressed() == true) {
+            if ((!lowerLimitResetComplete && lowerLimit.isPressed()) || lowerLimit.justPressed()) {
                 lowerLimitResetComplete = true;
 
                 extension.resetEncoder();
