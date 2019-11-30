@@ -2,10 +2,13 @@ package ftc.evlib.driverstation;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import ftc.electronvolts.util.AlivenessTester;
 import ftc.electronvolts.util.AnalogInputScaler;
+import ftc.electronvolts.util.ButtonAlivenessTester;
 import ftc.electronvolts.util.DigitalInputEdgeDetector;
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
+import ftc.electronvolts.util.InitButton;
 
 /**
  * This file was made by the electronVolts, FTC team 7393
@@ -31,11 +34,31 @@ public class GamepadManager {
         this(gamepad, Functions.none());
     }
 
-    //use this constructor for custom joystick scaling
     public GamepadManager(Gamepad gamepad, Function scalingFunction) {
+        this(gamepad, scalingFunction, InitButton.NONE);
+    }
+
+    //use this constructor for custom joystick scaling
+    public GamepadManager(Gamepad gamepad, Function scalingFunction, InitButton initButton) {
+
+
+        DigitalInputEdgeDetector rawStart = new DigitalInputEdgeDetector(GamepadIEFactory.start(gamepad));
+        AlivenessTester at;
+        if (initButton == InitButton.A) {
+            DigitalInputEdgeDetector rawA = new DigitalInputEdgeDetector(GamepadIEFactory.a(gamepad));
+            at = new ButtonAlivenessTester(rawA, rawStart);
+        } else if (initButton == InitButton.B) {
+            DigitalInputEdgeDetector rawB = new DigitalInputEdgeDetector(GamepadIEFactory.b(gamepad));
+            at = new ButtonAlivenessTester(rawB, rawStart);
+        } else if (initButton == InitButton.NONE) {
+            at = AlivenessTester.ALWAYS;
+        } else {
+            throw new RuntimeException("Unknown option for init button " + initButton.name());
+        }
+
         //create all the DigitalInputEdgeDetector objects
-        a = new DigitalInputEdgeDetector(GamepadIEFactory.a(gamepad));
-        b = new DigitalInputEdgeDetector(GamepadIEFactory.b(gamepad));
+        a = new DigitalInputEdgeDetector(GamepadIEFactory.a(gamepad), at);
+        b = new DigitalInputEdgeDetector(GamepadIEFactory.b(gamepad), at);
         x = new DigitalInputEdgeDetector(GamepadIEFactory.x(gamepad));
         y = new DigitalInputEdgeDetector(GamepadIEFactory.y(gamepad));
         left_bumper = new DigitalInputEdgeDetector(GamepadIEFactory.left_bumper(gamepad));
@@ -47,7 +70,7 @@ public class GamepadManager {
         left_stick_button = new DigitalInputEdgeDetector(GamepadIEFactory.left_stick_button(gamepad));
         right_stick_button = new DigitalInputEdgeDetector(GamepadIEFactory.right_stick_button(gamepad));
         back = new DigitalInputEdgeDetector(GamepadIEFactory.back(gamepad));
-        start = new DigitalInputEdgeDetector(GamepadIEFactory.start(gamepad));
+        start = new DigitalInputEdgeDetector(GamepadIEFactory.start(gamepad), at);
 
         //create all the AnalogInputScaler objects
         left_stick_x = new AnalogInputScaler(GamepadIEFactory.left_stick_x(gamepad), scalingFunction);

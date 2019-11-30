@@ -9,5 +9,4 @@ dependencies {
 
 //    compile project(':openCVLibrary310')
 
-    implementation files('../libs/state-machine-framework-0.7.9.jar')
 }
