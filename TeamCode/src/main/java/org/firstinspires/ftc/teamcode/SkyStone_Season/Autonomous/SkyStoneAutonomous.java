@@ -9,7 +9,6 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-import ftc.electronvolts.statemachine.BasicAbstractState;
 import ftc.electronvolts.statemachine.State;
 import ftc.electronvolts.statemachine.StateMachine;
 import ftc.electronvolts.statemachine.StateName;
@@ -65,6 +64,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
                 camera.setPipeline(pipeline);
                 camera.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
                 rr.setValue(true);
+
             }
         };
 
@@ -110,8 +110,15 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         pipeline = new ProcessPipeline(srr, minCycles, teamColor);
         teamColor = optionsFile.get(SkyStoneOptionsOp.teamColorTag, SkyStoneOptionsOp.teamColorDefault);
         ResultReceiver<Boolean> cont = new BasicResultReceiver<>();
-        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.DRIVE_1, teamColor, Angle.fromDegrees(3));
-        b.addDrive(S.DRIVE_1, S.STOP, Distance.fromFeet(.0), 0.1, 270, 0);
+        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.PROCESS_SKYSTONE, teamColor, Angle.fromDegrees(3));
+        b.add(S.PROCESS_SKYSTONE, createProcessState());
+        b.addDrive(S.SKYSTONE_LEFT, S.STOP, Distance.fromFeet(1.2), 0.5, -65, 0);
+        b.addDrive(S.SKYSTONE_MIDDLE, S.STOP, Distance.fromFeet(1.0), 0.5, -80, 0);
+        b.addDrive(S.SKYSTONE_RIGHT, S.STOP, Distance.fromFeet(1.1), 0.5, -100, 0);
+        b.addStop(S.STOP);
+
+//        b.addDrive(S.DRIVE_LEFT_BLUE, S.GRABBLOCK, Distance.fromFeet(0.1), 0.4, 90, 90);
+//        b.addServo(S.GRABBLOCK, S.GOBACKUP, SkystoneRobotCfg.SkystoneServoEnum.FINGERS_SERVO, SkystoneRobotCfg.FingersServoPresets.GRAB, true);
 //        b.addDrive(S.DRIVE_1, S.PROCESS_SKYSTONE, Distance.fromFeet(1.1), 0.1, 0,0);
 //        b.addBranch(S.DETECTION_1, S.GETRIGHTBLOCK, S.MIDDLE, S.GETLEFTBLOCK, cont);
 //
@@ -130,7 +137,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 //        b.addDrive(S.MOVETOBLOCKSAGAIN, S.DETECTION_2 , Distance.fromFeet(1), 0.1, 270, 0);
 //
 //        // Picks up different block depending on original detection
-        b.addBranch(S.DETECTION_2, S.GETRIGHTBLOCKAGAIN, S.MIDDLEAGAIN, S.GETLEFTBLOCKAGAIN, cont);
+//        b.addBranch(S.DETECTION_2, S.GETRIGHTBLOCKAGAIN, S.MIDDLEAGAIN, S.GETLEFTBLOCKAGAIN, cont);
 //        b.addDrive(S.GETRIGHTBLOCKAGAIN, S.GRABBLOCK, Distance.fromFeet(.1), 1, 180, 0);
 //        b.addDrive(S.MIDDLEAGAIN, S.GRABBLOCK, Distance.fromFeet(.2), 1, 0, 0);
 //        b.addDrive(S.GETLEFTBLOCKAGAIN, S.GRABBLOCK, Distance.fromFeet(.5), 1, 0, 0);
@@ -144,47 +151,21 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 //        // THIS WILL BE THE AREA OF CODE FOR MOVING THE FOUNDATION ONCE IT THE MECHANISM IS MADE
 //        // ADD DISTANCES ARE NOT SET IN STONE AND ARE NEEDED TO BE CHANGED (ARBITRARY VALUES)
 //
-        b.add(S.PROCESS_SKYSTONE, createProcessState());
-        b.addDrive(S.DRIVE_LEFT_BLUE, S.GRABBLOCK, Distance.fromFeet(0.1), 0.4, 90, 90);
-        b.addServo(S.GRABBLOCK, S.GOBACKUP, SkystoneRobotCfg.SkystoneServoEnum.FINGERS_SERVO, SkystoneRobotCfg.FingersServoPresets.GRAB, true);
-        b.addStop(S.STOP);
+
 
       return b.build();
     }
 
 
     private State createProcessState() {
-        return new BasicAbstractState() {
+        return new State() {
             @Override
-            public void init() {
-            }
-
-            @Override
-            public boolean isDone() {
-                return true;
-            }
-
-            @Override
-            public StateName getNextStateName() {
-                if (s.getValue() == S.SKYSTONE_LEFT && teamColor == TeamColor.BLUE) {
-                    return S.DRIVE_LEFT_BLUE;
+            public StateName act() {
+                if (srr.isReady()) {
+                    camera.closeCameraDevice();
+                    return srr.getValue();
                 }
-                if (s.getValue() == S.SKYSTONE_RIGHT && teamColor == TeamColor.BLUE) {
-                    return S.DRIVE_RIGHT_BLUE;
-                }
-                if (s.getValue() == S.SKYSTONE_MIDDLE && teamColor == TeamColor.BLUE) {
-                    return S.DRIVE_MIDDLE;
-                }
-                if (s.getValue() == S.SKYSTONE_LEFT && teamColor == TeamColor.RED) {
-                    return S.DRIVE_LEFT_RED;
-                }
-                if (s.getValue() == S.SKYSTONE_RIGHT && teamColor == TeamColor.RED) {
-                    return S.DRIVE_RIGHT_RED;
-                }
-                if (s.getValue() == S.SKYSTONE_MIDDLE && teamColor == TeamColor.RED) {
-                    return S.DRIVE_MIDDLE;
-                }
-                return S.DRIVE_MIDDLE; //we should never reach here, this is if everything somehow fails and to shut up the compiler
+                return null;
             }
         };
     }

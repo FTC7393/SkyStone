@@ -52,21 +52,22 @@ class ProcessPipeline extends OpenCvPipeline {
 
     @Override
     public Mat processFrame(Mat input) {
-
-        if (numStabalizationCycles > minStabalizationCycles) {
-            blue = getLowestAvgBlue(input, rect1);
-            blue2 = getLowestAvgBlue(input, rect2);
-            if (blue2 == 0) {
-                blue2 = 0.1;
+        if (!StateRR.isReady()) {
+            if (numStabalizationCycles > minStabalizationCycles) {
+                blue = getLowestAvgBlue(input, rect1);
+                blue2 = getLowestAvgBlue(input, rect2);
+                if (blue2 == 0) {
+                    blue2 = 0.1;
+                }
+                double ratio = blue / blue2;
+                option = getNextStateName(ratio);
+                stoneratio = blue / blue2;
+                StateRR.setValue(option);
             }
-            double ratio = blue / blue2;
-            option = getNextStateName(ratio);
-            stoneratio = blue / blue2;
-            StateRR.setValue(option);
+            numStabalizationCycles++;
         }
         Imgproc.rectangle(input, rect1, new Scalar(255, 0, 0), 3);
         Imgproc.rectangle(input, rect2, new Scalar(255, 0, 0), 3);
-        numStabalizationCycles++;
         return input;
     }
 
