@@ -139,7 +139,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
             robotCfg.getFlyWheels().stop();
         }
 
-        robotCfg.getLiftArm().liftControlExtension(driver2.left_stick_y.getValue());
+//        robotCfg.getLiftArm().liftControlExtension(driver2.left_stick_y.getValue());
 
         if(driver2.y.justPressed()){
             robotCfg.getLiftArm().armExtend();
@@ -165,8 +165,8 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
             }
         }
 
-        telemetry.addData("lift position =", robotCfg.getLiftArm().getLiftEncoder() );
-        telemetry.addData("lift Target Position =", robotCfg.getLiftArm().getLiftTargetPosition() );
+//        telemetry.addData("lift position =", robotCfg.getLiftArm().getLiftEncoder() );
+//        telemetry.addData("lift Target Position =", robotCfg.getLiftArm().getLiftTargetPosition() );
 
 
 
