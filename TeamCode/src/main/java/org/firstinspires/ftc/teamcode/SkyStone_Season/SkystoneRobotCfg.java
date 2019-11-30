@@ -40,15 +40,16 @@ public class SkystoneRobotCfg extends RobotCfg {
     private final FoundationMover foundationMover;
 
     public enum ElbowServoPresets {
-        RETRACT,
-        EXTEND
+        STOWED,
+        GRABBING,
+        PLACING
     }
 
     public enum WristServoPresets {
-        RETRACT,
-        EXTEND,
-        RIGHT,
-        LEFT
+        STOWED,
+        GRABBING,
+        PLACING,
+        PLACING_LEFT
     }
 
     public SkystoneRobotCfg(HardwareMap hardwareMap, Map<ServoName, Enum> servoStartPresetMap) {
