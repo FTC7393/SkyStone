@@ -175,7 +175,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
             robotCfg.getFoundationMover().servosUp();
         }
 
-        
+
         int m = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0);
         int m1 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(1);
         int m2 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(2);
