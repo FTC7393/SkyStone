@@ -50,6 +50,11 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         return null;
     }
 
+    private void attemptSleep(long sleepMillis) {
+        try { Thread.sleep(sleepMillis); } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
     @Override
     public void setup() {
         super.setup(); //Note: the superclass init method builds the state machine
@@ -58,7 +63,10 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
             public void run() {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 //                phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+                attemptSleep(500L);
                 camera = new OpenCvWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+                attemptSleep(500L);
+
                 camera.openCameraDevice();
                 s = pipeline.getStateNameII();
                 camera.setPipeline(pipeline);
@@ -72,10 +80,34 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         t.start();
 
         gyro = robotCfg.getGyro();
+//        Runnable gyroSettingRunnable = new Runnable() {
+//            @Override
+//            public void run() {
+//                gyroString = "searching";
+//                boolean punted = false;
+//                StateTimer timer = new StateTimer();
+//                timer.init(3000L);
+//                while (robotCfg.getGyro().isCalibrating()) {
+//                    if (timer.isDone()) {
+//                        punted = true;
+//                        break;
+//                    }
+//                    attemptSleep(100L);
+//                }
+//                if (punted) {
+//                    gyroString = "punt!";
+//                } else {
+//                    gyroString = "calibrated";
+//                }
+//                gyro = robotCfg.getGyro();
+//            }
+//        };
+//        new Thread(gyroSettingRunnable).start();
     }
 
     @Override
     protected void setup_act() {
+        telemetry.addData("gyro:", gyro == null ? "null": gyro.isCalibrating() ? "calibrating" :  gyro.getHeading());
         telemetry.addData("Skystone position", srr.isReady() ? srr.getValue() : "not ready");
     }
 
