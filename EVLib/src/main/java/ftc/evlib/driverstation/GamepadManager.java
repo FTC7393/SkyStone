@@ -43,22 +43,28 @@ public class GamepadManager {
 
 
         DigitalInputEdgeDetector rawStart = new DigitalInputEdgeDetector(GamepadIEFactory.start(gamepad));
-        AlivenessTester at;
+        final AlivenessTester atForA;
+        final AlivenessTester atForB;
+        final AlivenessTester atForStart;
         if (initButton == InitButton.A) {
             DigitalInputEdgeDetector rawA = new DigitalInputEdgeDetector(GamepadIEFactory.a(gamepad));
-            at = new ButtonAlivenessTester(rawA, rawStart);
+            atForA = new ButtonAlivenessTester(rawA, rawStart);
+            atForStart = atForA;
+            atForB = AlivenessTester.ALWAYS;
         } else if (initButton == InitButton.B) {
             DigitalInputEdgeDetector rawB = new DigitalInputEdgeDetector(GamepadIEFactory.b(gamepad));
-            at = new ButtonAlivenessTester(rawB, rawStart);
+            atForB = new ButtonAlivenessTester(rawB, rawStart);
+            atForStart = atForB;
+            atForA = AlivenessTester.ALWAYS;
         } else if (initButton == InitButton.NONE) {
-            at = AlivenessTester.ALWAYS;
+            atForA = atForB = atForStart = AlivenessTester.ALWAYS;
         } else {
             throw new RuntimeException("Unknown option for init button " + initButton.name());
         }
 
         //create all the DigitalInputEdgeDetector objects
-        a = new DigitalInputEdgeDetector(GamepadIEFactory.a(gamepad), at);
-        b = new DigitalInputEdgeDetector(GamepadIEFactory.b(gamepad), at);
+        a = new DigitalInputEdgeDetector(GamepadIEFactory.a(gamepad), atForA);
+        b = new DigitalInputEdgeDetector(GamepadIEFactory.b(gamepad), atForB);
         x = new DigitalInputEdgeDetector(GamepadIEFactory.x(gamepad));
         y = new DigitalInputEdgeDetector(GamepadIEFactory.y(gamepad));
         left_bumper = new DigitalInputEdgeDetector(GamepadIEFactory.left_bumper(gamepad));
@@ -70,7 +76,7 @@ public class GamepadManager {
         left_stick_button = new DigitalInputEdgeDetector(GamepadIEFactory.left_stick_button(gamepad));
         right_stick_button = new DigitalInputEdgeDetector(GamepadIEFactory.right_stick_button(gamepad));
         back = new DigitalInputEdgeDetector(GamepadIEFactory.back(gamepad));
-        start = new DigitalInputEdgeDetector(GamepadIEFactory.start(gamepad), at);
+        start = new DigitalInputEdgeDetector(GamepadIEFactory.start(gamepad), atForStart);
 
         //create all the AnalogInputScaler objects
         left_stick_x = new AnalogInputScaler(GamepadIEFactory.left_stick_x(gamepad), scalingFunction);
