@@ -34,8 +34,8 @@ public class LiftArm {
 
     public void armExtend() {
         if (lift.getExtensionEncoder() >=  safeArmExtensionPosition) {
-            elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.EXTEND);
-            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.EXTEND);
+            elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.PLACING);
+            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.PLACING);
             isArmExtended = true;
             wristPosition = WristPositions.STRAIGHT;
         }
@@ -43,8 +43,8 @@ public class LiftArm {
 
     public void armRetract() {
         if (lift.getExtensionEncoder() >=  safeArmExtensionPosition) {
-            elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.RETRACT);
-            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.RETRACT);
+            elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.STOWED);
+            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.STOWED);
             isArmExtended = false;
             wristPosition = WristPositions.RETRACTED;
         }
@@ -53,21 +53,21 @@ public class LiftArm {
 
     public void wristRight() {
         if (isArmExtended == true){
-            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.RIGHT);
+            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.PLACING);
             wristPosition = WristPositions.RIGHT;
         }
     }
 
     public void wristStraight() {
         if (isArmExtended == true){
-            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.EXTEND);
+            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.PLACING);
             wristPosition = WristPositions.STRAIGHT;
         }
     }
 
     public void wristLeft() {
         if (isArmExtended == true){
-            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.LEFT);
+            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.PLACING_LEFT);
             wristPosition = WristPositions.LEFT;
         }
     }
