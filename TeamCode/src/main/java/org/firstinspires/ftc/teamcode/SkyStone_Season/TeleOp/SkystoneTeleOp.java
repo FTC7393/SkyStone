@@ -26,6 +26,8 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     private FlyWheels flywheels = null;
     int dumpPosition;
     boolean driver1CollectorEnabled = true;
+    private SkystoneRobotCfg.StoneScraperServoPresets ssScraperPos;
+    private int ssScraperPosIncrement = 1;
 
 
     @Override
@@ -176,11 +178,24 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
         }
 
         if (driver1.dpad_left.justPressed()) {
-            robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.UP);
-        }
-
-        if (driver1.dpad_left.justReleased()) {
-            robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.DOWN);
+            // cycle through the scraper ervo presets in a back and forth pattern;
+            // (i.e.,  go to the end one direction, and then back to the beginnig the other direction)
+            int index = ssScraperPos.ordinal();
+            int n = SkystoneRobotCfg.StoneScraperServoPresets.values().length;
+            if (index >= (n - 1)) {
+                // the index is at the end, so turn around
+                ssScraperPosIncrement = -1;
+            } else if (index == 0) {
+                ssScraperPosIncrement = 1;
+            }
+            int newIndex = index + ssScraperPosIncrement;
+            if (newIndex < 0) {
+                // in case there is only one value in the array
+                newIndex = 0;
+            } else if (newIndex >= (n-1)) {
+                newIndex = n-1;
+            }
+            ssScraperPos = SkystoneRobotCfg.StoneScraperServoPresets.values()[newIndex];
         }
 
         int m = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0);
