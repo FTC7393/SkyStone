@@ -15,13 +15,8 @@ public class LiftArm {
     private LinearSlide lift = null;
     private final int maxExtensionPosition = 3522; //random number, don't know actual value yet.
     private final int safeArmExtensionPosition = maxExtensionPosition; // lift must be grater than a magic number to extend/retract arm.
-    public enum WristPositions {
-        STRAIGHT,
-        LEFT,
-        RIGHT,
-        RETRACTED
-    }
-    private WristPositions wristPosition = WristPositions.STRAIGHT;
+
+
 
     public LiftArm(ServoControl elbow, ServoControl wrist, ServoControl fingers, MotorEnc extension,
                    DigitalSensor lowerLimit, DigitalSensor upperLimit ) {
@@ -32,48 +27,40 @@ public class LiftArm {
               maxExtensionPosition, lowerLimit, upperLimit);
     }
 
-    public void armExtend() {
-        if (lift.getExtensionEncoder() >=  safeArmExtensionPosition) {
-            elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.EXTEND);
-            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.EXTEND);
+    public void armPlacing() {
+        if (lift.getExtensionEncoder() >=  safeArmExtensionPosition || isArmExtended) {
+            elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.PLACING);
+            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.PLACING);
             isArmExtended = true;
-            wristPosition = WristPositions.STRAIGHT;
+
         }
     }
 
-    public void armRetract() {
+    public void armPlacingLeft() {
+        if (lift.getExtensionEncoder() >=  safeArmExtensionPosition || isArmExtended) {
+            elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.PLACING);
+            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.PLACING_LEFT);
+            isArmExtended = true;
+
+        }
+    }
+
+    public void armGrabbing() {
         if (lift.getExtensionEncoder() >=  safeArmExtensionPosition) {
-            elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.RETRACT);
-            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.RETRACT);
+            elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.GRABBING);
+            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.GRABBING);
             isArmExtended = false;
-            wristPosition = WristPositions.RETRACTED;
+
         }
     }
 
+    public void armStowed() {
+        if (lift.getExtensionEncoder() >=  safeArmExtensionPosition) {
+            elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.STOWED);
+            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.STOWED);
+            isArmExtended = false;
 
-    public void wristRight() {
-        if (isArmExtended == true){
-            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.RIGHT);
-            wristPosition = WristPositions.RIGHT;
         }
-    }
-
-    public void wristStraight() {
-        if (isArmExtended == true){
-            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.EXTEND);
-            wristPosition = WristPositions.STRAIGHT;
-        }
-    }
-
-    public void wristLeft() {
-        if (isArmExtended == true){
-            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.LEFT);
-            wristPosition = WristPositions.LEFT;
-        }
-    }
-
-    public WristPositions getWristPosition() {
-        return wristPosition;
     }
 
     public void grab() {

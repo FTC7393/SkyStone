@@ -39,18 +39,7 @@ public class SkystoneRobotCfg extends RobotCfg {
     private final LiftArm liftArm;
     private final FoundationMover foundationMover;
 
-    public enum ElbowServoPresets {
-        STOWED,
-        GRABBING,
-        PLACING
-    }
 
-    public enum WristServoPresets {
-        STOWED,
-        GRABBING,
-        PLACING,
-        PLACING_LEFT
-    }
 
     public SkystoneRobotCfg(HardwareMap hardwareMap, Map<ServoName, Enum> servoStartPresetMap) {
         super(hardwareMap);
@@ -99,6 +88,19 @@ public class SkystoneRobotCfg extends RobotCfg {
     public SkystoneRobotCfg(HardwareMap hardwareMap) {
         //this(hardwareMap, ServoCfg.defaultServoStartPresetMap(FutureFestServoEnum.values()));
         this(hardwareMap, ServoCfg.defaultServoStartPresetMap(SkystoneServoName.values()));
+    }
+
+    public enum ElbowServoPresets {
+        STOWED,
+        GRABBING,
+        PLACING
+    }
+
+    public enum WristServoPresets {
+        STOWED,
+        GRABBING,
+        PLACING,
+        PLACING_LEFT
     }
 
     public enum FingersServoPresets {

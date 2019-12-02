@@ -143,27 +143,19 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
 //        robotCfg.getLiftArm().liftControlExtension(driver2.left_stick_y.getValue());
 
         if(driver2.y.justPressed()){
-            robotCfg.getLiftArm().armExtend();
+            robotCfg.getLiftArm().armPlacing();
         }
 
         if(driver2.a.justPressed()){
-            robotCfg.getLiftArm().armRetract();
+            robotCfg.getLiftArm().armGrabbing();
         }
 
         if(driver2.x.justPressed()){
-            if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.RIGHT){
-                robotCfg.getLiftArm().wristStraight();
-            }else if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.STRAIGHT){
-                robotCfg.getLiftArm().wristLeft();
-            }
+            robotCfg.getLiftArm().armPlacingLeft();
         }
 
         if(driver2.b.justPressed()){
-            if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.LEFT){
-                robotCfg.getLiftArm().wristStraight();
-            }else if(robotCfg.getLiftArm().getWristPosition() == LiftArm.WristPositions.STRAIGHT){
-                robotCfg.getLiftArm().wristRight();
-            }
+            robotCfg.getLiftArm().armStowed();
         }
 
         if ((driver1.left_bumper.justPressed() && !driver2.left_bumper.isPressed()) ||
