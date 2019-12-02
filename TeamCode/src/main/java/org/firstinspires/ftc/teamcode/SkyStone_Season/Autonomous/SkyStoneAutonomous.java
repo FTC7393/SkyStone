@@ -110,12 +110,13 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         pipeline = new ProcessPipeline(srr, minCycles, teamColor, canUpdateSRR);
         teamColor = optionsFile.get(SkyStoneOptionsOp.teamColorTag, SkyStoneOptionsOp.teamColorDefault);
 //        ResultReceiver<Boolean> cont = new BasicResultReceiver<>();
-        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.STOP, teamColor, Angle.fromDegrees(3));
+        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.PROCESS_SKYSTONE, teamColor, Angle.fromDegrees(3));
         b.addDrive(S.DRIVE_1, S.STOP, Distance.fromFeet(1), 0.3, 45, 0);
         b.add(S.PROCESS_SKYSTONE, createProcessState());
-        b.addDrive(S.SKYSTONE_LEFT, S.STOP, Distance.fromFeet(0.7), 0.5, 115, 0);
-        b.addDrive(S.SKYSTONE_MIDDLE, S.STOP, Distance.fromFeet(1.0), 0.5, 90, 0);
-        b.addDrive(S.SKYSTONE_RIGHT, S.STOP, Distance.fromFeet(1.1), 0.5, 85, 0);
+        b.addDrive(S.SKYSTONE_LEFT, S.STOP, Distance.fromFeet(0.9), 0.30, 113, 0);
+        b.addDrive(S.SKYSTONE_MIDDLE, S.DRIVE_MIDDLE, Distance.fromFeet(0.68), 0.30, 98, 0);
+        b.addDrive(S.DRIVE_MIDDLE, S.STOP, Distance.fromFeet(0.11), 0.1, 98, 0);
+        b.addDrive(S.SKYSTONE_RIGHT, S.STOP, Distance.fromFeet(0.78), 0.30, 85, 0);
         b.addStop(S.STOP);
 
 //        b.addDrive(S.DRIVE_LEFT_BLUE, S.GRABBLOCK, Distance.fromFeet(0.1), 0.4, 90, 90);
