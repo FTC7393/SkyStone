@@ -25,6 +25,7 @@ public class LinearSlide {
 
     private double extensionEncoder=0;
 
+    private final int tolerance;
 
     int maxExtensionPosition;
     
@@ -36,16 +37,17 @@ public class LinearSlide {
 
 
 
-    public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition) {
+    public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, int tolerance ) {
         this.extension = extension;
         this.lowerLimit= null;
         this.extensionPID= extensionPID;
         this.maxExtensionPosition = maxExtensionPosition;
         this.minExtensionPosition = 0;
         this.upperLimit = null;
+        this.tolerance = tolerance;
     }
 
-    public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, 
+    public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, int tolerance,
                        DigitalSensor lowerLimit) {
         this.extension = extension;
         this.lowerLimit= new DigitalInputEdgeDetector(lowerLimit);
@@ -53,9 +55,10 @@ public class LinearSlide {
         this.maxExtensionPosition = maxExtensionPosition;
         this.minExtensionPosition = -10000;
         this.upperLimit = null;
+        this.tolerance = tolerance;
     }
 
-    public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, 
+    public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, int tolerance,
                        DigitalSensor lowerLimit, DigitalSensor upperLimit) {
         this.extension = extension;
         this.lowerLimit= new DigitalInputEdgeDetector(lowerLimit);
@@ -63,9 +66,10 @@ public class LinearSlide {
         this.maxExtensionPosition = maxExtensionPosition;
         this.minExtensionPosition = -10000;
         this.upperLimit = new DigitalInputEdgeDetector(upperLimit);
+        this.tolerance = tolerance;
         
     }
-    
+
     
 
     //StepTimer t = new StepTimer("Arm", Log.VERBOSE);
@@ -141,18 +145,12 @@ public class LinearSlide {
 
     // special function which returns to tell autonomous when the slide has done moving, specifically returns a boolean
     public boolean autoUse(double extension){
-        boolean done=false;
         extensionSetPoint=extension;
-        if((Math.abs(extensionSetPoint-extensionEncoder)>5)) {
-            done=false;
-        }
-        else{
-            done=true;
-        }
+        return isDone();
+    }
 
-
-        return done;
-
+    public boolean isDone(){
+      return (Math.abs(extensionSetPoint-extensionEncoder)<= tolerance);
     }
 
     public double getExtensionEncoder(){return extensionEncoder;}
@@ -167,6 +165,8 @@ public class LinearSlide {
     //    public boolean getExtensionLimitSwitch(){return extensionLimit.isPressed();}
 
     boolean getLowerLimitResetComplete(){ return lowerLimitResetComplete; }
+
+
 }
 
 
