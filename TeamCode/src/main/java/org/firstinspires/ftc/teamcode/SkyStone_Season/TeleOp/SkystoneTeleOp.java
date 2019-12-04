@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
 
+import ftc.electronvolts.util.DeadZones;
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
 import ftc.electronvolts.util.InputExtractor;
@@ -69,8 +70,10 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     }
 
     @Override
-    protected Function getJoystickScalingFunction() {
-        return Functions.eBased(5);
+    protected Function getJoystickScalingFunction()
+    {
+        Function dzoneFunc = Functions.deadzone(DeadZones.deltaDeadZone(0,0.05));
+        return Functions.composite(dzoneFunc, Functions.eBased(5));
     }
 
     @Override
@@ -85,7 +88,8 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
 
     @Override
     protected void setup() {
-
+        // called right after init()
+        ssScraperPos = SkystoneRobotCfg.StoneScraperServoPresets.UP;
     }
 
     @Override
@@ -192,16 +196,18 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
             if (newIndex < 0) {
                 // in case there is only one value in the array
                 newIndex = 0;
-            } else if (newIndex >= (n-1)) {
+            } else if (newIndex > (n-1)) {
                 newIndex = n-1;
             }
             ssScraperPos = SkystoneRobotCfg.StoneScraperServoPresets.values()[newIndex];
         }
+        robotCfg.getStoneScraperServo().goToPreset(ssScraperPos);
 
         int m = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0);
         int m1 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(1);
         int m2 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(2);
         int m3 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(3);
+        telemetry.addData("SCRAPER POS", ssScraperPos.name() + " " + ssScraperPosIncrement);
         telemetry.addData("motor 0 - frontRight", m);
         telemetry.addData("motor 1 - frontLeft", m1);
         telemetry.addData("motor 2 - backLeft", m2);
