@@ -26,6 +26,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     private FlyWheels flywheels = null;
     int dumpPosition;
     boolean driver1CollectorEnabled = true;
+    private boolean skystoneServoPresetDown = true;
 
 
     @Override
@@ -167,12 +168,13 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
             robotCfg.getFoundationMover().servosUp();
         }
 
-        if (driver1.dpad_left.justPressed()) {
-            robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.UP);
-        }
-
-        if (driver1.dpad_left.justReleased()) {
-            robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.DOWN);
+        if (driver1.dpad_left.isPressed()) {
+            skystoneServoPresetDown = !skystoneServoPresetDown;
+            if(skystoneServoPresetDown) {
+                robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.DOWN);
+            } else {
+                robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.UP);
+            }
         }
 
         int m = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0);
