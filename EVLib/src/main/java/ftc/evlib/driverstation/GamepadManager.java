@@ -2,6 +2,9 @@ package ftc.evlib.driverstation;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ftc.electronvolts.util.AlivenessTester;
 import ftc.electronvolts.util.AnalogInputScaler;
 import ftc.electronvolts.util.ButtonAlivenessTester;
@@ -28,6 +31,8 @@ public class GamepadManager {
     public final AnalogInputScaler left_stick_x, left_stick_y, right_stick_x, right_stick_y,
             left_trigger, right_trigger;
 
+    private final List<DigitalInputEdgeDetector> detectors;
+
 
     //use this constructor for no joystick scaling
     public GamepadManager(Gamepad gamepad) {
@@ -41,14 +46,18 @@ public class GamepadManager {
     //use this constructor for custom joystick scaling
     public GamepadManager(Gamepad gamepad, Function scalingFunction, InitButton initButton) {
 
+        detectors = new ArrayList<>();
 
         DigitalInputEdgeDetector rawStart = new DigitalInputEdgeDetector(GamepadIEFactory.start(gamepad));
+        detectors.add(rawStart);
         AlivenessTester at;
         if (initButton == InitButton.A) {
             DigitalInputEdgeDetector rawA = new DigitalInputEdgeDetector(GamepadIEFactory.a(gamepad));
+            detectors.add(rawA);
             at = new ButtonAlivenessTester(rawA, rawStart);
         } else if (initButton == InitButton.B) {
             DigitalInputEdgeDetector rawB = new DigitalInputEdgeDetector(GamepadIEFactory.b(gamepad));
+            detectors.add(rawB);
             at = new ButtonAlivenessTester(rawB, rawStart);
         } else if (initButton == InitButton.NONE) {
             at = AlivenessTester.ALWAYS;
@@ -83,6 +92,11 @@ public class GamepadManager {
 
     public void update() {
         //update all the values
+
+        for(DigitalInputEdgeDetector d : detectors) {
+            d.update();
+        }
+
         a.update();
         b.update();
         x.update();
