@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.fair2019;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -16,7 +17,7 @@ import ftc.electronvolts.util.units.Time;
  * simple TeleOp for the fair robot which has 2 motors
  */
 @TeleOp(name = "Fair Robot TeleOp")
-//@Disabled
+@Disabled
 public class FairTeleOp2019 extends AbstractTeleOp<Fair2019RobotCfg> {
     private DcMotor chest = null;
     double chestSpeed =.2;

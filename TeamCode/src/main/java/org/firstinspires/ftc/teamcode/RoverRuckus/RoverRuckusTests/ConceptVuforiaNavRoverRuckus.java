@@ -29,6 +29,7 @@ package org.firstinspires.ftc.teamcode.RoverRuckus.RoverRuckusTests;
  */
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -91,6 +92,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
  */
 
 @TeleOp(name="Concept: Vuforia Rover Nav", group ="Concept")
+@Disabled
 public class ConceptVuforiaNavRoverRuckus extends LinearOpMode {
 
     /*

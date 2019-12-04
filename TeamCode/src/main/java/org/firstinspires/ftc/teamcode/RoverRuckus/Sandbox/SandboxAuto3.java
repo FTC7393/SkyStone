@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.RoverRuckus.Sandbox;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.RoverRuckus.GoldPosition;
 import org.firstinspires.ftc.teamcode.RoverRuckus.Mineral;
@@ -28,6 +29,7 @@ import ftc.electronvolts.util.files.OptionsFile;
 import ftc.electronvolts.util.units.Angle;
 
 @Autonomous(name = "Sandbox Auto 3")
+@Disabled
 public class SandboxAuto3 extends AbstractAutoOp<RoverRuckusRobotCfg> {
     Gyro gyro;
     MecanumControl mecanumControl;

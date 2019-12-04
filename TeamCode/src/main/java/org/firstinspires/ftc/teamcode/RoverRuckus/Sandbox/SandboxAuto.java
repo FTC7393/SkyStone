@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.RoverRuckus.Sandbox;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.RoverRuckus.RoverRuckusRobotCfg;
 
@@ -16,6 +17,7 @@ import ftc.electronvolts.util.units.Distance;
 import ftc.electronvolts.util.units.Time;
 
 @Autonomous(name = "Sandbox Auto")
+@Disabled
 public class SandboxAuto extends AbstractAutoOp<RoverRuckusRobotCfg> {
 
     enum S implements StateName {

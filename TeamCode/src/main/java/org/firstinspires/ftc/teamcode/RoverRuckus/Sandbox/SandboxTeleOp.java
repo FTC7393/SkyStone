@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.RoverRuckus.Sandbox;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.vuforia.CameraDevice;
 
@@ -24,6 +25,7 @@ import ftc.electronvolts.util.units.Time;
  * Created by ftc7393 on 10/13/2018.
  */
 @TeleOp(name = "Sandbox Teleop")
+@Disabled
 public class SandboxTeleOp extends AbstractTeleOp<RoverRuckusRobotCfg> {
     public Time getMatchTime() {
         return Time.fromMinutes(2); //teleop is 2 minutes
