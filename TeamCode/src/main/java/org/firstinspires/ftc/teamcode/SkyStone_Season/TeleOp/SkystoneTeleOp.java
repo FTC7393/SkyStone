@@ -158,6 +158,14 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
             robotCfg.getLiftArm().armStowed();
         }
 
+        if(driver2.dpad_down.justPressed()){
+            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.STOW);
+        }
+
+        if(driver2.dpad_up.justPressed()){
+            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.GRAB);
+        }
+
         if ((driver1.left_bumper.justPressed() && !driver2.left_bumper.isPressed()) ||
                 (driver2.left_bumper.justPressed() && !driver1.left_bumper.isPressed())){
             robotCfg.getFoundationMover().servosDown();
@@ -184,6 +192,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
         telemetry.addData("motor 2 - backLeft", m2);
         telemetry.addData("motor 3 - backRight", m3);
         telemetry.addData("extension motor", robotCfg.getLiftArm().getLift().getExtensionEncoder());
+        telemetry.addData("Lift Arm State", robotCfg.getLiftArm().getCurrentStateName());
 
 //        telemetry.addData("lift position =", robotCfg.getLiftArm().getLiftEncoder() );
 //        telemetry.addData("lift Target Position =", robotCfg.getLiftArm().getLiftTargetPosition() );
