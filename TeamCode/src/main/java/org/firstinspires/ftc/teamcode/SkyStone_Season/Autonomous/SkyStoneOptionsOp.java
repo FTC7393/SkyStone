@@ -76,8 +76,7 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
                 TeamColor teamColor = optionsFile.get(teamColorTag, teamColorDefault);
                 if (teamColor == TeamColor.BLUE) {
                     teamColor = TeamColor.RED;
-                }
-                if (teamColor == TeamColor.RED) {
+                } else  {
                     teamColor = TeamColor.BLUE;
                 }
                 optionsFile.set(Opts.TEAM_COLOR.s, teamColor);
