@@ -166,7 +166,19 @@ public class LinearSlide {
 
     boolean getLowerLimitResetComplete(){ return lowerLimitResetComplete; }
 
+    public boolean getUpperLimit(){
+        if (upperLimit != null) {
+            return upperLimit.isPressed();
+        }
+        return false;
+    }
 
+    public boolean getLowerLimit(){
+        if (lowerLimit != null) {
+            return lowerLimit.isPressed();
+        }
+        return false;
+    }
 }
 
 

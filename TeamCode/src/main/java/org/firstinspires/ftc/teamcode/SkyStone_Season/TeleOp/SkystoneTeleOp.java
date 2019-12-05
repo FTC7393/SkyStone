@@ -140,7 +140,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
 //            robotCfg.getFlyWheels().stop();
 //        }
 
-//        robotCfg.getLiftArm().liftControlExtension(driver2.left_stick_y.getValue());
+        robotCfg.getLiftArm().getLift().controlExtension(driver2.left_stick_y.getValue());
 
         if(driver2.y.justPressed()){
             robotCfg.getLiftArm().armPlacing();
@@ -191,11 +191,12 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
         telemetry.addData("motor 1 - frontLeft", m1);
         telemetry.addData("motor 2 - backLeft", m2);
         telemetry.addData("motor 3 - backRight", m3);
-        telemetry.addData("extension motor", robotCfg.getLiftArm().getLift().getExtensionEncoder());
+//      telemetry.addData("extension motor", robotCfg.getLiftArm().getLift().getExtensionEncoder());
         telemetry.addData("Lift Arm State", robotCfg.getLiftArm().getCurrentStateName());
-
-//        telemetry.addData("lift position =", robotCfg.getLiftArm().getLiftEncoder() );
-//        telemetry.addData("lift Target Position =", robotCfg.getLiftArm().getLiftTargetPosition() );
+        telemetry.addData("Upper Limit", robotCfg.getLiftArm().getLift().getUpperLimit());
+        telemetry.addData("Lower Limit", robotCfg.getLiftArm().getLift().getLowerLimit());
+        telemetry.addData("lift position =", robotCfg.getLiftArm().getLift().getExtensionEncoder());
+        telemetry.addData("lift Target Position =", robotCfg.getLiftArm().getLift().getExtensionSetPoint());
 
 
 
