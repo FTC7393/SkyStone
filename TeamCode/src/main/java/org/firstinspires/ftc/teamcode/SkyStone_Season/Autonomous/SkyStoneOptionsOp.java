@@ -60,13 +60,14 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
 
         if (driver1.right_bumper.justPressed()) {
             if (values[index] == Opts.TEAM_COLOR) {
-                TeamColor teamColor = optionsFile.get(teamColorTag, teamColorDefault);
+                TeamColor teamColor = optionsFile.get(Opts.TEAM_COLOR.s, teamColorDefault);
                 if (teamColor == TeamColor.BLUE) {
                     teamColor = TeamColor.RED;
                 } else {
                     teamColor = TeamColor.BLUE;
                 }
                 optionsFile.set(Opts.TEAM_COLOR.s, teamColor);
+                saveOptionsFile();
             }
         }
 //        if(driver1.right_bumper.justPressed()) {
