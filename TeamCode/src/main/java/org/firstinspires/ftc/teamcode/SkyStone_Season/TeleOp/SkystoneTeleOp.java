@@ -141,7 +141,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
 //            robotCfg.getFlyWheels().stop();
 //        }
 
-//        robotCfg.getLiftArm().liftControlExtension(driver2.left_stick_y.getValue());
+        robotCfg.getLiftArm().getLift().controlExtension(driver2.left_stick_y.getValue());
 
         if(driver2.y.justPressed()){
             robotCfg.getLiftArm().armPlacing();
@@ -157,6 +157,14 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
 
         if(driver2.b.justPressed()){
             robotCfg.getLiftArm().armStowed();
+        }
+
+        if(driver2.dpad_down.justPressed()){
+            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.STOW);
+        }
+
+        if(driver2.dpad_up.justPressed()){
+            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.GRAB);
         }
 
         if ((driver1.left_bumper.justPressed() && !driver2.left_bumper.isPressed()) ||
@@ -185,10 +193,12 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
         telemetry.addData("motor 1 - frontLeft", m1);
         telemetry.addData("motor 2 - backLeft", m2);
         telemetry.addData("motor 3 - backRight", m3);
-        telemetry.addData("extension motor", robotCfg.getLiftArm().getLift().getExtensionEncoder());
-
-//        telemetry.addData("lift position =", robotCfg.getLiftArm().getLiftEncoder() );
-//        telemetry.addData("lift Target Position =", robotCfg.getLiftArm().getLiftTargetPosition() );
+//      telemetry.addData("extension motor", robotCfg.getLiftArm().getLift().getExtensionEncoder());
+        telemetry.addData("Lift Arm State", robotCfg.getLiftArm().getCurrentStateName());
+        telemetry.addData("Upper Limit", robotCfg.getLiftArm().getLift().getUpperLimit());
+        telemetry.addData("Lower Limit", robotCfg.getLiftArm().getLift().getLowerLimit());
+        telemetry.addData("lift position =", robotCfg.getLiftArm().getLift().getExtensionEncoder());
+        telemetry.addData("lift Target Position =", robotCfg.getLiftArm().getLift().getExtensionSetPoint());
 
 
 
