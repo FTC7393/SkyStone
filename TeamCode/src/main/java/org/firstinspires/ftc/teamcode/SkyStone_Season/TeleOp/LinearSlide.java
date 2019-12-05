@@ -70,10 +70,7 @@ public class LinearSlide {
 
     //StepTimer t = new StepTimer("Arm", Log.VERBOSE);
 
-    public void act() {
-//            t.start();
-//            t.step("update limit switches");
-        
+    public void pre_act() {
         if (lowerLimit != null) {
             lowerLimit.update();
         }
@@ -85,6 +82,13 @@ public class LinearSlide {
 //            t.step("update encoders");
 
         extensionEncoder = extension.getEncoderPosition();
+
+    }
+
+    public void act() {
+//            t.start();
+//            t.step("update limit switches");
+        
 
 //            t.step("update potentiometer");
 //

@@ -142,17 +142,22 @@ public class SkystoneRobotCfg extends RobotCfg {
     }
 
     @Override
+    public void pre_act() {
+        liftArm.pre_act();
+    }
+
+    @Override
     public void act() {
         mecanumControl.act();
         flyWheels.act();
         liftArm.act();
-        servos.act();
     }
 
     @Override
     public void stop() {
         mecanumControl.stop();
         flyWheels.stop();
+        liftArm.stop();
         gyro.stop();
     }
 

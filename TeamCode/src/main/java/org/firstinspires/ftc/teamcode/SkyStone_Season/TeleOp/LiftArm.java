@@ -73,11 +73,19 @@ public class LiftArm {
         return lift;
     }
 
+    public void pre_act() {
+        lift.pre_act();
+    }
+
     public void act() {
         elbow.act();
         wrist.act();
         fingers.act();
         lift.act();
+    }
+
+    public void stop() {
+        lift.stopExtension();
     }
 
 }

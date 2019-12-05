@@ -147,7 +147,7 @@ public abstract class AbstractOp<Type extends RobotCfg> extends OpMode {
         if (timeLeft > 0) {
             telemetry.addData("Time left", timeLeft / 1000.0);
         }
-
+        robotCfg.pre_act();
         pre_act();
 
         if (logger != null) logger.act();

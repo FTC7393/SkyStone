@@ -100,7 +100,10 @@ public abstract class RobotCfg {
     //init can be used to initialize sensors, motors, etc.
     public abstract void start();
 
-    //act can be used to update sensors, motors, display telemetry, etc.
+    //pre_act can be used to update sensors BEFORE teleop runs
+    public void pre_act() {}
+
+    //act can be used to update sensors, motors, display telemetry, etc. AFTER teleop runs
     public abstract void act();
 
     //stop can be used to stop motors, close files, etc.
@@ -111,6 +114,11 @@ public abstract class RobotCfg {
         return new RobotCfg(hardwareMap) {
             @Override
             public void start() {
+
+            }
+
+            @Override
+            public void pre_act() {
 
             }
 
