@@ -11,7 +11,7 @@ import ftc.evlib.opmodes.AbstractOptionsOp;
 /**
  * Created by ftc7393 on 12/6/2017.
  */
-@TeleOp(name = "OptionsOp")
+@TeleOp(name = "SkyStone OptionsOp")
 public class SkyStoneOptionsOp extends AbstractOptionsOp {
 
     public static final String FILENAME = "options_skystone.txt";
@@ -87,7 +87,7 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
 //                telemetry.addData("currentValue", optionsFile.get(values[index].s,false));
 //            }
         if (values[index] == Opts.TEAM_COLOR) {
-            telemetry.addData("teamColor", optionsFile.get(values[index].s, teamColorDefault));
+            telemetry.addData(teamColorTag, optionsFile.get(values[index].s, teamColorDefault));
             telemetry.addData("index", index);
         }
 
@@ -104,7 +104,7 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
     }
 
     public enum Opts {
-        TEAM_COLOR("teamcolor");
+        TEAM_COLOR(teamColorTag);
 
         //        public boolean b;
 //        public double f;
