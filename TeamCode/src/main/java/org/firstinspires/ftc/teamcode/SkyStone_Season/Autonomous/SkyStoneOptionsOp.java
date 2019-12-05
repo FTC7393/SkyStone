@@ -17,7 +17,7 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
     public static final String FILENAME = "options_skystone.txt";
     public static final String teamColorTag = "teamColor";
     public static final TeamColor teamColorDefault = TeamColor.BLUE;
-    int index = 0;
+    private int index = 0;
     private Opts[] values;
 
     /**
