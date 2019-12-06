@@ -267,7 +267,7 @@ public class LiftArm {
                             return S.MOVE_B1_1;
 
                         case PLACE:
-                            
+
                     }
                 }
                 return null;
@@ -358,7 +358,7 @@ public class LiftArm {
 //    Placing ⟶ Dropping A3:
 //    Move linear slide (placement height - droppingΔ)
 //    Finger servos to open position
-        b.add(S.MOVE_A3_1, LiftArmStates.liftMove(S.MOVE_A3_2, this, rrDroppingHeight, true)); //TODO
+        b.add(S.MOVE_A3_1, LiftArmStates.liftMove(S.MOVE_A3_2, this, rrDroppingHeight, true)); 
         b.add(S.MOVE_A3_2, EVStates.servoTurn(S.DROPPING,
                 fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,true));
 
