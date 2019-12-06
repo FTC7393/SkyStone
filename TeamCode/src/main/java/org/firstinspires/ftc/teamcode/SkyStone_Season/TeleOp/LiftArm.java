@@ -32,6 +32,8 @@ public class LiftArm {
     private final int loadedSafeHeight = 5700; //random number, don't know actual value yet. TODO
     private final int numberOfLevels = 5; //random number, don't know actual value yet. TODO
     private final int placingLevelHeights[] = {1000, 2000, 3000, 4000, 5000}; //random number, don't know actual value yet. TODO
+    private final int droppingLevelHeights[] = {1000, 2000, 3000, 4000, 5000}; //random number, don't know actual value yet. TODO
+
 
     public LiftArm(ServoControl elbow, ServoControl wrist, ServoControl fingers, MotorEnc extension,
                    DigitalSensor lowerLimit, DigitalSensor upperLimit ) {
@@ -59,6 +61,13 @@ public class LiftArm {
                 return lift.getMinExtensionValue();
             }
         };
+        this.rrDroppingHeight = new InputExtractor<Integer>() {
+            @Override
+            public Integer getValue() {
+                return getDroppingHeight();
+            }
+        };
+
 
         this.stateMachine = buildStates();
     }
@@ -137,6 +146,8 @@ public class LiftArm {
 
     private final InputExtractor<Integer> rrPlacingHeight;
 
+    private final InputExtractor<Integer> rrDroppingHeight;
+
     private final InputExtractor<Boolean> rrLowerLimitResetComplete;
 
     private final InputExtractor<Integer> rrMinExtensionPosition;
@@ -160,6 +171,11 @@ public class LiftArm {
     public int getPlacingHeight() {
         return placingLevelHeights[placingLevel];
     }
+
+    public int getDroppingHeight() {
+        return droppingLevelHeights[placingLevel];
+    }
+
     public StateMachine buildStates(){
         StateMachineBuilder b = new StateMachineBuilder(S.STOWED);
 
@@ -251,9 +267,7 @@ public class LiftArm {
                             return S.MOVE_B1_1;
 
                         case PLACE:
-
-
-                        case FORCE_PLACE_LEFT:
+                            
                     }
                 }
                 return null;
@@ -329,6 +343,7 @@ public class LiftArm {
 //        If current placing height is < loaded safe height
 //        Move elbow and wrist servos to placing position, wait
 //        Move linear slide to placing height, wait
+//        This works for both Grabbing ⟶ Placing A2: and Stowed ⟶ Placing B3:
         b.add(S.MOVE_A2_1, LiftArmStates.liftMove(S.MOVE_A2_2, this, loadedSafeHeight, true));
         b.add(S.MOVE_A2_2, EVStates.servoTurn(S.MOVE_A2_3,
                 elbow, SkystoneRobotCfg.ElbowServoPresets.PLACING,false));
@@ -338,8 +353,72 @@ public class LiftArm {
         b.add(S.MOVE_A2_6, LiftArmStates.liftMove(S.PLACING, this, rrPlacingHeight, true));
 
 
+
+
+//    Placing ⟶ Dropping A3:
+//    Move linear slide (placement height - droppingΔ)
+//    Finger servos to open position
+        b.add(S.MOVE_A3_1, LiftArmStates.liftMove(S.MOVE_A3_2, this, rrDroppingHeight, true)); //TODO
+        b.add(S.MOVE_A3_2, EVStates.servoTurn(S.DROPPING,
+                fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,true));
+
+
+
+
+
+//    Dropping ⟶ Placing A4:
+//    Move back up to placement height, wait
+//    Put finger servos in closed position
+        b.add(S.MOVE_A4_1, LiftArmStates.liftMove(S.MOVE_A4_2, this, rrPlacingHeight , true));
+        b.add(S.MOVE_A4_2, EVStates.servoTurn(S.PLACING,
+                fingers, SkystoneRobotCfg.FingersServoPresets.GRAB,true));
+
+
+
+
+
+//        Placing ⟶ Stowed A5:
+//        If linear slide height >= empty safe height
+//        Move linear slide to empty safe height, don’t wait
+//        Move elbow and wrist servos to stowed position
+//        If linear slide height < empty safe height
+//        Move linear slide to empty safe height, wait
+//        Move elbow and wrist servos to stowed position
+//        Wait for slide and servos to finish moving
+//        Move linear slide to stowed position
+        b.add(S.MOVE_A5_1, LiftArmStates.liftMove(S.MOVE_A5_2, this, emptySafeHeight , true));
+        b.add(S.MOVE_A5_2, EVStates.servoTurn(S.MOVE_A5_3,
+                elbow, SkystoneRobotCfg.ElbowServoPresets.STOWED,false));
+        b.add(S.MOVE_A5_3, EVStates.servoTurn(S.MOVE_A5_4,
+                wrist, SkystoneRobotCfg.WristServoPresets.STOWED,false));
+        b.add(S.MOVE_A5_4, LiftArmStates.waitForLiftArm(S.MOVE_A5_5, this));
+        b.add(S.MOVE_A5_5, LiftArmStates.liftMove(S.STOWED, this, stowedHeight , true));
+
+
+//        Placing ⟶ Grabbing B2:
+//        If linear slide height >= empty safe height
+//        Move linear slide to empty safe height, don’t wait
+//        If linear slide height < empty safe height
+//        Move linear slide to empty safe height, wait
+//        Move elbow and wrist servos to grabbing position, put finger servos to open position
+//        Wait for slide and servos to finish moving
+//        Move linear slide to grabbing position
+//        Put finger servos to closed position
+        b.add(S.MOVE_B2_1, LiftArmStates.liftMove(S.MOVE_B2_2, this, emptySafeHeight , true));
+        b.add(S.MOVE_B2_2, EVStates.servoTurn(S.MOVE_B2_3,
+                elbow, SkystoneRobotCfg.ElbowServoPresets.GRABBING,false));
+        b.add(S.MOVE_B2_3, EVStates.servoTurn(S.MOVE_B2_4,
+                wrist, SkystoneRobotCfg.WristServoPresets.GRABBING,false));
+        b.add(S.MOVE_B2_4, EVStates.servoTurn(S.MOVE_B2_5,
+                fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,false));
+        b.add(S.MOVE_B2_5, LiftArmStates.waitForLiftArm(S.MOVE_B2_6, this));
+        b.add(S.MOVE_B2_6, LiftArmStates.liftMove(S.MOVE_B2_7, this, grabbingHeight , true));
+        b.add(S.MOVE_B2_7, EVStates.servoTurn(S.GRABBED,
+                fingers, SkystoneRobotCfg.FingersServoPresets.GRAB,true));
+
         return b.build();
     }
+
 
     /*
       A1: Stowed ⟶ Grabbing A1:
@@ -384,6 +463,26 @@ public class LiftArm {
         MOVE_A2_4,
         MOVE_A2_5,
         MOVE_A2_6,
+        MOVE_A3_1,
+        MOVE_A3_2,
+        MOVE_A4_1,
+        MOVE_A4_2,
+        MOVE_A4_3,
+        MOVE_A5_1,
+        MOVE_A5_2,
+        MOVE_A5_3,
+        MOVE_A5_4,
+        MOVE_A5_5,
+        MOVE_B2_1,
+        MOVE_B2_2,
+        MOVE_B2_3,
+        MOVE_B2_4,
+        MOVE_B2_5,
+        MOVE_B2_6,
+        MOVE_B2_7,
+
+
+
     }
 
     public enum COMMANDS {
