@@ -160,7 +160,11 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
         }
 
         if(driver2.dpad_down.justPressed()){
-            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.STOW);
+            if(driver2.back.isPressed()){
+                robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.FORCE_STOW);
+            }else{
+                robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.STOW);
+            }
         }
 
         if(driver2.dpad_up.justPressed()){

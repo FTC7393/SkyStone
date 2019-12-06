@@ -40,6 +40,7 @@ public class LinearSlide {
     public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, int tolerance ) {
         this.extension = extension;
         this.lowerLimit= null;
+        this.lowerLimitResetComplete= true;
         this.extensionPID= extensionPID;
         this.maxExtensionPosition = maxExtensionPosition;
         this.minExtensionPosition = 0;
@@ -158,7 +159,7 @@ public class LinearSlide {
     }
 
     public double getExtensionEncoder(){return extensionEncoder;}
-    public double getMinExtensionValue(){return minExtensionPosition;}
+    public int getMinExtensionValue(){return minExtensionPosition;}
 
 
     public double getExtensionPower(){return extensionPower;}
