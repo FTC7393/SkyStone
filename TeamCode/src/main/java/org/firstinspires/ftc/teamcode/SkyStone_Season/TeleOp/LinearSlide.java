@@ -102,12 +102,14 @@ public class LinearSlide {
 
 
         if (lowerLimit != null) {
-            if ((!lowerLimitResetComplete && lowerLimit.isPressed()) || lowerLimit.justPressed()) {
-                lowerLimitResetComplete = true;
+            if (!lowerLimitResetComplete && lowerLimit.isPressed()) {
 
+                lowerLimitResetComplete = true;
                 extension.resetEncoder();
                 minExtensionPosition = 0;
                 extensionSetPoint = 0;
+            } else if(lowerLimit.isPressed() && extensionSetPoint <= extensionEncoder) {
+                extensionSetPoint = extensionEncoder;
             }
         }
 
@@ -127,7 +129,7 @@ public class LinearSlide {
 
 //        t.step("extension set power");
 
-        extension.setPower(extensionPower);
+        extension.setSpeed(extensionPower);
 
 
 //        t.step("arm updates");

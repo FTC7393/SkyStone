@@ -27,6 +27,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     int dumpPosition;
     boolean driver1CollectorEnabled = true;
     private boolean skystoneServoPresetDown = true;
+    private boolean manualGrabberClosed = true;
 
 
     @Override
@@ -159,16 +160,36 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
             robotCfg.getLiftArm().armStowed();
         }
 
-        if(driver2.dpad_down.justPressed()){
-            if(driver2.back.isPressed()){
-                robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.FORCE_STOW);
-            }else{
-                robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.STOW);
+        if(driver2.right_bumper.justPressed()){
+            if(manualGrabberClosed) {
+                manualGrabberClosed = false;
+                robotCfg.getLiftArm().release();
+            } else {
+                manualGrabberClosed = true;
+                robotCfg.getLiftArm().grab();
             }
+        }
+
+
+        if(driver2.dpad_down.justPressed()){
+            //if(driver2.back.isPressed()){
+            //    robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.FORCE_STOW);
+            //}else{
+                robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.FORCE_STOW);
+            //}
         }
 
         if(driver2.dpad_up.justPressed()){
             robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.GRAB);
+        }
+
+        if (driver1.dpad_left.justPressed()) {
+            skystoneServoPresetDown = !skystoneServoPresetDown;
+            if(skystoneServoPresetDown) {
+                robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.DOWN);
+            } else {
+                robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.UP);
+            }
         }
 
         if ((driver1.left_bumper.justPressed() && !driver2.left_bumper.isPressed()) ||
@@ -180,14 +201,6 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
             robotCfg.getFoundationMover().servosUp();
         }
 
-        if (driver1.dpad_left.justPressed()) {
-            skystoneServoPresetDown = !skystoneServoPresetDown;
-            if(skystoneServoPresetDown) {
-                robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.DOWN);
-            } else {
-                robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.UP);
-            }
-        }
 
         int m = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0);
         int m1 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(1);
@@ -206,15 +219,6 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
 
 
 
-
-
-//        // Dumper control
-//        if(driver2.y.isPressed()) {
-//            dump.goToPreset(FutureFestRobotCfg.DumpServoPresets.OPEN);
-//        } else if(driver2.a.isPressed()) {
-//        } else{
-//            dump.goToPreset(FutureFestRobotCfg.DumpServoPresets.OPEN);
-//        }
     }
 
     @Override
