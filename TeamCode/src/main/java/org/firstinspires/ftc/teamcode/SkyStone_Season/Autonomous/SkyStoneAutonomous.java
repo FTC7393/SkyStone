@@ -9,6 +9,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
+import ftc.electronvolts.statemachine.BasicAbstractState;
 import ftc.electronvolts.statemachine.State;
 import ftc.electronvolts.statemachine.StateMachine;
 import ftc.electronvolts.statemachine.StateName;
@@ -112,7 +113,8 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 //        ResultReceiver<Boolean> cont = new BasicResultReceiver<>();
         EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.PROCESS_SKYSTONE, teamColor, Angle.fromDegrees(3));
         b.add(S.PROCESS_SKYSTONE, createProcessState());
-        b.addDrive(S.SKYSTONE_LEFT, S.DRIVE_LEFT, Distance.fromFeet(0.8), 0.30, 113, 0);
+        b.addDrive(S.SKYSTONE_LEFT, S.DRIVE_LEFT, Distance.fromFeet(0.8), 0.30, 130, 45);
+        b.add(S.DRIVE_LEFT, createPickupState(S.STOP, 45, 45, 0.1, 0.2));
         b.addDrive(S.DRIVE_LEFT, S.GRAB_BLOCK_ONE, Distance.fromFeet(0.1), 0.15, 113,0);
         b.addDrive(S.SKYSTONE_MIDDLE, S.DRIVE_MIDDLE, Distance.fromFeet(0.68), 0.30, 98, 0);
         b.addDrive(S.DRIVE_MIDDLE, S.GRAB_BLOCK_ONE, Distance.fromFeet(0.15), 0.2, 102, 0);
@@ -194,6 +196,36 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
                     return srr.getValue();
                 }
                 return null;
+            }
+        };
+    }
+
+    private State createPickupState(final StateName nextState, double direction,
+                                    double orientation, double speed, double distance) {
+        double maxAngSpeed = 0.5;
+        final State s = ftc.evlib.statemachine.EVStates.mecanumDrive(nextState,
+                Distance.fromFeet(distance),robotCfg.getMecanumControl(), gyro, speed,
+                Angle.fromDegrees(direction), Angle.fromDegrees(orientation), Angle.fromDegrees(2), maxAngSpeed);
+
+        return new BasicAbstractState() {
+            @Override
+            public void init() {
+                s.act();
+                robotCfg.getFlyWheels().setPower(0.2);
+            }
+
+            @Override
+            public boolean isDone() {
+                if(s.act() != null) {
+                    robotCfg.getFlyWheels().stop();
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public StateName getNextStateName() {
+                return nextState;
             }
         };
     }
