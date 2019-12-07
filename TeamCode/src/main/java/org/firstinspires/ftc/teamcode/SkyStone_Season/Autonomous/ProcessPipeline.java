@@ -32,8 +32,8 @@ class ProcessPipeline extends OpenCvPipeline {
     private final BasicResultReceiver<StateName> StateRR;
     private final TeamColor tc;
     private final BasicResultReceiver<Boolean> canUpdateSRR;
-    private final int x1 = 175, y1 = 378, w1 = 73, h1 = 53;
-    private int x2 = 374, y2 = 374, w2 = w1, h2 = h1;
+    private final int x1 = 75, y1 = 378, w1 = 73, h1 = 43;
+    private int x2 = x1 + 200, y2 = 374, w2 = w1, h2 = h1 + 10;
     private Mat m1;
     private Mat m2;
     private final int minStabalizationCycles;

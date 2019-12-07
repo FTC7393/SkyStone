@@ -14,7 +14,6 @@ import ftc.electronvolts.statemachine.StateMachine;
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.InputExtractor;
-import ftc.electronvolts.util.ResultReceiver;
 import ftc.electronvolts.util.TeamColor;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.files.OptionsFile;
@@ -113,13 +112,16 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 //        ResultReceiver<Boolean> cont = new BasicResultReceiver<>();
         EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.PROCESS_SKYSTONE, teamColor, Angle.fromDegrees(3));
         b.add(S.PROCESS_SKYSTONE, createProcessState());
-        b.addDrive(S.SKYSTONE_LEFT, S.STOP, Distance.fromFeet(0.9), 0.30, 113, 0);
+        b.addDrive(S.SKYSTONE_LEFT, S.DRIVE_LEFT, Distance.fromFeet(0.8), 0.30, 113, 0);
+        b.addDrive(S.DRIVE_LEFT, S.GRAB_BLOCK_ONE, Distance.fromFeet(0.1), 0.15, 113,0);
         b.addDrive(S.SKYSTONE_MIDDLE, S.DRIVE_MIDDLE, Distance.fromFeet(0.68), 0.30, 98, 0);
-        b.addDrive(S.DRIVE_MIDDLE, S.STOP, Distance.fromFeet(0.11), 0.2, 98, 0);
-        b.addDrive(S.SKYSTONE_RIGHT, S.STOP, Distance.fromFeet(0.78), 0.30, 85, 0);
-        b.addServo(S.GRAB_BLOCK_ONE, S.STOP, SkystoneRobotCfg.SkystoneServoName.STONE_SCRAPER_SERVO,
+        b.addDrive(S.DRIVE_MIDDLE, S.GRAB_BLOCK_ONE, Distance.fromFeet(0.15), 0.2, 102, 0);
+        b.addDrive(S.SKYSTONE_RIGHT, S.DRIVE_RIGHT, Distance.fromFeet(0.76), 0.30, 86.3, 0);
+        b.addDrive(S.DRIVE_RIGHT, S.GRAB_BLOCK_ONE, Distance.fromFeet(.1), 0.3, 86.3, 0);
+        b.addServo(S.GRAB_BLOCK_ONE, S.WAIT1, SkystoneRobotCfg.SkystoneServoName.STONE_SCRAPER_SERVO,
                 SkystoneRobotCfg.StoneScraperServoPresets.DOWN, true);
-        b.addDrive(S.DRIVE_BACK, S.STOP, Distance.fromFeet(0.2), 0.30, 270, 0);
+        b.addWait(S.WAIT1, S.DRIVE_BACK, 500);
+        b.addDrive(S.DRIVE_BACK, S.STOP, Distance.fromFeet(0.35), 0.30, 270, 0);
 
         b.add(S.DRIVE_TO_BRIDGE1, createDriveToBridge1());
 
@@ -207,7 +209,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         SKYSTONE_RIGHT,
         DRIVE_2,
         STOP,
-        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, GOBACK, MOVETOBLOCKSAGAIN, GETLEFTBLOCKAGAIN, MIDDLEAGAIN, GETRIGHTBLOCKAGAIN, DRIVE_MIDDLE, DRIVE_RIGHT_BLUE, DRIVE_LEFT_BLUE, DRIVE_RIGHT_RED, DRIVE_LEFT_RED, GRAB_BLOCK_ONE, DRIVE_BACK, SKYSTONE_MIDDLE_TO_BRIDGE, SKYSTONE_CLOSE_TO_BRIDGE, SKYSTONE_FAR_TO_BRIDGE, DRIVE_TO_BRIDGE1, DETECTION_2
+        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, GOBACK, MOVETOBLOCKSAGAIN, GETLEFTBLOCKAGAIN, MIDDLEAGAIN, GETRIGHTBLOCKAGAIN, DRIVE_MIDDLE, DRIVE_RIGHT_BLUE, DRIVE_LEFT_BLUE, DRIVE_RIGHT_RED, DRIVE_LEFT_RED, GRAB_BLOCK_ONE, DRIVE_BACK, SKYSTONE_MIDDLE_TO_BRIDGE, SKYSTONE_CLOSE_TO_BRIDGE, SKYSTONE_FAR_TO_BRIDGE, DRIVE_TO_BRIDGE1, WAIT1, DRIVE_LEFT, DRIVE_RIGHT, DETECTION_2
 
     }
 }
