@@ -14,6 +14,7 @@ import ftc.electronvolts.statemachine.StateMachine;
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.InputExtractor;
+import ftc.electronvolts.util.ResultReceiver;
 import ftc.electronvolts.util.TeamColor;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.files.OptionsFile;
@@ -120,6 +121,8 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
                 SkystoneRobotCfg.StoneScraperServoPresets.DOWN, true);
         b.addDrive(S.DRIVE_BACK, S.STOP, Distance.fromFeet(0.2), 0.30, 270, 0);
 
+        b.add(S.DRIVE_TO_BRIDGE1, createDriveToBridge1());
+
         b.addStop(S.STOP);
 
 //        b.addDrive(S.DRIVE_LEFT_BLUE, S.GRABBLOCK, Distance.fromFeet(0.1), 0.4, 90, 90);
@@ -161,6 +164,24 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
       return b.build();
     }
 
+    private State createDriveToBridge1() {
+        return new State() {
+            @Override
+            public StateName act() {
+                if(srr.getValue() == SkyStoneAutonomous.S.SKYSTONE_LEFT) {
+                    return SkyStoneAutonomous.S.SKYSTONE_CLOSE_TO_BRIDGE;
+                } else if (srr.getValue() == SkyStoneAutonomous.S.SKYSTONE_MIDDLE) {
+                    return SkyStoneAutonomous.S.SKYSTONE_MIDDLE_TO_BRIDGE;
+                } else if (srr.getValue() == SkyStoneAutonomous.S.SKYSTONE_RIGHT){
+                    return SkyStoneAutonomous.S.SKYSTONE_FAR_TO_BRIDGE;
+                }
+                else {
+                    return SkyStoneAutonomous.S.SKYSTONE_FAR_TO_BRIDGE;
+                }
+            }
+        };
+    }
+
 
     private State createProcessState() {
         return new State() {
@@ -186,7 +207,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         SKYSTONE_RIGHT,
         DRIVE_2,
         STOP,
-        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, GOBACK, MOVETOBLOCKSAGAIN, GETLEFTBLOCKAGAIN, MIDDLEAGAIN, GETRIGHTBLOCKAGAIN, DRIVE_MIDDLE, DRIVE_RIGHT_BLUE, DRIVE_LEFT_BLUE, DRIVE_RIGHT_RED, DRIVE_LEFT_RED, GRAB_BLOCK_ONE, DRIVE_BACK, DETECTION_2
+        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, GOBACK, MOVETOBLOCKSAGAIN, GETLEFTBLOCKAGAIN, MIDDLEAGAIN, GETRIGHTBLOCKAGAIN, DRIVE_MIDDLE, DRIVE_RIGHT_BLUE, DRIVE_LEFT_BLUE, DRIVE_RIGHT_RED, DRIVE_LEFT_RED, GRAB_BLOCK_ONE, DRIVE_BACK, SKYSTONE_MIDDLE_TO_BRIDGE, SKYSTONE_CLOSE_TO_BRIDGE, SKYSTONE_FAR_TO_BRIDGE, DRIVE_TO_BRIDGE1, DETECTION_2
 
     }
 }
