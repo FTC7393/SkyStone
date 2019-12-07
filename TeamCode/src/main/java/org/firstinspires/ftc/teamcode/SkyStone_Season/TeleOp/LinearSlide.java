@@ -107,6 +107,7 @@ public class LinearSlide {
 
                 extension.resetEncoder();
                 minExtensionPosition = 0;
+                extensionSetPoint = 0;
             }
         }
 
