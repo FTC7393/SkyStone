@@ -264,15 +264,72 @@ public class LiftArm {
                 if (rrCommand.getValue() != null){
                     switch(rrCommand.getValue()){
                         case FORCE_STOW:
-                            return S.MOVE_B1_1;
+                            return S.MOVE_C1_1;
 
                         case PLACE:
+                            return S.MOVE_A2_1;
+                    }
+                }
+                return null;
+            }
+        });
+
+        b.add(S.PLACED, new BasicAbstractState() {
+            @Override
+            public void init() {
+                rrCommand.clear();
+            }
+
+            @Override
+            public boolean isDone() {
+                return rrCommand.isReady();
+            }
+
+            @Override
+            public StateName getNextStateName() {
+                if (rrCommand.getValue() != null){
+                    switch(rrCommand.getValue()){
+                        case STOW:
+                            return S.MOVE_A5_1;
+
+                        case GRAB:
+                            return S.MOVE_B2_1;
+
+                        case DROP:
+                            return S.MOVE_A3_1;
+                    }
+                }
+                return null;
+            }
+        });
+
+
+        b.add(S.DROPPED, new BasicAbstractState() {
+            @Override
+            public void init() {
+                rrCommand.clear();
+            }
+
+            @Override
+            public boolean isDone() {
+                return rrCommand.isReady();
+            }
+
+            @Override
+            public StateName getNextStateName() {
+                if (rrCommand.getValue() != null){
+                    switch(rrCommand.getValue()){
+                        case PLACE:
+                            return S.MOVE_A4_1;
 
                     }
                 }
                 return null;
             }
         });
+
+
+
 
         /*
         Stowed ⟶ Grabbing A1:
@@ -358,7 +415,7 @@ public class LiftArm {
 //    Placing ⟶ Dropping A3:
 //    Move linear slide (placement height - droppingΔ)
 //    Finger servos to open position
-        b.add(S.MOVE_A3_1, LiftArmStates.liftMove(S.MOVE_A3_2, this, rrDroppingHeight, true)); 
+        b.add(S.MOVE_A3_1, LiftArmStates.liftMove(S.MOVE_A3_2, this, rrDroppingHeight, true));
         b.add(S.MOVE_A3_2, EVStates.servoTurn(S.DROPPING,
                 fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,true));
 
@@ -433,6 +490,8 @@ public class LiftArm {
     public enum S implements StateName {
         STOWED,
         GRABBED,
+        PLACED,
+        DROPPED,
         PLACING,
         DROPPING,
         MOVE_A1_1,
