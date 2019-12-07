@@ -23,16 +23,16 @@ public class LiftArm {
     private boolean isArmExtended = false;
     private LinearSlide lift;
     private StateMachine stateMachine;
-    private final int maxExtensionPosition = 3522; //random number, don't know actual value yet. TODO
-    private final int liftTolerance = 5;
-    private final int safeArmExtensionPosition = maxExtensionPosition; // lift must be grater than a magic number to extend/retract arm.
-    private final int emptySafeHeight = 2000; //random number, don't know actual value yet. TODO
-    private final int grabbingHeight = 7000; //random number, don't know actual value yet. TODO
+    private final int maxExtensionPosition = 3396; //random number, don't know actual value yet. TODO
+    private final int liftTolerance = 10;
+    private final int safeArmExtensionPosition = 0; // lift must be grater than a magic number to extend/retract arm.
+    private final int emptySafeHeight = 296; //random number, don't know actual value yet. TODO
+    private final int grabbingHeight = 70; //random number, don't know actual value yet. TODO
     private final int stowedHeight = 0; //random number, don't know actual value yet. TODO
-    private final int loadedSafeHeight = 5700; //random number, don't know actual value yet. TODO
+    private final int loadedSafeHeight = 1355; //random number, don't know actual value yet. TODO
     private final int numberOfLevels = 5; //random number, don't know actual value yet. TODO
-    private final int placingLevelHeights[] = {1000, 2000, 3000, 4000, 5000}; //random number, don't know actual value yet. TODO
-    private final int droppingLevelHeights[] = {1000, 2000, 3000, 4000, 5000}; //random number, don't know actual value yet. TODO
+    private final int placingLevelHeights[] = {100, 600, 1100, 1600, 2100}; //random number, don't know actual value yet. TODO
+    private final int droppingLevelHeights[] = {0, 500, 1000, 1500, 2000}; //random number, don't know actual value yet. TODO
 
 
     public LiftArm(ServoControl elbow, ServoControl wrist, ServoControl fingers, MotorEnc extension,
@@ -40,7 +40,7 @@ public class LiftArm {
         this.elbow = elbow;
         this.wrist = wrist;
         this.fingers = fingers;
-        this.lift = new LinearSlide(extension, new PIDController(0.0025, 0, 0, 1),
+        this.lift = new LinearSlide(extension, new PIDController(0.003, 0, 0, 1),
               maxExtensionPosition, liftTolerance, lowerLimit, upperLimit);
         this.rrCommand = new BasicResultReceiver<>();
         this.rrPlacingHeight = new InputExtractor<Integer>(){
@@ -339,7 +339,9 @@ public class LiftArm {
         - Put finger servos in a closed position
          */
 
-        b.add(S.MOVE_A1_1, LiftArmStates.liftMove(S.MOVE_A1_2, this, emptySafeHeight, true));
+        b.add(S.MOVE_A1_1, EVStates.servoTurn(S.MOVE_A1_1A,
+                fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,true));
+        b.add(S.MOVE_A1_1A, LiftArmStates.liftMove(S.MOVE_A1_2, this, emptySafeHeight, true));
         b.add(S.MOVE_A1_2, EVStates.servoTurn(S.MOVE_A1_3,
                 elbow, SkystoneRobotCfg.ElbowServoPresets.GRABBING,false));
         b.add(S.MOVE_A1_3, EVStates.servoTurn(S.MOVE_A1_4,
@@ -495,6 +497,7 @@ public class LiftArm {
         PLACING,
         DROPPING,
         MOVE_A1_1,
+        MOVE_A1_1A,
         MOVE_A1_2,
         MOVE_A1_3,
         MOVE_A1_4,
