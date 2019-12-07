@@ -111,11 +111,12 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         pipeline = new ProcessPipeline(srr, minCycles, teamColor, canUpdateSRR);
         teamColor = optionsFile.get(SkyStoneOptionsOp.Opts.TEAM_COLOR.s, SkyStoneOptionsOp.teamColorDefault);
 //        ResultReceiver<Boolean> cont = new BasicResultReceiver<>();
-        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.PROCESS_SKYSTONE, teamColor, Angle.fromDegrees(3));
+        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.INIT_GYRO, teamColor, Angle.fromDegrees(3));
+        b.addCalibrateGyro(S.INIT_GYRO,S.PROCESS_SKYSTONE);
         b.add(S.PROCESS_SKYSTONE, createProcessState());
-        b.addDrive(S.SKYSTONE_LEFT, S.DRIVE_LEFT, Distance.fromFeet(0.8), 0.30, 130, 45);
-        b.add(S.DRIVE_LEFT, createPickupState(S.STOP, 45, 45, 0.1, 0.2));
-        b.addDrive(S.DRIVE_LEFT, S.GRAB_BLOCK_ONE, Distance.fromFeet(0.1), 0.15, 113,0);
+        b.addDrive(S.SKYSTONE_LEFT, S.DRIVE_LEFT, Distance.fromFeet(1.1), 0.30, 125, 45);
+        b.add(S.DRIVE_LEFT, createPickupState(S.STOP, 45, 45, 0.15, 0.6));
+//        b.addDrive(S.DRIVE_LEFT, S.GRAB_BLOCK_ONE, Distance.fromFeet(0.1), 0.15, 113,0);
         b.addDrive(S.SKYSTONE_MIDDLE, S.DRIVE_MIDDLE, Distance.fromFeet(0.68), 0.30, 98, 0);
         b.addDrive(S.DRIVE_MIDDLE, S.GRAB_BLOCK_ONE, Distance.fromFeet(0.15), 0.2, 102, 0);
         b.addDrive(S.SKYSTONE_RIGHT, S.DRIVE_RIGHT, Distance.fromFeet(0.76), 0.30, 86.3, 0);
@@ -204,14 +205,14 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
                                     double orientation, double speed, double distance) {
         double maxAngSpeed = 0.5;
         final State s = ftc.evlib.statemachine.EVStates.mecanumDrive(nextState,
-                Distance.fromFeet(distance),robotCfg.getMecanumControl(), gyro, speed,
+                Distance.fromFeet(distance),robotCfg.getMecanumControl(), robotCfg.getGyro(), speed,
                 Angle.fromDegrees(direction), Angle.fromDegrees(orientation), Angle.fromDegrees(2), maxAngSpeed);
 
         return new BasicAbstractState() {
             @Override
             public void init() {
                 s.act();
-                robotCfg.getFlyWheels().setPower(0.2);
+                robotCfg.getFlyWheels().setPower(0.7);
             }
 
             @Override
@@ -241,7 +242,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         SKYSTONE_RIGHT,
         DRIVE_2,
         STOP,
-        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, GOBACK, MOVETOBLOCKSAGAIN, GETLEFTBLOCKAGAIN, MIDDLEAGAIN, GETRIGHTBLOCKAGAIN, DRIVE_MIDDLE, DRIVE_RIGHT_BLUE, DRIVE_LEFT_BLUE, DRIVE_RIGHT_RED, DRIVE_LEFT_RED, GRAB_BLOCK_ONE, DRIVE_BACK, SKYSTONE_MIDDLE_TO_BRIDGE, SKYSTONE_CLOSE_TO_BRIDGE, SKYSTONE_FAR_TO_BRIDGE, DRIVE_TO_BRIDGE1, WAIT1, DRIVE_LEFT, DRIVE_RIGHT, DETECTION_2
+        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, GOBACK, MOVETOBLOCKSAGAIN, GETLEFTBLOCKAGAIN, MIDDLEAGAIN, GETRIGHTBLOCKAGAIN, DRIVE_MIDDLE, DRIVE_RIGHT_BLUE, DRIVE_LEFT_BLUE, DRIVE_RIGHT_RED, DRIVE_LEFT_RED, GRAB_BLOCK_ONE, DRIVE_BACK, SKYSTONE_MIDDLE_TO_BRIDGE, SKYSTONE_CLOSE_TO_BRIDGE, SKYSTONE_FAR_TO_BRIDGE, DRIVE_TO_BRIDGE1, WAIT1, DRIVE_LEFT, DRIVE_RIGHT, INIT_GYRO, DETECTION_2
 
     }
 }
