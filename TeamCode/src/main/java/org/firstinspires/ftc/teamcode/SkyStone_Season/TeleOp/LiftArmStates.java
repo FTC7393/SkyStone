@@ -27,6 +27,25 @@ public class LiftArmStates extends States {
         };
     }
 
+    public static State waitForArm(final StateName nextStateName, final LiftArm liftArm){
+        return new BasicAbstractState() {
+            @Override
+            public void init() {
+
+            }
+
+            @Override
+            public boolean isDone() {
+                return liftArm.armIsDone();
+            }
+
+            @Override
+            public StateName getNextStateName() {
+                return nextStateName;
+            }
+        };
+    }
+
     public static State liftMove(final StateName nextStateName, final LiftArm liftArm, final double liftPosition, final boolean waitForDone){
         return new BasicAbstractState() {
             @Override

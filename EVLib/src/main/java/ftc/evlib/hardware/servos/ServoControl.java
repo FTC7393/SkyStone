@@ -32,6 +32,7 @@ public class ServoControl {
     private final ftc.evlib.hardware.servos.ServoName name;
     private final Map<Enum, Double> presets;
     private boolean done = false;
+    private double defaultSpeed = MAX_SPEED;
 
     /**
      * Create a ServoControl to wrap a Servo
@@ -73,8 +74,12 @@ public class ServoControl {
      */
     public void goToPreset(Enum preset) {
         this.targetPosition = presets.get(preset);
-        this.speed = MAX_SPEED;
+        this.speed = defaultSpeed;
         done = false;
+    }
+
+    public void setDefaultSpeed(double defaultSpeed) {
+        this.defaultSpeed = defaultSpeed;
     }
 
 
@@ -102,7 +107,7 @@ public class ServoControl {
      */
     public void setPosition(double position) {
         this.targetPosition = position;
-        this.speed = MAX_SPEED;
+        this.speed = defaultSpeed;
         done = false;
     }
 

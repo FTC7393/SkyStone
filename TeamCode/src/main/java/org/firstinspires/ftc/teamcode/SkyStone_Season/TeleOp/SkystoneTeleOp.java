@@ -28,7 +28,10 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     boolean driver1CollectorEnabled = true;
     private boolean skystoneServoPresetDown = true;
     private boolean manualGrabberClosed = true;
-
+    private AnalogInputEdgeDetector driver2RightYUp;
+    private AnalogInputEdgeDetector driver2RightYDown;
+    private AnalogInputEdgeDetector driver2RightXLeft;
+    private AnalogInputEdgeDetector driver2RightXRight;
 
     @Override
     public Time getMatchTime() {
@@ -85,7 +88,10 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
 
     @Override
     protected void setup() {
-
+        this.driver2RightYDown = new AnalogInputEdgeDetector(driver2.right_stick_y, 0.3, 0.7,false);
+        this.driver2RightYUp = new AnalogInputEdgeDetector(driver2.right_stick_y,0.3, 0.7,true);
+        this.driver2RightXRight = new AnalogInputEdgeDetector(driver2.right_stick_x,0.3, 0.7,false);
+        this.driver2RightXLeft = new AnalogInputEdgeDetector(driver2.right_stick_x,0.3, 0.7,true);
     }
 
     @Override
@@ -109,6 +115,11 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
 
     @Override
     protected void act() {
+
+        driver2RightYDown.update();
+        driver2RightYUp.update();
+        driver2RightXRight.update();
+        driver2RightXLeft.update();
 
         forwardControl();
         dump  = null; // robotCfg.getServo(FutureFestRobotCfg.FutureFestServoEnum.DUMP_SERVO);
@@ -170,19 +181,36 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
             }
         }
 
-
-        if(driver2.dpad_down.justPressed()){
-            //if(driver2.back.isPressed()){
-            //    robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.FORCE_STOW);
-            //}else{
-                robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.FORCE_STOW);
-            //}
+// LiftArm auto commands ///////////////////////////////////////////////////////////////////
+        if(driver2RightYDown.justPressed()){
+            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.STOW);
         }
 
-        if(driver2.dpad_up.justPressed()){
+        if(driver2RightYUp.justPressed()){
+            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.PLACE);
+        }
+
+        if(driver2RightXLeft.justPressed()){
+            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.DROP);
+        }
+
+        if(driver2RightXLeft.justReleased()){
+            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.UNDROP);
+        }
+
+        if(driver2RightXRight.justPressed()){
             robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.GRAB);
         }
 
+        if (driver2.dpad_up.justPressed()){
+            robotCfg.getLiftArm().incrementPlacingLevel();
+        }
+
+        if (driver2.dpad_down.justPressed()){
+            robotCfg.getLiftArm().decrementPlacingLevel();
+        }
+
+////////////////////////////////////////////////////////////////////////////////////////////
         if (driver1.dpad_left.justPressed()) {
             skystoneServoPresetDown = !skystoneServoPresetDown;
             if(skystoneServoPresetDown) {
@@ -202,15 +230,22 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
         }
 
 
-        int m = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0);
-        int m1 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(1);
-        int m2 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(2);
-        int m3 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(3);
-        telemetry.addData("motor 0 - frontRight", m);
-        telemetry.addData("motor 1 - frontLeft", m1);
-        telemetry.addData("motor 2 - backLeft", m2);
-        telemetry.addData("motor 3 - backRight", m3);
+//        int m = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0);
+//        int m1 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(1);
+//        int m2 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(2);
+//        int m3 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(3);
+//        telemetry.addData("motor 0 - frontRight", m);
+//        telemetry.addData("motor 1 - frontLeft", m1);
+//        telemetry.addData("motor 2 - backLeft", m2);
+//        telemetry.addData("motor 3 - backRight", m3);
 //      telemetry.addData("extension motor", robotCfg.getLiftArm().getLift().getExtensionEncoder());
+        telemetry.addData("placing level", robotCfg.getLiftArm().getPlacingLevel());
+        telemetry.addData("rightStickX", driver2.right_stick_x.getValue());
+        telemetry.addData("rightStickY", driver2.right_stick_y.getValue());
+        telemetry.addData("rightStickXLeft", driver2RightXLeft.getValue());
+        telemetry.addData("rightStickXRight", driver2RightXRight.getValue());
+        telemetry.addData("rightStickYUp", driver2RightYUp.getValue());
+        telemetry.addData("rightStickYDown", driver2RightYDown.getValue());
         telemetry.addData("Lift Arm State", robotCfg.getLiftArm().getCurrentStateName());
         telemetry.addData("Upper Limit", robotCfg.getLiftArm().getLift().getUpperLimit());
         telemetry.addData("Lower Limit", robotCfg.getLiftArm().getLift().getLowerLimit());

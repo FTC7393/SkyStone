@@ -2,14 +2,12 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp;
 
 import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
 
-import ftc.electronvolts.statemachine.AbstractState;
 import ftc.electronvolts.statemachine.BasicAbstractState;
 import ftc.electronvolts.statemachine.StateMachine;
 import ftc.electronvolts.statemachine.StateMachineBuilder;
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.PIDController;
-import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.hardware.motors.MotorEnc;
 import ftc.evlib.hardware.sensors.DigitalSensor;
 import ftc.evlib.hardware.servos.ServoControl;
@@ -23,12 +21,13 @@ public class LiftArm {
     private boolean isArmExtended = false;
     private LinearSlide lift;
     private StateMachine stateMachine;
-    private final int maxExtensionPosition = 3396; //random number, don't know actual value yet. TODO
-    private final int liftTolerance = 10;
-    private final int safeArmExtensionPosition = 0; // lift must be grater than a magic number to extend/retract arm.
-    private final int emptySafeHeight = 296; //random number, don't know actual value yet. TODO
-    private final int grabbingHeight = 70; //random number, don't know actual value yet. TODO
-    private final int stowedHeight = 0; //random number, don't know actual value yet. TODO
+    private final int maxExtensionPosition = 3500;
+    private final int liftTolerance = 5;
+    private final int manualSafeHeight = -1000; // lift must be grater than a magic number to extend/retract arm.
+    private final int emptySafeHeight = 500; // stow to grab safe height
+    private final int stowedToGrabHeight = 350;
+    private final int grabbingHeight = 75;
+    private final int stowedHeight = 0;
     private final int loadedSafeHeight = 1355; //random number, don't know actual value yet. TODO
     private final int numberOfLevels = 5; //random number, don't know actual value yet. TODO
     private final int placingLevelHeights[] = {100, 600, 1100, 1600, 2100}; //random number, don't know actual value yet. TODO
@@ -38,9 +37,12 @@ public class LiftArm {
     public LiftArm(ServoControl elbow, ServoControl wrist, ServoControl fingers, MotorEnc extension,
                    DigitalSensor lowerLimit, DigitalSensor upperLimit ) {
         this.elbow = elbow;
+        elbow.setDefaultSpeed(0.6);
         this.wrist = wrist;
+        wrist.setDefaultSpeed(0.6);
         this.fingers = fingers;
-        this.lift = new LinearSlide(extension, new PIDController(0.003, 0, 0, 1),
+        fingers.setDefaultSpeed(1.15);
+        this.lift = new LinearSlide(extension, new PIDController(0.003, 0, 0, .5),
               maxExtensionPosition, liftTolerance, lowerLimit, upperLimit);
         this.rrCommand = new BasicResultReceiver<>();
         this.rrPlacingHeight = new InputExtractor<Integer>(){
@@ -73,7 +75,7 @@ public class LiftArm {
     }
 
     public void armPlacing() {
-        if (lift.getExtensionEncoder() >=  safeArmExtensionPosition || isArmExtended) {
+        if (lift.getExtensionEncoder() >= manualSafeHeight || isArmExtended) {
             elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.PLACING);
             wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.PLACING);
             isArmExtended = true;
@@ -82,7 +84,7 @@ public class LiftArm {
     }
 
     public void armPlacingLeft() {
-        if (lift.getExtensionEncoder() >=  safeArmExtensionPosition || isArmExtended) {
+        if (lift.getExtensionEncoder() >= manualSafeHeight || isArmExtended) {
             elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.PLACING);
             wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.PLACING_LEFT);
             isArmExtended = true;
@@ -91,7 +93,7 @@ public class LiftArm {
     }
 
     public void armGrabbing() {
-        if (lift.getExtensionEncoder() >=  safeArmExtensionPosition) {
+        if (lift.getExtensionEncoder() >= manualSafeHeight) {
             elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.GRABBING);
             wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.GRABBING);
             isArmExtended = false;
@@ -100,7 +102,7 @@ public class LiftArm {
     }
 
     public void armStowed() {
-        if (lift.getExtensionEncoder() >=  safeArmExtensionPosition) {
+        if (lift.getExtensionEncoder() >= manualSafeHeight) {
             elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.STOWED);
             wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.STOWED);
             isArmExtended = false;
@@ -120,6 +122,10 @@ public class LiftArm {
 
     public boolean isDone() {
         return lift.isDone() && elbow.isDone() && wrist.isDone() && fingers.isDone();
+    }
+
+    public boolean armIsDone() {
+        return elbow.isDone() && wrist.isDone() && fingers.isDone();
     }
 
     public void pre_act() {
@@ -154,6 +160,20 @@ public class LiftArm {
 
     private int placingLevel = 0;
 
+    public int incrementPlacingLevel() {
+        if (placingLevel < numberOfLevels-1){
+            placingLevel += 1;
+        }
+        return placingLevel;
+    }
+
+    public int decrementPlacingLevel() {
+        if (placingLevel > 0){
+            placingLevel -= 1;
+        }
+        return placingLevel;
+    }
+
     public void setPlacingLevel(int placingLevel) {
         if(placingLevel >= 0 && placingLevel < numberOfLevels){
             this.placingLevel = placingLevel;
@@ -177,7 +197,7 @@ public class LiftArm {
     }
 
     public StateMachine buildStates(){
-        StateMachineBuilder b = new StateMachineBuilder(S.STOWED);
+        StateMachineBuilder b = new StateMachineBuilder(S.INIT);
 
 
 
@@ -198,14 +218,14 @@ public class LiftArm {
                     if (rrLowerLimitResetComplete.getValue() == true) {
                         // The limit reset has been completed
                         switch(rrCommand.getValue()){
-                            case FORCE_STOW:
+                            case STOW:
                                 return S.MOVE_C1_1;
 
                         }
                     }else{
                         // lower  limit has not been reset, position is unknown
                         switch(rrCommand.getValue()){
-                            case FORCE_STOW:
+                            case STOW:
                                 return S.MOVE_C1_1;
 
                         }
@@ -237,9 +257,8 @@ public class LiftArm {
                         case GRAB:
                             return S.MOVE_A1_1;
 
-                        case FORCE_PLACE:
-
-                        case FORCE_PLACE_LEFT:
+                        case PLACE:
+                            return S.MOVE_A2_1;
                     }
                 }
                 return null;
@@ -263,7 +282,7 @@ public class LiftArm {
             public StateName getNextStateName() {
                 if (rrCommand.getValue() != null){
                     switch(rrCommand.getValue()){
-                        case FORCE_STOW:
+                        case STOW:
                             return S.MOVE_C1_1;
 
                         case PLACE:
@@ -297,6 +316,9 @@ public class LiftArm {
 
                         case DROP:
                             return S.MOVE_A3_1;
+
+                        case PLACE:
+                            return S.MOVE_A2_1;
                     }
                 }
                 return null;
@@ -307,7 +329,7 @@ public class LiftArm {
         b.add(S.DROPPED, new BasicAbstractState() {
             @Override
             public void init() {
-                rrCommand.clear();
+                //rrCommand.clear();
             }
 
             @Override
@@ -320,6 +342,9 @@ public class LiftArm {
                 if (rrCommand.getValue() != null){
                     switch(rrCommand.getValue()){
                         case PLACE:
+                            return S.MOVE_A4_1;
+
+                        case UNDROP:
                             return S.MOVE_A4_1;
 
                     }
@@ -340,13 +365,14 @@ public class LiftArm {
          */
 
         b.add(S.MOVE_A1_1, EVStates.servoTurn(S.MOVE_A1_1A,
-                fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,true));
-        b.add(S.MOVE_A1_1A, LiftArmStates.liftMove(S.MOVE_A1_2, this, emptySafeHeight, true));
+                fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,false));
+        b.add(S.MOVE_A1_1A, LiftArmStates.liftMove(S.MOVE_A1_1B, this, stowedToGrabHeight, false));
+        b.add(S.MOVE_A1_1B, LiftArmStates.waitForLiftArm(S.MOVE_A1_2, this));
         b.add(S.MOVE_A1_2, EVStates.servoTurn(S.MOVE_A1_3,
                 elbow, SkystoneRobotCfg.ElbowServoPresets.GRABBING,false));
         b.add(S.MOVE_A1_3, EVStates.servoTurn(S.MOVE_A1_4,
                 wrist, SkystoneRobotCfg.WristServoPresets.GRABBING,false));
-        b.add(S.MOVE_A1_4, LiftArmStates.waitForLiftArm(S.MOVE_A1_5, this));
+        b.add(S.MOVE_A1_4, LiftArmStates.waitForArm(S.MOVE_A1_5, this));
         b.add(S.MOVE_A1_5, LiftArmStates.liftMove(S.MOVE_A1_6, this, grabbingHeight, true));
         b.add(S.MOVE_A1_6, EVStates.servoTurn(S.GRABBED,
                 fingers, SkystoneRobotCfg.FingersServoPresets.GRAB,true));
@@ -361,14 +387,14 @@ public class LiftArm {
 
         b.add(S.MOVE_B1_1, EVStates.servoTurn(S.MOVE_B1_2,
                 fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,true));
-        b.add(S.MOVE_B1_2, LiftArmStates.liftMove(S.MOVE_B1_3, this, emptySafeHeight, true));
+        b.add(S.MOVE_B1_2, LiftArmStates.liftMove(S.MOVE_B1_3, this, stowedToGrabHeight, true));
         b.add(S.MOVE_B1_3, EVStates.servoTurn(S.MOVE_B1_4,
                 elbow, SkystoneRobotCfg.ElbowServoPresets.STOWED,false));
         b.add(S.MOVE_B1_4, EVStates.servoTurn(S.MOVE_B1_5,
                 wrist, SkystoneRobotCfg.WristServoPresets.STOWED,false));
         b.add(S.MOVE_B1_5, EVStates.servoTurn(S.MOVE_B1_6,
                 fingers, SkystoneRobotCfg.FingersServoPresets.GRAB,false));
-        b.add(S.MOVE_B1_6, LiftArmStates.waitForLiftArm(S.MOVE_B1_7, this));
+        b.add(S.MOVE_B1_6, LiftArmStates.waitForArm(S.MOVE_B1_7, this));
         b.add(S.MOVE_B1_7, LiftArmStates.liftMove(S.STOWED, this, stowedHeight, true));
 
 
@@ -389,7 +415,7 @@ public class LiftArm {
                 wrist, SkystoneRobotCfg.WristServoPresets.STOWED,false));
         b.add(S.MOVE_C1_5, EVStates.servoTurn(S.MOVE_C1_6,
                 fingers, SkystoneRobotCfg.FingersServoPresets.GRAB,false));
-        b.add(S.MOVE_C1_6, LiftArmStates.waitForLiftArm(S.MOVE_C1_7, this));
+        b.add(S.MOVE_C1_6, LiftArmStates.waitForArm(S.MOVE_C1_7, this));
         b.add(S.MOVE_C1_7, LiftArmStates.liftMove(S.MOVE_C1_8, this, rrMinExtensionPosition, true));
         b.add(S.MOVE_C1_8, LiftArmStates.liftMove(S.STOWED, this, stowedHeight, true));
 
@@ -406,10 +432,11 @@ public class LiftArm {
         b.add(S.MOVE_A2_1, LiftArmStates.liftMove(S.MOVE_A2_2, this, loadedSafeHeight, true));
         b.add(S.MOVE_A2_2, EVStates.servoTurn(S.MOVE_A2_3,
                 elbow, SkystoneRobotCfg.ElbowServoPresets.PLACING,false));
-        b.add(S.MOVE_A2_3, EVStates.servoTurn(S.MOVE_A2_4,
+        b.add(S.MOVE_A2_3, EVStates.servoTurn(S.MOVE_A2_3A,
                 wrist, SkystoneRobotCfg.WristServoPresets.PLACING,false));
-        b.add(S.MOVE_A2_4, LiftArmStates.waitForLiftArm(S.MOVE_A2_5, this));
-        b.add(S.MOVE_A2_6, LiftArmStates.liftMove(S.PLACING, this, rrPlacingHeight, true));
+        b.addWait(S.MOVE_A2_3A, S.MOVE_A2_4, 500);
+        b.add(S.MOVE_A2_4, LiftArmStates.waitForArm(S.MOVE_A2_5, this));
+        b.add(S.MOVE_A2_5, LiftArmStates.liftMove(S.PLACED, this, rrPlacingHeight, true));
 
 
 
@@ -418,7 +445,7 @@ public class LiftArm {
 //    Move linear slide (placement height - droppingΔ)
 //    Finger servos to open position
         b.add(S.MOVE_A3_1, LiftArmStates.liftMove(S.MOVE_A3_2, this, rrDroppingHeight, true));
-        b.add(S.MOVE_A3_2, EVStates.servoTurn(S.DROPPING,
+        b.add(S.MOVE_A3_2, EVStates.servoTurn(S.DROPPED,
                 fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,true));
 
 
@@ -429,7 +456,7 @@ public class LiftArm {
 //    Move back up to placement height, wait
 //    Put finger servos in closed position
         b.add(S.MOVE_A4_1, LiftArmStates.liftMove(S.MOVE_A4_2, this, rrPlacingHeight , true));
-        b.add(S.MOVE_A4_2, EVStates.servoTurn(S.PLACING,
+        b.add(S.MOVE_A4_2, EVStates.servoTurn(S.PLACED,
                 fingers, SkystoneRobotCfg.FingersServoPresets.GRAB,true));
 
 
@@ -448,9 +475,10 @@ public class LiftArm {
         b.add(S.MOVE_A5_1, LiftArmStates.liftMove(S.MOVE_A5_2, this, emptySafeHeight , true));
         b.add(S.MOVE_A5_2, EVStates.servoTurn(S.MOVE_A5_3,
                 elbow, SkystoneRobotCfg.ElbowServoPresets.STOWED,false));
-        b.add(S.MOVE_A5_3, EVStates.servoTurn(S.MOVE_A5_4,
+        b.add(S.MOVE_A5_3, EVStates.servoTurn(S.MOVE_A5_4A,
                 wrist, SkystoneRobotCfg.WristServoPresets.STOWED,false));
-        b.add(S.MOVE_A5_4, LiftArmStates.waitForLiftArm(S.MOVE_A5_5, this));
+        b.addWait(S.MOVE_A5_4A, S.MOVE_A5_4, 500);
+        b.add(S.MOVE_A5_4, LiftArmStates.waitForArm(S.MOVE_A5_5, this));
         b.add(S.MOVE_A5_5, LiftArmStates.liftMove(S.STOWED, this, stowedHeight , true));
 
 
@@ -468,9 +496,10 @@ public class LiftArm {
                 elbow, SkystoneRobotCfg.ElbowServoPresets.GRABBING,false));
         b.add(S.MOVE_B2_3, EVStates.servoTurn(S.MOVE_B2_4,
                 wrist, SkystoneRobotCfg.WristServoPresets.GRABBING,false));
-        b.add(S.MOVE_B2_4, EVStates.servoTurn(S.MOVE_B2_5,
+        b.add(S.MOVE_B2_4, EVStates.servoTurn(S.MOVE_B2_4A,
                 fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,false));
-        b.add(S.MOVE_B2_5, LiftArmStates.waitForLiftArm(S.MOVE_B2_6, this));
+        b.addWait(S.MOVE_B2_4A, S.MOVE_B2_5, 500);
+        b.add(S.MOVE_B2_5, LiftArmStates.waitForArm(S.MOVE_B2_6, this));
         b.add(S.MOVE_B2_6, LiftArmStates.liftMove(S.MOVE_B2_7, this, grabbingHeight , true));
         b.add(S.MOVE_B2_7, EVStates.servoTurn(S.GRABBED,
                 fingers, SkystoneRobotCfg.FingersServoPresets.GRAB,true));
@@ -490,14 +519,14 @@ public class LiftArm {
       B3: Stowed ⟶ Placing B3:
      */
     public enum S implements StateName {
+        INIT,
         STOWED,
         GRABBED,
         PLACED,
         DROPPED,
-        PLACING,
-        DROPPING,
         MOVE_A1_1,
         MOVE_A1_1A,
+        MOVE_A1_1B,
         MOVE_A1_2,
         MOVE_A1_3,
         MOVE_A1_4,
@@ -510,7 +539,6 @@ public class LiftArm {
         MOVE_B1_5,
         MOVE_B1_6,
         MOVE_B1_7,
-        INIT,
         MOVE_C1_1,
         MOVE_C1_2,
         MOVE_C1_3,
@@ -522,9 +550,9 @@ public class LiftArm {
         MOVE_A2_1,
         MOVE_A2_2,
         MOVE_A2_3,
+        MOVE_A2_3A,
         MOVE_A2_4,
         MOVE_A2_5,
-        MOVE_A2_6,
         MOVE_A3_1,
         MOVE_A3_2,
         MOVE_A4_1,
@@ -534,17 +562,16 @@ public class LiftArm {
         MOVE_A5_2,
         MOVE_A5_3,
         MOVE_A5_4,
+        MOVE_A5_4A,
         MOVE_A5_5,
         MOVE_B2_1,
         MOVE_B2_2,
         MOVE_B2_3,
         MOVE_B2_4,
+        MOVE_B2_4A,
         MOVE_B2_5,
         MOVE_B2_6,
-        MOVE_B2_7,
-
-
-
+        MOVE_B2_7
     }
 
     public enum COMMANDS {
@@ -552,6 +579,7 @@ public class LiftArm {
         GRAB,
         PLACE,
         DROP,
+        UNDROP,
         STOP,
         MANUAL,
         INITIALIZE,
@@ -562,7 +590,7 @@ public class LiftArm {
         FORCE_PLACE,
         FORCE_DROP,
         FORCE_PLACE_LEFT,
-        FORCE_DROP_LEFT,
+        FORCE_DROP_LEFT
     }
     public void stop() {
         lift.stopExtension();

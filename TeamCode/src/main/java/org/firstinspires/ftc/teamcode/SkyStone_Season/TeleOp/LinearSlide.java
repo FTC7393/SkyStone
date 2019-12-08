@@ -102,7 +102,7 @@ public class LinearSlide {
 
 
         if (lowerLimit != null) {
-            if (!lowerLimitResetComplete && lowerLimit.isPressed()) {
+            if (!lowerLimitResetComplete && lowerLimit.justPressed()) {
 
                 lowerLimitResetComplete = true;
                 extension.resetEncoder();
@@ -158,7 +158,11 @@ public class LinearSlide {
     }
 
     public boolean isDone(){
-      return (Math.abs(extensionSetPoint-extensionEncoder)<= tolerance);
+        if((extensionSetPoint - extensionEncoder <= tolerance) && (extensionSetPoint - extensionEncoder >= -tolerance)){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     public double getExtensionEncoder(){return extensionEncoder;}
