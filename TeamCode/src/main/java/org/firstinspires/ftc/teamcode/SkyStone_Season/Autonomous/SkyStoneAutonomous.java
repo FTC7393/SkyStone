@@ -115,14 +115,13 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         b.addCalibrateGyro(S.INIT_GYRO,S.PROCESS_SKYSTONE);
         b.add(S.PROCESS_SKYSTONE, createProcessState());
         b.addDrive(S.SKYSTONE_LEFT, S.DRIVE_LEFT, Distance.fromFeet(1.1), 0.30, 125, 45);
-        b.add(S.DRIVE_LEFT, createPickupState(S.STOP, 45, 45, 0.15, 0.6));
+        b.add(S.DRIVE_LEFT, createPickupState(S.PICKUP_SKYSTONE1, 45, 45, 0.15, 0.6));
+        b.add(S.PICKUP_SKYSTONE1, createTimedFlywheelCollectionState(S.STOP, 0.75, 750));
 //        b.addDrive(S.DRIVE_LEFT, S.GRAB_BLOCK_ONE, Distance.fromFeet(0.1), 0.15, 113,0);
         b.addDrive(S.SKYSTONE_MIDDLE, S.DRIVE_MIDDLE, Distance.fromFeet(0.68), 0.30, 98, 0);
-        b.addDrive(S.DRIVE_MIDDLE, S.GRAB_BLOCK_ONE, Distance.fromFeet(0.15), 0.2, 102, 0);
+        b.add(S.PICKUP_SKYSTONE1, createPickupState(S.STOP,90,0,0.4,0.4));
         b.addDrive(S.SKYSTONE_RIGHT, S.DRIVE_RIGHT, Distance.fromFeet(0.76), 0.30, 86.3, 0);
-        b.addDrive(S.DRIVE_RIGHT, S.GRAB_BLOCK_ONE, Distance.fromFeet(.1), 0.3, 86.3, 0);
-        b.addServo(S.GRAB_BLOCK_ONE, S.WAIT1, SkystoneRobotCfg.SkystoneServoName.STONE_SCRAPER_SERVO,
-                SkystoneRobotCfg.StoneScraperServoPresets.DOWN, true);
+        b.add(S.PICKUP_SKYSTONE1, createPickupState(S.STOP, 90,0,0.4,0.25));
         b.addWait(S.WAIT1, S.DRIVE_BACK, 500);
         b.addDrive(S.DRIVE_BACK, S.STOP, Distance.fromFeet(0.35), 0.30, 270, 0);
 
@@ -201,6 +200,37 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         };
     }
 
+
+    private State createTimedFlywheelCollectionState(final StateName nextState, final double power,
+                                                     final long durationMillis) {
+
+        return new BasicAbstractState() {
+            long startTime;
+            @Override
+            public void init() {
+                startTime = System.currentTimeMillis();
+                robotCfg.getFlyWheels().setPower(power);
+
+            }
+
+            @Override
+            public boolean isDone() {
+                if((System.currentTimeMillis() - startTime) > durationMillis) {
+                    robotCfg.getFlyWheels().stop();
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public StateName getNextStateName() {
+                return nextState;
+            }
+        };
+    }
+
+
+
     private State createPickupState(final StateName nextState, double direction,
                                     double orientation, double speed, double distance) {
         double maxAngSpeed = 0.5;
@@ -242,7 +272,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         SKYSTONE_RIGHT,
         DRIVE_2,
         STOP,
-        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, GOBACK, MOVETOBLOCKSAGAIN, GETLEFTBLOCKAGAIN, MIDDLEAGAIN, GETRIGHTBLOCKAGAIN, DRIVE_MIDDLE, DRIVE_RIGHT_BLUE, DRIVE_LEFT_BLUE, DRIVE_RIGHT_RED, DRIVE_LEFT_RED, GRAB_BLOCK_ONE, DRIVE_BACK, SKYSTONE_MIDDLE_TO_BRIDGE, SKYSTONE_CLOSE_TO_BRIDGE, SKYSTONE_FAR_TO_BRIDGE, DRIVE_TO_BRIDGE1, WAIT1, DRIVE_LEFT, DRIVE_RIGHT, INIT_GYRO, DETECTION_2
+        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, GOBACK, MOVETOBLOCKSAGAIN, GETLEFTBLOCKAGAIN, MIDDLEAGAIN, GETRIGHTBLOCKAGAIN, DRIVE_MIDDLE, DRIVE_RIGHT_BLUE, DRIVE_LEFT_BLUE, DRIVE_RIGHT_RED, DRIVE_LEFT_RED, GRAB_BLOCK_ONE, DRIVE_BACK, SKYSTONE_MIDDLE_TO_BRIDGE, SKYSTONE_CLOSE_TO_BRIDGE, SKYSTONE_FAR_TO_BRIDGE, DRIVE_TO_BRIDGE1, WAIT1, DRIVE_LEFT, DRIVE_RIGHT, INIT_GYRO, PICKUP_SKYSTONE1, DETECTION_2
 
     }
 }
