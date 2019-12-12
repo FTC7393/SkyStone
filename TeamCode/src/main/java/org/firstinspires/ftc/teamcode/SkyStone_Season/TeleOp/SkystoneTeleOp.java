@@ -39,9 +39,9 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     }
 
 
-    ScalingInputExtractor rightY;
-    ScalingInputExtractor leftX;
+    ScalingInputExtractor leftY;
     ScalingInputExtractor rightX;
+    ScalingInputExtractor leftX;
     class ScalingInputExtractor implements InputExtractor<Double> {
         InputExtractor<Double> ext;
         private double factor;
@@ -100,12 +100,12 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     }
     private void forwardControl() {
         double f = currentSpeedFactor.getFactor();
-        rightY = new ScalingInputExtractor(driver1.right_stick_y, -f);
-        leftX = new ScalingInputExtractor(driver1.left_stick_x, -f);
+        leftY = new ScalingInputExtractor(driver1.left_stick_y, -f);
         rightX = new ScalingInputExtractor(driver1.right_stick_x, -f);
-        robotCfg.getMecanumControl().setTranslationControl(TranslationControls.inputExtractorXY(rightY, rightX));
+        leftX = new ScalingInputExtractor(driver1.left_stick_x, -f);
+        robotCfg.getMecanumControl().setTranslationControl(TranslationControls.inputExtractorXY(leftY, leftX));
 //        robotCfg.getMecanumControl().setRotationControl(RotationControls.teleOpGyro(leftX, robotCfg.getGyro()));
-        robotCfg.getMecanumControl().setRotationControl(RotationControls.inputExtractor(leftX));
+        robotCfg.getMecanumControl().setRotationControl(RotationControls.inputExtractor(rightX));
     }
     @Override
     protected void go() {
@@ -122,36 +122,13 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
         driver2RightXLeft.update();
 
         forwardControl();
-        dump  = null; // robotCfg.getServo(FutureFestRobotCfg.FutureFestServoEnum.DUMP_SERVO);
-
-        if(driver2.x.isPressed()) {
-            driver1CollectorEnabled = false;
-        } else {
-            driver1CollectorEnabled = true;
-        }
 
         // Collector logic: Driver1 has control and can press right bumper for intake or left bumper for output
         // But is the right trigger is pressed in different levels (0.9, 0.6 and 0.3) it can set the collector power to different speeds
-        if(driver1.right_bumper.isPressed()) {
-            robotCfg.getFlyWheels().setPower(-0.45);
-        } else {
-            robotCfg.getFlyWheels().setPower(0.45*driver1.right_trigger.getValue());
-        }
-//        }else if (driver1.right_trigger.getValue() >= 0.95) {
-//            robotCfg.getFlyWheels().setPower(1.0);
-//        }else if (driver1.right_trigger.getValue() >= 0.8) {
-//            robotCfg.getFlyWheels().setPower(0.5);
-//        }else if (driver1.right_trigger.getValue() >= 0.65) {
-//            robotCfg.getFlyWheels().setPower(0.4);
-//        }else if (driver1.right_trigger.getValue() >= 0.5) {
-//            robotCfg.getFlyWheels().setPower(0.3);
-//        }else if (driver1.right_trigger.getValue() >= 0.35) {
-//            robotCfg.getFlyWheels().setPower(0.2);
-//        }else if (driver1.right_trigger.getValue() >= 0.2) {
-//            robotCfg.getFlyWheels().setPower(0.1);
-//        } else {
-//            robotCfg.getFlyWheels().stop();
-//        }
+
+
+            robotCfg.getFlyWheels().setPower(0.45*(driver1.right_trigger.getValue()+driver2.right_trigger.getValue()
+            -driver1.left_trigger.getValue()-driver2.left_trigger.getValue()));
 
         robotCfg.getLiftArm().getLift().controlExtension(driver2.left_stick_y.getValue());
 

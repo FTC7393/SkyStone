@@ -1,5 +1,6 @@
 package ftc.evlib.opmodes;
 
+import ftc.electronvolts.util.InitButton;
 import ftc.evlib.driverstation.GamepadManager;
 import ftc.evlib.hardware.config.RobotCfg;
 import ftc.electronvolts.util.Function;
@@ -43,6 +44,8 @@ public abstract class AbstractTeleOp<Type extends RobotCfg> extends ftc.evlib.op
         //apply the function to the gamepads and store them
         driver1 = new GamepadManager(gamepad1, f);
         driver2 = new GamepadManager(gamepad2, f);
+        driver1 = new GamepadManager(gamepad1, f, InitButton.A);
+        driver2 = new GamepadManager(gamepad2, f, InitButton.B);
         super.init();
     }
 
