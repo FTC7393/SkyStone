@@ -29,9 +29,9 @@ public class LiftArm {
     private final int grabbingHeight = 75;
     private final int stowedHeight = 0;
     private final int loadedSafeHeight = 1355; //random number, don't know actual value yet. TODO
-    private final int numberOfLevels = 5; //random number, don't know actual value yet. TODO
-    private final int placingLevelHeights[] = {100, 600, 1100, 1600, 2100}; //random number, don't know actual value yet. TODO
-    private final int droppingLevelHeights[] = {0, 500, 1000, 1500, 2000}; //random number, don't know actual value yet. TODO
+    private final int numberOfLevels = 6; //random number, don't know actual value yet. TODO
+    private final int placingLevelHeights[] = {100, 600, 1100, 1600, 2100, 7000}; //random number, don't know actual value yet. TODO
+    private final int droppingLevelHeights[] = {0, 500, 1000, 1500, 2000, 5700}; //random number, don't know actual value yet. TODO
 
 
     public LiftArm(ServoControl elbow, ServoControl wrist, ServoControl fingers, MotorEnc extension,
@@ -161,17 +161,38 @@ public class LiftArm {
     private int placingLevel = 0;
 
     public int incrementPlacingLevel() {
-        if (placingLevel < numberOfLevels-1){
-            placingLevel += 1;
+        int n = (int)Math.floor(findFractionalLevel());
+        if (n < numberOfLevels-1){
+            placingLevel = n+1;
         }
+        lift.setExtension(placingLevelHeights[placingLevel]);
         return placingLevel;
     }
 
     public int decrementPlacingLevel() {
-        if (placingLevel > 0){
-            placingLevel -= 1;
+        int n = (int)Math.ceil(findFractionalLevel());
+        if (n > 0){
+            placingLevel = n-1;
         }
+        lift.setExtension(placingLevelHeights[placingLevel]);
         return placingLevel;
+    }
+
+    private double findFractionalLevel() {
+        long r = Math.round(lift.getExtensionSetPoint());
+        int i = 0;
+        if (r <= placingLevelHeights[0]){
+            return 0;
+        }
+        for(i = 1; i < numberOfLevels; i++) {
+            if(r < placingLevelHeights[i]) {
+                return (double)(r-placingLevelHeights[i-1])/(placingLevelHeights[i]-placingLevelHeights[i-1])+i-1;
+            }
+            if(r == placingLevelHeights[i]) {
+                return i;
+            }
+        }
+        return numberOfLevels - 1;
     }
 
     public void setPlacingLevel(int placingLevel) {
