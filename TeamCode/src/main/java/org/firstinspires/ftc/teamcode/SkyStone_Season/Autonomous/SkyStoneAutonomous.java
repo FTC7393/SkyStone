@@ -115,14 +115,14 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         b.addCalibrateGyro(S.INIT_GYRO,S.PROCESS_SKYSTONE);
         b.add(S.PROCESS_SKYSTONE, createProcessState());
         b.addDrive(S.SKYSTONE_LEFT, S.DRIVE_LEFT, Distance.fromFeet(1.0), 0.30, 125, 45);
-        b.add(S.DRIVE_LEFT, createPickupState(S.PICKUP_SKYSTONE1, 45, 45, 0.15, 0.4));
+        b.add(S.DRIVE_LEFT, createPickupState(S.PICKUP_SKYSTONE_LEFT, 45, 45, 0.15, 0.4));
         b.add(S.PICKUP_SKYSTONE_LEFT, createTimedFlywheelState(S.STOP, 0.45,1500));
 
 //        b.addDrive(S.DRIVE_LEFT, S.GRAB_BLOCK_ONE, Distance.fromFeet(0.1), 0.15, 113,0);
         b.addDrive(S.SKYSTONE_MIDDLE, S.PICKUP_SKYSTONE_RIGHT, Distance.fromFeet(0.68), 0.30, 98, 90);
         b.add(S.PICKUP_SKYSTONE_RIGHT, createTimedFlywheelState(S.STOP,0.45,1500));
         b.addDrive(S.SKYSTONE_RIGHT, S.DRIVE_RIGHT, Distance.fromFeet(0.76), 0.30, 86.3, 0);
-        b.add(S.PICKUP_SKYSTONE1, createPickupState(S.STOP, 90,0,0.4,0.25));
+//        b.add(S.PICKUP_SKYSTONE1, createPickupState(S.STOP, 90,0,0.4,0.25));
         b.addWait(S.WAIT1, S.DRIVE_BACK, 500);
         b.addDrive(S.DRIVE_BACK, S.STOP, Distance.fromFeet(0.35), 0.30, 270, 0);
 
