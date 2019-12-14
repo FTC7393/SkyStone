@@ -133,7 +133,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
 
         //left stick button toggles fast and slow mode
 
-        if(driver1.left_stick_button.justPressed()) {
+        if(driver1.left_stick_button.justPressed() || driver1.right_stick_button.justPressed()) {
             if(currentSpeedFactor == MotorSpeedFactor.FAST) {
                 currentSpeedFactor = MotorSpeedFactor.SLOW;
             } else {

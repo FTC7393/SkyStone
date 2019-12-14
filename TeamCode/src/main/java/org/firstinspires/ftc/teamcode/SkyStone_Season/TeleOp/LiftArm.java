@@ -34,14 +34,18 @@ public class LiftArm {
     private final int droppingLevelHeights[] = {0, 500, 1000, 1500, 2000, 5700}; //random number, don't know actual value yet. TODO
 
 
+    private final double elbowSpeed = 0.6;
+    private final double wristSpeed = 0.6;
+    private final double fingerSpeed = 1.15;
+
     public LiftArm(ServoControl elbow, ServoControl wrist, ServoControl fingers, MotorEnc extension,
                    DigitalSensor lowerLimit, DigitalSensor upperLimit ) {
         this.elbow = elbow;
-        elbow.setDefaultSpeed(0.6);
+        elbow.setDefaultSpeed(elbowSpeed);
         this.wrist = wrist;
-        wrist.setDefaultSpeed(0.6);
+        wrist.setDefaultSpeed(wristSpeed);
         this.fingers = fingers;
-        fingers.setDefaultSpeed(1.15);
+        fingers.setDefaultSpeed(fingerSpeed);
         this.lift = new LinearSlide(extension, new PIDController(0.003, 0, 0, .5),
               maxExtensionPosition, liftTolerance, lowerLimit, upperLimit);
         this.rrCommand = new BasicResultReceiver<>();
@@ -432,17 +436,17 @@ public class LiftArm {
          */
 
         b.add(S.MOVE_A1_1, EVStates.servoTurn(S.MOVE_A1_1A,
-                fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,false));
+                fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE, fingerSpeed,false));
         b.add(S.MOVE_A1_1A, LiftArmStates.liftMove(S.MOVE_A1_1B, this, stowedToGrabHeight, false));
         b.add(S.MOVE_A1_1B, LiftArmStates.waitForLiftArm(S.MOVE_A1_2, this));
         b.add(S.MOVE_A1_2, EVStates.servoTurn(S.MOVE_A1_3,
-                elbow, SkystoneRobotCfg.ElbowServoPresets.GRABBING,false));
+                elbow, SkystoneRobotCfg.ElbowServoPresets.GRABBING, elbowSpeed, false));
         b.add(S.MOVE_A1_3, EVStates.servoTurn(S.MOVE_A1_4,
-                wrist, SkystoneRobotCfg.WristServoPresets.GRABBING,false));
+                wrist, SkystoneRobotCfg.WristServoPresets.GRABBING, wristSpeed, false));
         b.add(S.MOVE_A1_4, LiftArmStates.waitForArm(S.MOVE_A1_5, this));
         b.add(S.MOVE_A1_5, LiftArmStates.liftMove(S.MOVE_A1_6, this, grabbingHeight, true));
         b.add(S.MOVE_A1_6, EVStates.servoTurn(S.GRABBED,
-                fingers, SkystoneRobotCfg.FingersServoPresets.GRAB,true));
+                fingers, SkystoneRobotCfg.FingersServoPresets.GRAB, fingerSpeed,true));
 
         /*
         Grabbing ⟶ Stowed B1:
@@ -453,14 +457,14 @@ public class LiftArm {
          */
 
         b.add(S.MOVE_B1_1, EVStates.servoTurn(S.MOVE_B1_2,
-                fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,true));
+                fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE, fingerSpeed,true));
         b.add(S.MOVE_B1_2, LiftArmStates.liftMove(S.MOVE_B1_3, this, stowedToGrabHeight, true));
         b.add(S.MOVE_B1_3, EVStates.servoTurn(S.MOVE_B1_4,
-                elbow, SkystoneRobotCfg.ElbowServoPresets.STOWED,false));
+                elbow, SkystoneRobotCfg.ElbowServoPresets.STOWED, elbowSpeed,false));
         b.add(S.MOVE_B1_4, EVStates.servoTurn(S.MOVE_B1_5,
-                wrist, SkystoneRobotCfg.WristServoPresets.STOWED,false));
+                wrist, SkystoneRobotCfg.WristServoPresets.STOWED, wristSpeed,false));
         b.add(S.MOVE_B1_5, EVStates.servoTurn(S.MOVE_B1_6,
-                fingers, SkystoneRobotCfg.FingersServoPresets.GRAB,false));
+                fingers, SkystoneRobotCfg.FingersServoPresets.GRAB, fingerSpeed,false));
         b.add(S.MOVE_B1_6, LiftArmStates.waitForArm(S.MOVE_B1_7, this));
         b.add(S.MOVE_B1_7, LiftArmStates.liftMove(S.STOWED, this, stowedHeight, true));
 
@@ -474,14 +478,14 @@ public class LiftArm {
         Move the slide to stowed height
          */
         b.add(S.MOVE_C1_1, EVStates.servoTurn(S.MOVE_C1_2,
-                fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,true));
+                fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,fingerSpeed,true));
         b.add(S.MOVE_C1_2, LiftArmStates.liftMove(S.MOVE_C1_3, this, emptySafeHeight, true));
         b.add(S.MOVE_C1_3, EVStates.servoTurn(S.MOVE_C1_4,
-                elbow, SkystoneRobotCfg.ElbowServoPresets.STOWED,false));
+                elbow, SkystoneRobotCfg.ElbowServoPresets.STOWED,elbowSpeed, false));
         b.add(S.MOVE_C1_4, EVStates.servoTurn(S.MOVE_C1_5,
-                wrist, SkystoneRobotCfg.WristServoPresets.STOWED,false));
+                wrist, SkystoneRobotCfg.WristServoPresets.STOWED,wristSpeed,false));
         b.add(S.MOVE_C1_5, EVStates.servoTurn(S.MOVE_C1_6,
-                fingers, SkystoneRobotCfg.FingersServoPresets.GRAB,false));
+                fingers, SkystoneRobotCfg.FingersServoPresets.GRAB,fingerSpeed,false));
         b.add(S.MOVE_C1_6, LiftArmStates.waitForArm(S.MOVE_C1_7, this));
         b.add(S.MOVE_C1_7, LiftArmStates.liftMove(S.MOVE_C1_8, this, rrMinExtensionPosition, true));
         b.add(S.MOVE_C1_8, LiftArmStates.liftMove(S.STOWED, this, stowedHeight, true));
@@ -498,9 +502,9 @@ public class LiftArm {
 //        This works for both Grabbing ⟶ Placing A2: and Stowed ⟶ Placing B3:
         b.add(S.MOVE_A2_1, LiftArmStates.liftMove(S.MOVE_A2_2, this, loadedSafeHeight, true));
         b.add(S.MOVE_A2_2, EVStates.servoTurn(S.MOVE_A2_3,
-                elbow, SkystoneRobotCfg.ElbowServoPresets.PLACING,false));
+                elbow, SkystoneRobotCfg.ElbowServoPresets.PLACING,elbowSpeed,false));
         b.add(S.MOVE_A2_3, EVStates.servoTurn(S.MOVE_A2_3A,
-                wrist, SkystoneRobotCfg.WristServoPresets.PLACING,false));
+                wrist, SkystoneRobotCfg.WristServoPresets.PLACING,wristSpeed,false));
         b.addWait(S.MOVE_A2_3A, S.MOVE_A2_4, 500);
         b.add(S.MOVE_A2_4, LiftArmStates.waitForArm(S.MOVE_A2_5, this));
         b.add(S.MOVE_A2_5, LiftArmStates.liftMove(S.PLACED, this, rrPlacingHeight, true));
@@ -513,7 +517,7 @@ public class LiftArm {
 //    Finger servos to open position
         b.add(S.MOVE_A3_1, LiftArmStates.liftMove(S.MOVE_A3_2, this, rrDroppingHeight, true));
         b.add(S.MOVE_A3_2, EVStates.servoTurn(S.DROPPED,
-                fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,true));
+                fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,fingerSpeed,true));
 
 
 
@@ -524,7 +528,7 @@ public class LiftArm {
 //    Put finger servos in closed position
         b.add(S.MOVE_A4_1, LiftArmStates.liftMove(S.MOVE_A4_2, this, rrPlacingHeight , true));
         b.add(S.MOVE_A4_2, EVStates.servoTurn(S.PLACED,
-                fingers, SkystoneRobotCfg.FingersServoPresets.GRAB,true));
+                fingers, SkystoneRobotCfg.FingersServoPresets.GRAB,fingerSpeed,true));
 
 
 
@@ -539,12 +543,12 @@ public class LiftArm {
 //        Move elbow and wrist servos to stowed position
 //        Wait for slide and servos to finish moving
 //        Move linear slide to stowed position
-        b.add(S.MOVE_A5_1, LiftArmStates.liftMove(S.MOVE_A5_2, this, emptySafeHeight , false));
+        b.add(S.MOVE_A5_1, LiftArmStates.liftMove(S.MOVE_A5_1A, this, emptySafeHeight , false));
         b.addBranch(S.MOVE_A5_1A, S.MOVE_A5_2, S.MOVE_A5_1A, S.MOVE_A5_1A, rrAboveEmptySafeHeight);
         b.add(S.MOVE_A5_2, EVStates.servoTurn(S.MOVE_A5_3,
-                elbow, SkystoneRobotCfg.ElbowServoPresets.STOWED,false));
+                elbow, SkystoneRobotCfg.ElbowServoPresets.STOWED,elbowSpeed,false));
         b.add(S.MOVE_A5_3, EVStates.servoTurn(S.MOVE_A5_4,
-                wrist, SkystoneRobotCfg.WristServoPresets.STOWED,false));
+                wrist, SkystoneRobotCfg.WristServoPresets.STOWED,wristSpeed,false));
 //          b.addWait(S.MOVE_A5_4A, S.MOVE_A5_4, 500);
         b.add(S.MOVE_A5_4, LiftArmStates.waitForArm(S.MOVE_A5_5, this));
         b.add(S.MOVE_A5_5, LiftArmStates.liftMove(S.STOWED, this, stowedHeight , true));
@@ -561,16 +565,16 @@ public class LiftArm {
 //        Put finger servos to closed position
         b.add(S.MOVE_B2_1, LiftArmStates.liftMove(S.MOVE_B2_2, this, emptySafeHeight , true));
         b.add(S.MOVE_B2_2, EVStates.servoTurn(S.MOVE_B2_3,
-                elbow, SkystoneRobotCfg.ElbowServoPresets.GRABBING,false));
+                elbow, SkystoneRobotCfg.ElbowServoPresets.GRABBING,elbowSpeed,false));
         b.add(S.MOVE_B2_3, EVStates.servoTurn(S.MOVE_B2_4,
-                wrist, SkystoneRobotCfg.WristServoPresets.GRABBING,false));
+                wrist, SkystoneRobotCfg.WristServoPresets.GRABBING,wristSpeed,false));
         b.add(S.MOVE_B2_4, EVStates.servoTurn(S.MOVE_B2_4A,
-                fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,false));
+                fingers, SkystoneRobotCfg.FingersServoPresets.RELEASE,fingerSpeed,false));
         b.addWait(S.MOVE_B2_4A, S.MOVE_B2_5, 500);
         b.add(S.MOVE_B2_5, LiftArmStates.waitForArm(S.MOVE_B2_6, this));
         b.add(S.MOVE_B2_6, LiftArmStates.liftMove(S.MOVE_B2_7, this, grabbingHeight , true));
         b.add(S.MOVE_B2_7, EVStates.servoTurn(S.GRABBED,
-                fingers, SkystoneRobotCfg.FingersServoPresets.GRAB,true));
+                fingers, SkystoneRobotCfg.FingersServoPresets.GRAB,fingerSpeed,true));
 
         return b.build();
     }
