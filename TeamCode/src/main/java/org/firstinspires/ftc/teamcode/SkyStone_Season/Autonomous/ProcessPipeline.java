@@ -85,10 +85,10 @@ class ProcessPipeline extends OpenCvPipeline {
             } else opt = SkyStoneAutonomous.S.SKYSTONE_LEFT;
         } else {
             if (ratio < maxBlueRatioLeft) {
-                opt = SkyStoneAutonomous.S.SKYSTONE_LEFT;
+                opt = SkyStoneAutonomous.S.RED_SKYSTONE_LEFT;
             } else if (ratio > minBlueRatioRight) {
-                opt = SkyStoneAutonomous.S.SKYSTONE_MIDDLE;
-            } else opt = SkyStoneAutonomous.S.SKYSTONE_RIGHT;
+                opt = SkyStoneAutonomous.S.RED_SKYSTONE_MIDDLE;
+            } else opt = SkyStoneAutonomous.S.RED_SKYSTONE_RIGHT;
         }
         return opt;
     }
