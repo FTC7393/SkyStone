@@ -121,7 +121,17 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
         driver2RightXRight.update();
         driver2RightXLeft.update();
 
-        forwardControl();
+        //left stick button toggles fast and slow mode
+
+        if(driver1.left_stick_button.justPressed()) {
+            if(currentSpeedFactor == MotorSpeedFactor.FAST) {
+                currentSpeedFactor = MotorSpeedFactor.SLOW;
+            } else {
+                currentSpeedFactor = MotorSpeedFactor.FAST;
+            }
+        }
+
+        forwardControl(); // driver 1 mechanum control for motors
 
         // Collector logic: Driver1 has control and can press right bumper for intake or left bumper for output
         // But is the right trigger is pressed in different levels (0.9, 0.6 and 0.3) it can set the collector power to different speeds
