@@ -45,13 +45,20 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     class ScalingInputExtractor implements InputExtractor<Double> {
         InputExtractor<Double> ext;
         private double factor;
-        ScalingInputExtractor(InputExtractor<Double> ext, double f) {
+        private double max;
+
+        ScalingInputExtractor(InputExtractor<Double> ext, double f, double max) {
             this.ext = ext;
             this.factor = f;
+            this.max = max;
         }
         @Override
         public Double getValue() {
-            return ext.getValue()*factor;
+            double v = ext.getValue()*factor;
+            if(Math.abs(v) > max) {
+                v = max * Math.signum(v);
+            }
+            return v;
         }
         public void setFactor(double f) {
             this.factor = f;
@@ -100,9 +107,12 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     }
     private void forwardControl() {
         double f = currentSpeedFactor.getFactor();
-        leftY = new ScalingInputExtractor(driver1.left_stick_y, -f);
-        rightX = new ScalingInputExtractor(driver1.right_stick_x, -f);
-        leftX = new ScalingInputExtractor(driver1.left_stick_x, -f);
+        // translation
+        leftX = new ScalingInputExtractor(driver1.left_stick_x, -f, f);
+        leftY = new ScalingInputExtractor(driver1.left_stick_y, -f, f);
+
+        // rotation (only uses right X)
+        rightX = new ScalingInputExtractor(driver1.right_stick_x, -f, f);
         robotCfg.getMecanumControl().setTranslationControl(TranslationControls.inputExtractorXY(leftY, leftX));
 //        robotCfg.getMecanumControl().setRotationControl(RotationControls.teleOpGyro(leftX, robotCfg.getGyro()));
         robotCfg.getMecanumControl().setRotationControl(RotationControls.inputExtractor(rightX));
