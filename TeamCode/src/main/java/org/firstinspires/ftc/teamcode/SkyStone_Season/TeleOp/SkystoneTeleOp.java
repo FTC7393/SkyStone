@@ -183,17 +183,17 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
             robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.STOW);
         }
 
-        if(driver2RightYUp.justPressed()){
-            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.PLACE);
-        }
-
-        if(driver2RightXLeft.justPressed()){
-            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.DROP);
-        }
-
-        if(driver2RightXLeft.justReleased()){
-            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.UNDROP);
-        }
+//        if(driver2RightYUp.justPressed()){
+//            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.PLACE);
+//        }
+//
+//        if(driver2RightXLeft.justPressed()){
+//            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.DROP);
+//        }
+//
+//        if(driver2RightXLeft.justReleased()){
+//            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.UNDROP);
+//        }
 
         if(driver2RightXRight.justPressed()){
             robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.GRAB);

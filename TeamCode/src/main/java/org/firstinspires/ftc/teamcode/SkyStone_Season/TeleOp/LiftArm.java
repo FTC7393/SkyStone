@@ -69,7 +69,17 @@ public class LiftArm {
                 return getDroppingHeight();
             }
         };
+        this.rrAboveEmptySafeHeight = new BasicResultReceiver<Boolean>() {
+            @Override
+            public boolean isReady() {
+                return true;
+            }
 
+            @Override
+            public Boolean getValue() {
+                return lift.getExtensionEncoder() >= emptySafeHeight-liftTolerance;
+            }
+        };
 
         this.stateMachine = buildStates();
     }
@@ -79,6 +89,7 @@ public class LiftArm {
             elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.PLACING);
             wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.PLACING);
             isArmExtended = true;
+            sendCommand(COMMANDS.MANUAL);
 
         }
     }
@@ -88,7 +99,7 @@ public class LiftArm {
             elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.PLACING);
             wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.PLACING_LEFT);
             isArmExtended = true;
-
+            sendCommand(COMMANDS.MANUAL);
         }
     }
 
@@ -157,6 +168,8 @@ public class LiftArm {
     private final InputExtractor<Boolean> rrLowerLimitResetComplete;
 
     private final InputExtractor<Integer> rrMinExtensionPosition;
+
+    private final ResultReceiver<Boolean> rrAboveEmptySafeHeight;
 
     private int placingLevel = 0;
 
@@ -240,7 +253,7 @@ public class LiftArm {
                         // The limit reset has been completed
                         switch(rrCommand.getValue()){
                             case STOW:
-                                return S.MOVE_C1_1;
+                                return S.MOVE_A5_1;
 
                         }
                     }else{
@@ -280,6 +293,9 @@ public class LiftArm {
 
                         case PLACE:
                             return S.MOVE_A2_1;
+
+                        case MANUAL:
+                            return S.MANUAL;
                     }
                 }
                 return null;
@@ -308,6 +324,9 @@ public class LiftArm {
 
                         case PLACE:
                             return S.MOVE_A2_1;
+
+                        case MANUAL:
+                            return S.MANUAL;
                     }
                 }
                 return null;
@@ -340,6 +359,9 @@ public class LiftArm {
 
                         case PLACE:
                             return S.MOVE_A2_1;
+
+                        case MANUAL:
+                            return S.MANUAL;
                     }
                 }
                 return null;
@@ -368,12 +390,36 @@ public class LiftArm {
                         case UNDROP:
                             return S.MOVE_A4_1;
 
+                        case MANUAL:
+                            return S.MANUAL;
+
                     }
                 }
                 return null;
             }
         });
+        b.add(S.MANUAL, new BasicAbstractState() {
+            @Override
+            public void init() {
+                //rrCommand.clear();
+            }
 
+            @Override
+            public boolean isDone() {
+                return rrCommand.isReady();
+            }
+
+            @Override
+            public StateName getNextStateName() {
+                if (rrCommand.getValue() != null){
+                    switch(rrCommand.getValue()){
+                        case STOW:
+                            return S.MOVE_A5_1;
+                    }
+                }
+                return null;
+            }
+        });
 
 
 
@@ -493,12 +539,13 @@ public class LiftArm {
 //        Move elbow and wrist servos to stowed position
 //        Wait for slide and servos to finish moving
 //        Move linear slide to stowed position
-        b.add(S.MOVE_A5_1, LiftArmStates.liftMove(S.MOVE_A5_2, this, emptySafeHeight , true));
+        b.add(S.MOVE_A5_1, LiftArmStates.liftMove(S.MOVE_A5_2, this, emptySafeHeight , false));
+        b.addBranch(S.MOVE_A5_1A, S.MOVE_A5_2, S.MOVE_A5_1A, S.MOVE_A5_1A, rrAboveEmptySafeHeight);
         b.add(S.MOVE_A5_2, EVStates.servoTurn(S.MOVE_A5_3,
                 elbow, SkystoneRobotCfg.ElbowServoPresets.STOWED,false));
-        b.add(S.MOVE_A5_3, EVStates.servoTurn(S.MOVE_A5_4A,
+        b.add(S.MOVE_A5_3, EVStates.servoTurn(S.MOVE_A5_4,
                 wrist, SkystoneRobotCfg.WristServoPresets.STOWED,false));
-        b.addWait(S.MOVE_A5_4A, S.MOVE_A5_4, 500);
+//          b.addWait(S.MOVE_A5_4A, S.MOVE_A5_4, 500);
         b.add(S.MOVE_A5_4, LiftArmStates.waitForArm(S.MOVE_A5_5, this));
         b.add(S.MOVE_A5_5, LiftArmStates.liftMove(S.STOWED, this, stowedHeight , true));
 
@@ -592,7 +639,7 @@ public class LiftArm {
         MOVE_B2_4A,
         MOVE_B2_5,
         MOVE_B2_6,
-        MOVE_B2_7
+        MOVE_A5_1A, MANUAL, MOVE_B2_7
     }
 
     public enum COMMANDS {
