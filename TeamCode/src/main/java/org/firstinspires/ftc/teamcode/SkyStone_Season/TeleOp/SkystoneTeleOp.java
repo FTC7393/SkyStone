@@ -68,7 +68,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     private MotorSpeedFactor lastXSpeedFactor = currentSpeedFactor;
 
     enum MotorSpeedFactor {
-        FAST(1.0), SLOW(0.5), SUPER_SLOW(0.2);
+        FAST(1.0), SLOW(0.2), SUPER_SLOW(0.1);
         private double factor;
         MotorSpeedFactor(double x) {
             this.factor = x;
