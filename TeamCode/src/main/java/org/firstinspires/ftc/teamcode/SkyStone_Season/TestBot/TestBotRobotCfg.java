@@ -1,37 +1,15 @@
-package org.firstinspires.ftc.teamcode.SkyStone_Season;
+package org.firstinspires.ftc.teamcode.SkyStone_Season.TestBot;
 
 import android.util.Log;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import ftc.electronvolts.statemachine.StateName;
-import ftc.electronvolts.util.InputExtractor;
-import ftc.electronvolts.util.TeamColor;
 import ftc.electronvolts.util.files.Logger;
-import ftc.electronvolts.util.units.Angle;
-import ftc.electronvolts.util.units.Distance;
-import ftc.electronvolts.util.units.Time;
-import ftc.electronvolts.util.units.Velocity;
 import ftc.evlib.hardware.config.RobotCfg;
-import ftc.evlib.hardware.control.MecanumControl;
-import ftc.evlib.hardware.motors.MecanumMotors;
-import ftc.evlib.hardware.motors.MotorEnc;
-import ftc.evlib.hardware.motors.Motors;
-import ftc.evlib.hardware.sensors.Gyro;
-import ftc.evlib.hardware.sensors.IMUGyro;
-import ftc.evlib.hardware.servos.ServoCfg;
-import ftc.evlib.hardware.servos.ServoControl;
 import ftc.evlib.hardware.servos.ServoName;
-import ftc.evlib.hardware.servos.Servos;
-import ftc.evlib.statemachine.EVStateMachineBuilder;
-import ftc.evlib.util.ImmutableList;
 import ftc.evlib.util.StepTimer;
 
 /**
