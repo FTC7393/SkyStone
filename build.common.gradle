@@ -78,7 +78,6 @@ android {
             //debuggable true
             ndk {
                 abiFilters "armeabi-v7a"
-                        //"arm64-v8a"
             }
         }
         debug {
@@ -87,10 +86,10 @@ android {
             renderscriptDebuggable true
             ndk {
                 abiFilters "armeabi-v7a"
-                        //"arm64-v8a"
             }
         }
     }
+
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7

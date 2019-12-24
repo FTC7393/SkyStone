@@ -45,13 +45,20 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     class ScalingInputExtractor implements InputExtractor<Double> {
         InputExtractor<Double> ext;
         private double factor;
-        ScalingInputExtractor(InputExtractor<Double> ext, double f) {
+        private double max;
+
+        ScalingInputExtractor(InputExtractor<Double> ext, double f, double max) {
             this.ext = ext;
             this.factor = f;
+            this.max = max;
         }
         @Override
         public Double getValue() {
-            return ext.getValue()*factor;
+            double v = ext.getValue()*factor;
+            if(Math.abs(v) > max) {
+                v = max * Math.signum(v);
+            }
+            return v;
         }
         public void setFactor(double f) {
             this.factor = f;
@@ -61,7 +68,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     private MotorSpeedFactor lastXSpeedFactor = currentSpeedFactor;
 
     enum MotorSpeedFactor {
-        FAST(1.0), SLOW(0.5), SUPER_SLOW(0.2);
+        FAST(1.0), SLOW(0.4), SUPER_SLOW(0.2);
         private double factor;
         MotorSpeedFactor(double x) {
             this.factor = x;
@@ -100,9 +107,12 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
     }
     private void forwardControl() {
         double f = currentSpeedFactor.getFactor();
-        leftY = new ScalingInputExtractor(driver1.left_stick_y, -f);
-        rightX = new ScalingInputExtractor(driver1.right_stick_x, -f);
-        leftX = new ScalingInputExtractor(driver1.left_stick_x, -f);
+        // translation
+        leftX = new ScalingInputExtractor(driver1.left_stick_x, -f, f);
+        leftY = new ScalingInputExtractor(driver1.left_stick_y, -f, f);
+
+        // rotation (only uses right X)
+        rightX = new ScalingInputExtractor(driver1.right_stick_x, -f, f);
         robotCfg.getMecanumControl().setTranslationControl(TranslationControls.inputExtractorXY(leftY, leftX));
 //        robotCfg.getMecanumControl().setRotationControl(RotationControls.teleOpGyro(leftX, robotCfg.getGyro()));
         robotCfg.getMecanumControl().setRotationControl(RotationControls.inputExtractor(rightX));
@@ -121,7 +131,17 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
         driver2RightXRight.update();
         driver2RightXLeft.update();
 
-        forwardControl();
+        //left stick button toggles fast and slow mode
+
+        if(driver1.left_stick_button.justPressed() || driver1.right_stick_button.justPressed()) {
+            if(currentSpeedFactor == MotorSpeedFactor.FAST) {
+                currentSpeedFactor = MotorSpeedFactor.SLOW;
+            } else {
+                currentSpeedFactor = MotorSpeedFactor.FAST;
+            }
+        }
+
+        forwardControl(); // driver 1 mechanum control for motors
 
         // Collector logic: Driver1 has control and can press right bumper for intake or left bumper for output
         // But is the right trigger is pressed in different levels (0.9, 0.6 and 0.3) it can set the collector power to different speeds
@@ -163,17 +183,17 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
             robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.STOW);
         }
 
-        if(driver2RightYUp.justPressed()){
-            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.PLACE);
-        }
-
-        if(driver2RightXLeft.justPressed()){
-            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.DROP);
-        }
-
-        if(driver2RightXLeft.justReleased()){
-            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.UNDROP);
-        }
+//        if(driver2RightYUp.justPressed()){
+//            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.PLACE);
+//        }
+//
+//        if(driver2RightXLeft.justPressed()){
+//            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.DROP);
+//        }
+//
+//        if(driver2RightXLeft.justReleased()){
+//            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.UNDROP);
+//        }
 
         if(driver2RightXRight.justPressed()){
             robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.GRAB);

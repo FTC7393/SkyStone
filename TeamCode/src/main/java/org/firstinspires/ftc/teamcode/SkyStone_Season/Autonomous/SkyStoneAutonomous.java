@@ -108,25 +108,105 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     @Override
     public StateMachine buildStates() {
         OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
-        pipeline = new ProcessPipeline(srr, minCycles, teamColor, canUpdateSRR);
         teamColor = optionsFile.get(SkyStoneOptionsOp.Opts.TEAM_COLOR.s, SkyStoneOptionsOp.teamColorDefault);
+        pipeline = new ProcessPipeline(srr, minCycles, teamColor, canUpdateSRR);
 //        ResultReceiver<Boolean> cont = new BasicResultReceiver<>();
         EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.INIT_GYRO, teamColor, Angle.fromDegrees(3));
-        b.addCalibrateGyro(S.INIT_GYRO,S.PROCESS_SKYSTONE);
-        b.add(S.PROCESS_SKYSTONE, createProcessState());
-        b.addDrive(S.SKYSTONE_LEFT, S.DRIVE_LEFT, Distance.fromFeet(1.0), 0.30, 125, 45);
-        b.add(S.DRIVE_LEFT, createPickupState(S.PICKUP_SKYSTONE_LEFT, 45, 45, 0.15, 0.4));
-        b.add(S.PICKUP_SKYSTONE_LEFT, createTimedFlywheelState(S.STOP, 0.45,1500));
+        b.addCalibrateGyro(S.INIT_GYRO,S.STOP_CAMERA);
+        b.add(S.STOP_CAMERA, createProcessState());
+        b.addDrive(S.SKYSTONE_DRIVE_TO_LINE, S.PROCESS_SKYSTONE, Distance.fromFeet(.63), 0.25, 90, 0);
+        b.add(S.PROCESS_SKYSTONE, getSkyStonePosition());
+
+        if(teamColor == TeamColor.BLUE) {
+
+            b.addDrive(S.SKYSTONE_LEFT, S.TURN_FOR_LEFT, Distance.fromFeet(2), .25, 180, 0);
+            b.addGyroTurn(S.TURN_FOR_LEFT, S.DRIVE_LEFT, 45, Angle.fromDegrees(2), 0.3);
+            b.add(S.DRIVE_LEFT, createCollectorDriveState(S.PICKUP_SKYSTONE_LEFT, 45, 45, 0.13, .65, .3));
+            b.add(S.PICKUP_SKYSTONE_LEFT, createTimedFlywheelState(S.SKYSTONE_LEFT_READY_FOR_BRIDGE, 0.4, 750));
+            b.add(S.SKYSTONE_LEFT_READY_FOR_BRIDGE, createCollectorDriveState(S.SKYSTONE_LEFT_DRIVE_TO_BRIDGE, -90, 90, .3, .62, .3));
+            b.addDrive(S.SKYSTONE_LEFT_DRIVE_TO_BRIDGE, S.SKYSTONE_DRIVE_TO_BUILDING_SITE, Distance.fromFeet(.02), .3, 180, 90);
+
 
 //        b.addDrive(S.DRIVE_LEFT, S.GRAB_BLOCK_ONE, Distance.fromFeet(0.1), 0.15, 113,0);
-        b.addDrive(S.SKYSTONE_MIDDLE, S.PICKUP_SKYSTONE_RIGHT, Distance.fromFeet(0.68), 0.30, 98, 90);
-        b.add(S.PICKUP_SKYSTONE_RIGHT, createTimedFlywheelState(S.STOP,0.45,1500));
-        b.addDrive(S.SKYSTONE_RIGHT, S.DRIVE_RIGHT, Distance.fromFeet(0.76), 0.30, 86.3, 0);
-//        b.add(S.PICKUP_SKYSTONE1, createPickupState(S.STOP, 90,0,0.4,0.25));
-        b.addWait(S.WAIT1, S.DRIVE_BACK, 500);
-        b.addDrive(S.DRIVE_BACK, S.STOP, Distance.fromFeet(0.35), 0.30, 270, 0);
+            b.addDrive(S.SKYSTONE_MIDDLE, S.TURN_FOR_MIDDLE, Distance.fromFeet(1.2), 0.25, 180, 0);
+            b.addGyroTurn(S.TURN_FOR_MIDDLE, S.DRIVE_MIDDLE, 45, Angle.fromDegrees(2), 0.3);
+            b.add(S.DRIVE_MIDDLE, createCollectorDriveState(S.PICKUP_SKYSTONE_MIDDLE, 45, 45, 0.13, .65, .3));
+            b.add(S.PICKUP_SKYSTONE_MIDDLE, createTimedFlywheelState(S.SKYSTONE_MIDDLE_READY_FOR_BRIDGE, 0.4, 750));
+            b.add(S.SKYSTONE_MIDDLE_READY_FOR_BRIDGE, createCollectorDriveState(S.SKYSTONE_MIDDLE_TO_BRIDGE, -90, 90, .3, .605, .3));
+            b.addDrive(S.SKYSTONE_MIDDLE_TO_BRIDGE, S.SKYSTONE_DRIVE_TO_BUILDING_SITE, Distance.fromFeet(.3), 0.30, 180, 90);
 
-        b.add(S.DRIVE_TO_BRIDGE1, createDriveToBridge1());
+
+            b.addDrive(S.SKYSTONE_RIGHT, S.TURN_FOR_RIGHT, Distance.fromFeet(0.7), 0.25, 180, 0);
+            b.addGyroTurn(S.TURN_FOR_RIGHT, S.DRIVE_RIGHT, 45, Angle.fromDegrees(2), 0.3);
+            b.add(S.DRIVE_RIGHT, createCollectorDriveState(S.PICKUP_SKYSTONE_RIGHT, 45, 45, 0.13, .65, .3));
+            b.add(S.PICKUP_SKYSTONE_RIGHT, createTimedFlywheelState(S.SKYSTONE_RIGHT_READY_FOR_BRIDGE, 0.4, 750));
+            b.add(S.SKYSTONE_RIGHT_READY_FOR_BRIDGE, createCollectorDriveState(S.SKYSTONE_RIGHT_TO_BRIDGE, -90, 90, .3, .65, .3));
+            b.addDrive(S.SKYSTONE_RIGHT_TO_BRIDGE, S.SKYSTONE_DRIVE_TO_BUILDING_SITE, Distance.fromFeet(.45), 0.30, 180, 90);
+
+
+            b.addDrive(S.SKYSTONE_DRIVE_TO_BUILDING_SITE, S.SKYSTONE_DRIVE_TO_FOUNDATION, Distance.fromFeet(1.65), 0.50, -180, 90);
+            b.addDrive(S.SKYSTONE_DRIVE_TO_FOUNDATION, S.DROP_OFF_SKYSTONE, Distance.fromFeet(.95), 0.30, 90, 90);
+            b.add(S.DROP_OFF_SKYSTONE, createTimedFlywheelState(S.FOUNDATIONMOVE_BACK_UP_TO_TURN, -1.0, 1250));
+            b.add(S.FOUNDATIONMOVE_BACK_UP_TO_TURN, createCollectorDriveState(S.FOUNDATIONMOVE_TURN, -90, 90, 0.3, .5, -1.0));
+            b.addGyroTurn(S.FOUNDATIONMOVE_TURN, S.FOUNDATIONMOVE_FORWARD, -90, Angle.fromDegrees(2), 0.3);
+            b.addDrive(S.FOUNDATIONMOVE_FORWARD, S.LATCH_FOUNDATION, Distance.fromFeet(1.05), 0.12, 90, -90);
+            b.addServo(S.LATCH_FOUNDATION, S.LATCH_FOUNDATION_RIGHT, SkystoneRobotCfg.SkystoneServoName.LEFT_FOUNDATION_MOVER_SERVO, SkystoneRobotCfg.LeftFoundationMoverServoPresets.DOWN, false);
+            b.addServo(S.LATCH_FOUNDATION_RIGHT, S.PRE_DRAG_PAUSE, SkystoneRobotCfg.SkystoneServoName.RIGHT_FOUNDATION_MOVER_SERVO, SkystoneRobotCfg.RightFoundationMoverServoPresets.DOWN, true);
+            b.addWait(S.PRE_DRAG_PAUSE, S.DRAG_FOUNDATION, 500);
+            b.addDrive(S.DRAG_FOUNDATION, S.RELEASE_FOUNDATION, Distance.fromFeet(3.5), 0.25, 270, 270);
+            b.addServo(S.RELEASE_FOUNDATION, S.RELEASE_FOUNDATION_RIGHT, SkystoneRobotCfg.SkystoneServoName.LEFT_FOUNDATION_MOVER_SERVO, SkystoneRobotCfg.LeftFoundationMoverServoPresets.UP, false);
+            b.addServo(S.RELEASE_FOUNDATION_RIGHT, S.DRIVE_BACK_TO_BRIDGE, SkystoneRobotCfg.SkystoneServoName.RIGHT_FOUNDATION_MOVER_SERVO, SkystoneRobotCfg.RightFoundationMoverServoPresets.UP, true);
+            b.addDrive(S.DRIVE_BACK_TO_BRIDGE, S.AVOID_ROBOT, Distance.fromFeet(0.9), 0.3, 0, 270);
+            b.addDrive(S.AVOID_ROBOT, S.PARK, Distance.fromFeet(2), 0.3, 90, 270);
+            b.addDrive(S.PARK, S.STOP, Distance.fromFeet(0.4), 0.3, 0, 270);
+
+        } else {
+            b.addDrive(S.RED_SKYSTONE_LEFT, S.RED_TURN_FOR_LEFT, Distance.fromFeet(1), .25, 0, 0);
+            b.addGyroTurn(S.RED_TURN_FOR_LEFT, S.RED_READY_DRIVE_LEFT, 180, Angle.fromDegrees(2), 0.25);
+            b.addDrive(S.RED_READY_DRIVE_LEFT, S.RED_DRIVE_LEFT, Distance.fromFeet(.4), 0.25, 90, 180);
+            b.add(S.RED_DRIVE_LEFT, createCollectorDriveState(S.RED_PICKUP_SKYSTONE_LEFT, 180, 180, 0.13, .7, .25));
+            b.add(S.RED_PICKUP_SKYSTONE_LEFT, createTimedFlywheelState(S.RED_SKYSTONE_LEFT_READY_FOR_BRIDGE, 0.4, 750));
+            b.add(S.RED_SKYSTONE_LEFT_READY_FOR_BRIDGE, createCollectorDriveState(S.RED_SKYSTONE_LEFT_TURN_READY_FOR_BRIDGE, -90, 180, .3, 0.43, .3));
+            b.addGyroTurn(S.RED_SKYSTONE_LEFT_TURN_READY_FOR_BRIDGE, S.RED_SKYSTONE_LEFT_DRIVE_TO_BRIDGE, 90, Angle.fromDegrees(2), 0.25);
+            b.addDrive(S.RED_SKYSTONE_LEFT_DRIVE_TO_BRIDGE, S.RED_SKYSTONE_DRIVE_TO_BUILDING_SITE, Distance.fromFeet(.45), .3, 0, 90);
+
+
+//        b.addDrive(S.DRIVE_LEFT, S.GRAB_BLOCK_ONE, Distance.fromFeet(0.1), 0.15, 113,0);
+            b.addDrive(S.RED_SKYSTONE_MIDDLE, S.RED_TURN_FOR_MIDDLE, Distance.fromFeet(1.65), 0.25, 0, 0);
+            b.addGyroTurn(S.RED_TURN_FOR_MIDDLE, S.RED_READY_DRIVE_MIDDLE, 180, Angle.fromDegrees(2), 0.25);
+            b.addDrive(S.RED_READY_DRIVE_MIDDLE, S.RED_DRIVE_MIDDLE, Distance.fromFeet(.4), 0.25, 90, 180);
+            b.add(S.RED_DRIVE_MIDDLE, createCollectorDriveState(S.RED_PICKUP_SKYSTONE_MIDDLE, 180, 180, 0.13, .7, .25));
+            b.add(S.RED_PICKUP_SKYSTONE_MIDDLE, createTimedFlywheelState(S.RED_SKYSTONE_MIDDLE_READY_FOR_BRIDGE, 0.4, 750));
+            b.add(S.RED_SKYSTONE_MIDDLE_READY_FOR_BRIDGE, createCollectorDriveState(S.RED_SKYSTONE_MIDDLE_TURN_READY_FOR_BRIDGE, -90, 180, .3, 0.43, .3));
+            b.addGyroTurn(S.RED_SKYSTONE_MIDDLE_TURN_READY_FOR_BRIDGE, S.RED_SKYSTONE_MIDDLE_TO_BRIDGE, 90, Angle.fromDegrees(2), 0.25);
+            b.addDrive(S.RED_SKYSTONE_MIDDLE_TO_BRIDGE, S.RED_SKYSTONE_DRIVE_TO_BUILDING_SITE, Distance.fromFeet(.3), 0.30, 0, 90);
+
+
+            b.addDrive(S.RED_SKYSTONE_RIGHT, S.RED_TURN_FOR_RIGHT, Distance.fromFeet(2), 0.25, 0, 0);
+            b.addGyroTurn(S.RED_TURN_FOR_RIGHT, S.RED_DRIVE_RIGHT, 135, Angle.fromDegrees(2), 0.23);
+            b.addDrive(S.CORRECTING_DRIVE_RED, S.RED_DRIVE_RIGHT, Distance.fromFeet(0.1), 0.25, 100, 135);
+            b.add(S.RED_DRIVE_RIGHT, createCollectorDriveState(S.PICKUP_SKYSTONE_RIGHT, 135, 127, 0.13, 0.8, .25));
+            b.add(S.PICKUP_SKYSTONE_RIGHT, createTimedFlywheelState(S.RED_SKYSTONE_RIGHT_READY_FOR_BRIDGE, 0.4, 1250));
+            b.add(S.RED_SKYSTONE_RIGHT_READY_FOR_BRIDGE, createCollectorDriveState(S.RED_SKYSTONE_RIGHT_TO_BRIDGE, 270, 90, .3, .65, .3));
+            b.addDrive(S.RED_SKYSTONE_RIGHT_TO_BRIDGE, S.RED_SKYSTONE_DRIVE_TO_BUILDING_SITE, Distance.fromFeet(0.13), 0.30, 0, 90);
+
+
+            b.addDrive(S.RED_SKYSTONE_DRIVE_TO_BUILDING_SITE, S.RED_SKYSTONE_DRIVE_TO_FOUNDATION, Distance.fromFeet(1.5), 0.50, 0, 90);
+            b.addDrive(S.RED_SKYSTONE_DRIVE_TO_FOUNDATION, S.RED_DROP_OFF_SKYSTONE, Distance.fromFeet(1.05), 0.2, 90, 90);
+            b.add(S.RED_DROP_OFF_SKYSTONE, createTimedFlywheelState(S.RED_FOUNDATIONMOVE_BACK_UP_TO_TURN, -1.0, 1250));
+            b.add(S.RED_FOUNDATIONMOVE_BACK_UP_TO_TURN, createCollectorDriveState(S.RED_FOUNDATIONMOVE_TURN, 270, 90, 0.3, .5, -1.0));
+            b.addGyroTurn(S.RED_FOUNDATIONMOVE_TURN, S.RED_FOUNDATIONMOVE_FORWARD, -90, Angle.fromDegrees(2), 0.3);
+            b.addDrive(S.RED_FOUNDATIONMOVE_FORWARD, S.RED_LATCH_FOUNDATION, Distance.fromFeet(0.95), 0.12, 90, 270);
+            b.addServo(S.RED_LATCH_FOUNDATION, S.RED_LATCH_FOUNDATION_RIGHT, SkystoneRobotCfg.SkystoneServoName.LEFT_FOUNDATION_MOVER_SERVO, SkystoneRobotCfg.LeftFoundationMoverServoPresets.DOWN, false);
+            b.addServo(S.RED_LATCH_FOUNDATION_RIGHT, S.RED_PRE_DRAG_PAUSE, SkystoneRobotCfg.SkystoneServoName.RIGHT_FOUNDATION_MOVER_SERVO, SkystoneRobotCfg.RightFoundationMoverServoPresets.DOWN, true);
+            b.addWait(S.RED_PRE_DRAG_PAUSE, S.RED_DRAG_FOUNDATION, 500);
+            b.addDrive(S.RED_DRAG_FOUNDATION, S.RED_RELEASE_FOUNDATION, Distance.fromFeet(3.5), 0.25, 270, 270);
+            b.addServo(S.RED_RELEASE_FOUNDATION, S.RED_RELEASE_FOUNDATION_RIGHT, SkystoneRobotCfg.SkystoneServoName.LEFT_FOUNDATION_MOVER_SERVO, SkystoneRobotCfg.LeftFoundationMoverServoPresets.UP, false);
+            b.addServo(S.RED_RELEASE_FOUNDATION_RIGHT, S.RED_DRIVE_BACK_TO_BRIDGE, SkystoneRobotCfg.SkystoneServoName.RIGHT_FOUNDATION_MOVER_SERVO, SkystoneRobotCfg.RightFoundationMoverServoPresets.UP, true);
+            b.addDrive(S.RED_DRIVE_BACK_TO_BRIDGE, S.RED_AVOID_ROBOT, Distance.fromFeet(0.73), 0.3, 180, 270);
+            b.addDrive(S.RED_AVOID_ROBOT, S.RED_PARK, Distance.fromFeet(2), 0.3, 90, 270);
+            b.addDrive(S.RED_PARK, S.STOP, Distance.fromFeet(0.4), 0.3, 180, 270);
+        }
 
         b.addStop(S.STOP);
 
@@ -169,23 +249,23 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
       return b.build();
     }
 
-    private State createDriveToBridge1() {
-        return new State() {
-            @Override
-            public StateName act() {
-                if(srr.getValue() == SkyStoneAutonomous.S.SKYSTONE_LEFT) {
-                    return SkyStoneAutonomous.S.SKYSTONE_CLOSE_TO_BRIDGE;
-                } else if (srr.getValue() == SkyStoneAutonomous.S.SKYSTONE_MIDDLE) {
-                    return SkyStoneAutonomous.S.SKYSTONE_MIDDLE_TO_BRIDGE;
-                } else if (srr.getValue() == SkyStoneAutonomous.S.SKYSTONE_RIGHT){
-                    return SkyStoneAutonomous.S.SKYSTONE_FAR_TO_BRIDGE;
-                }
-                else {
-                    return SkyStoneAutonomous.S.SKYSTONE_FAR_TO_BRIDGE;
-                }
-            }
-        };
-    }
+//    private State createDriveToBridge1() {
+//        return new State() {
+//            @Override
+//            public StateName act() {
+//                if(srr.getValue() == SkyStoneAutonomous.S.SKYSTONE_LEFT) {
+//                    return SkyStoneAutonomous.S.SKYSTONE_CLOSE_TO_BRIDGE;
+//                } else if (srr.getValue() == SkyStoneAutonomous.S.SKYSTONE_MIDDLE) {
+//                    return SkyStoneAutonomous.S.SKYSTONE_MIDDLE_TO_BRIDGE;
+//                } else if (srr.getValue() == SkyStoneAutonomous.S.SKYSTONE_RIGHT){
+//                    return SkyStoneAutonomous.S.SKYSTONE_FAR_TO_BRIDGE;
+//                }
+//                else {
+//                    return SkyStoneAutonomous.S.SKYSTONE_FAR_TO_BRIDGE;
+//                }
+//            }
+//        };
+//    }
 
 
     private State createProcessState() {
@@ -194,10 +274,20 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
             public StateName act() {
                 if (srr.isReady()) {
                     camera.closeCameraDevice();
-                    return srr.getValue();
+                    return S.SKYSTONE_DRIVE_TO_LINE;
                 }
                 return null;
             }
+        };
+    }
+
+    private State getSkyStonePosition() {
+        return new State() {
+            @Override
+            public StateName act() {
+                    return srr.getValue();
+                }
+
         };
     }
 
@@ -230,8 +320,8 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
 
 
-    private State createPickupState(final StateName nextState, double direction,
-                                    double orientation, double speed, double distance) {
+    private State createCollectorDriveState(final StateName nextState, double direction,
+                                            double orientation, double speed, double distance, final double collectorSpeed) {
         double maxAngSpeed = 0.5;
         final State s = ftc.evlib.statemachine.EVStates.mecanumDrive(nextState,
                 Distance.fromFeet(distance),robotCfg.getMecanumControl(), robotCfg.getGyro(), speed,
@@ -241,7 +331,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
             @Override
             public void init() {
                 s.act();
-                robotCfg.getFlyWheels().setPower(0.5);
+                robotCfg.getFlyWheels().setPower(collectorSpeed);
             }
 
             @Override
@@ -271,7 +361,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         SKYSTONE_RIGHT,
         DRIVE_2,
         STOP,
-        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, GOBACK, MOVETOBLOCKSAGAIN, GETLEFTBLOCKAGAIN, MIDDLEAGAIN, GETRIGHTBLOCKAGAIN, DRIVE_MIDDLE, DRIVE_RIGHT_BLUE, DRIVE_LEFT_BLUE, DRIVE_RIGHT_RED, DRIVE_LEFT_RED, GRAB_BLOCK_ONE, DRIVE_BACK, SKYSTONE_MIDDLE_TO_BRIDGE, SKYSTONE_CLOSE_TO_BRIDGE, SKYSTONE_FAR_TO_BRIDGE, DRIVE_TO_BRIDGE1, WAIT1, DRIVE_LEFT, DRIVE_RIGHT, INIT_GYRO, PICKUP_SKYSTONE1, PICKUP_SKYSTONE_LEFT, PICKUP_SYSTONE_RIGHT, PICKUP_SKYSTONE_RIGHT, DETECTION_2
+        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, GOBACK, MOVETOBLOCKSAGAIN, GETLEFTBLOCKAGAIN, MIDDLEAGAIN, GETRIGHTBLOCKAGAIN, DRIVE_MIDDLE, DRIVE_RIGHT_BLUE, DRIVE_LEFT_BLUE, DRIVE_RIGHT_RED, DRIVE_LEFT_RED, GRAB_BLOCK_ONE, DRIVE_BACK, SKYSTONE_MIDDLE_TO_BRIDGE, SKYSTONE_CLOSE_TO_BRIDGE, SKYSTONE_FAR_TO_BRIDGE, DRIVE_TO_BRIDGE1, WAIT1, DRIVE_LEFT, DRIVE_RIGHT, INIT_GYRO, PICKUP_SKYSTONE1, PICKUP_SKYSTONE_LEFT, PICKUP_SYSTONE_RIGHT, PICKUP_SKYSTONE_RIGHT, SKYSTONE_LEFT_READY_FOR_BRIDGE, SKYSTONE_DRIVE_TO_FOUNDATION, SKYSTONE_DRIVE_TO_BUILDING_SITE, DROP_OFF_SKYSTONE, FOUNDATIONMOVE_BACK_UP_TO_TURN, FOUNDATIONMOVE_TURN, FOUNDATIONMOVE_FORWARD, SKYSTONE_DRIVE_TO_LINE, TURN_FOR_LEFT, STOP_CAMERA, TURN_FOR_MIDDLE, PICKUP_SKYSTONE_MIDDLE, SKYSTONE_MIDDLE_READY_FOR_BRIDGE, TURN_FOR_RIGHT, SKYSTONE_RIGHT_READY_FOR_BRIDGE, SKYSTONE_RIGHT_TO_BRIDGE, LET_GO_OF_FOUNDATION, MOVE_FOUNDATION_RIGHT, MOVE_FOUNDATION, LATCH_FOUNDATION_RIGHT, DRAG_FOUNDATION, LATCH_FOUNDATIOn, LATCH_FOUNDATION, PRE_DRAP_PAUSE, PRE_DRAG_PAUSE, RELEASE_FOUNDATION_RIGHT, RELEASE_FOUNDATION, DRIVE_BACK_TO_BRIDGE, PARK, AVOID_ROBOT, WAIT_BEFORE_DRIVE_TO_BUILDING_SITE, SKYSTONE_LEFT_DRIVE_TO_BRIDGE, RED_SKYSTONE_LEFT, RED_TURN_FOR_RIGHT, RED_DRIVE_RIGHT, RED_PICKUP_SKYSTONE_RIGHT, RED_SKYSTONE_LEFT_READY_FOR_BRIDGE, RED_SKYSTONE_LEFT_DRIVE_TO_BRIDGE, RED_SKYSTONE_DRIVE_TO_BUILDING_SITE, RED_SKYSTONE_DRIVE_TO_FOUNDATION, RED_DROP_OFF_SKYSTONE, RED_SKYSTONE_MIDDLE, RED_TURN_FOR_MIDDLE, RED_DRIVE_MIDDLE, RED_PICKUP_SKYSTONE_MIDDLE, RED_SKYSTONE_MIDDLE_READY_FOR_BRIDGE, RED_SKYSTONE_MIDDLE_TO_BRIDGE, RED_SKYSTONE_RIGHT_READY_FOR_BRIDGE, RED_SKYSTONE_RIGHT_TO_BRIDGE, RED_SKYSTONE_RIGHT, RED_PICKUP_SKYSTONE_LEFT, RED_DRIVE_LEFT, RED_TURN_FOR_LEFT, RED_FOUNDATIONMOVE_BACK_UP_TO_TURN, RED_FOUNDATIONMOVE_TURN, RED_FOUNDATIONMOVE_FORWARD, RED_LATCH_FOUNDATION, RED_LATCH_FOUNDATION_RIGHT, RED_PRE_DRAG_PAUSE, RED_DRAG_FOUNDATION, RED_RELEASE_FOUNDATION, RED_RELEASE_FOUNDATION_RIGHT, RED_DRIVE_BACK_TO_BRIDGE, RED_AVOID_ROBOT, RED_PARK, CORRECTING_DRIVE_RED, RED_READY_DRIVE_MIDDLE, RED_SKYSTONE_MIDDLE_TURN_READY_FOR_BRIDGE, RED_SKYSTONE_LEFT_TURN_READY_FOR_BRIDGE, RED_READY_DRIVE_LEFT, DETECTION_2
 
     }
 }
