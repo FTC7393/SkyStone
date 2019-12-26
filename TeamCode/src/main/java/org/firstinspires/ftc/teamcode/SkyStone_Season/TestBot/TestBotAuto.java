@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.TestBot;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
@@ -15,6 +16,7 @@ import ftc.electronvolts.util.units.Distance;
 import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
 
+@Autonomous
 public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
 
     private ModernRoboticsI2cRangeSensor range;
