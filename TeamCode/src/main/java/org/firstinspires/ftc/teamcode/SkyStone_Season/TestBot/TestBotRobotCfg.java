@@ -19,6 +19,7 @@ import ftc.evlib.hardware.control.MecanumControl;
 import ftc.evlib.hardware.motors.MecanumMotors;
 import ftc.evlib.hardware.motors.MotorEnc;
 import ftc.evlib.hardware.motors.Motors;
+import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.hardware.sensors.IMUGyro;
 import ftc.evlib.hardware.servos.ServoName;
 import ftc.evlib.hardware.servos.Servos;
@@ -190,9 +191,9 @@ public class TestBotRobotCfg extends RobotCfg {
 //        return servos;
 //    }
    private final List<Logger.Column> loggerColumns;
-//    public Gyro getGyro() {
-//        return gyro;
-//    }
+    public Gyro getGyro() {
+        return gyro;
+   }
 
     public List<Logger.Column> getLoggerColumns() {
         return loggerColumns;
@@ -207,6 +208,7 @@ public class TestBotRobotCfg extends RobotCfg {
     public ModernRoboticsI2cRangeSensor getRange() {
         return range;
     }
+
 }
 
 

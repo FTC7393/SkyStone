@@ -3,6 +3,7 @@ package ftc.evlib.statemachine;
 
 import java.util.Map;
 
+import ftc.electronvolts.util.InputExtractor;
 import ftc.evlib.hardware.control.MecanumControl;
 import ftc.evlib.hardware.control.RotationControl;
 import ftc.evlib.hardware.control.TranslationControl;
@@ -162,6 +163,10 @@ public class EVStateMachineBuilder extends StateMachineBuilder {
 
     public void addDrive(StateName stateName, StateName nextStateName, Distance distance, Vector2D vector2D, double orientationDegrees, double maxAngularSpeed) {
         add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, vector2D, Angle.fromDegrees(orientationDegrees), tolerance, maxAngularSpeed));
+    }
+
+    public void addDriveWithSensor(StateName stateName, StateName nextStateName, Distance distance, Vector2D vector2D, double orientationDegrees, double maxAngularSpeed, InputExtractor<Double> sensorReading, double sensorTolerance, double gain, double minVelocity) {
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDriveWithSensor(nextStateName, distance,sensorReading, sensorTolerance,gain, gyro,mecanumControl,  vector2D, minVelocity, Angle.fromDegrees(orientationDegrees), tolerance, maxAngularSpeed));
     }
 
     public void addDrive(StateName stateName, StateName nextStateName, Distance distance, Vector2D vector2D, double orientationDegrees) {
