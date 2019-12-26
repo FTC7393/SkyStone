@@ -7,6 +7,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
 import java.util.List;
 import java.util.Map;
 
+import ftc.electronvolts.util.units.Velocity;
 import ftc.evlib.hardware.control.MecanumControl;
 import ftc.evlib.hardware.control.RotationControl;
 import ftc.evlib.hardware.control.RotationControls;
@@ -1012,6 +1013,115 @@ public class EVStates extends States {
                         ).abs()
                 );
                 return distanceTravelled.meters() >= distance.meters();
+//                return timeEC.isDone();
+//                if (timeEC.isDone()) {
+//                    mecanumControl.setTranslationControl(TranslationControls.ZERO);
+//                    return gyroEC.isDone();
+//                }
+//                return false;
+            }
+
+            @Override
+            public StateName getNextStateName() {
+                gyro.setActive(false);
+                mecanumControl.stop();
+                return nextStateName;
+            }
+        };
+    }
+
+    public static State mecanumDriveWithSensor(final StateName nextStateName, final Distance bailDistance,
+                                               final InputExtractor<Double> sensorReading, final double sensorTolerance, final double gain,
+                                               final Gyro gyro, final MecanumControl mecanumControl,
+                                               final Vector2D vector2D, final double minVelocity,
+                                               final Angle orientation, Angle angleTolerance, final double maxAngularSpeed) {
+
+        TranslationControl transCtrl = new TranslationControl() {
+            @Override
+            public boolean act() {
+                return true;
+            }
+
+            @Override
+            public Vector2D getTranslation() {
+                double sensorValue = sensorReading.getValue();
+
+                double velocityScale = sensorValue*gain;
+
+                Vector2D v = vector2D;
+                if(velocityScale<1.0){
+                    double x = vector2D.getX()*velocityScale;
+                    double y = vector2D.getY()*velocityScale;
+                    v = new Vector2D(x, y);
+                    double velocityMagnitude = v.getLength();
+                    if (velocityMagnitude<minVelocity) {
+                        double f = minVelocity / velocityMagnitude;
+                        v = new Vector2D(x*f, y*f);
+                    }
+                }
+                return v;
+            }
+        };
+
+        RotationControl rotationControl = RotationControls.gyro(gyro, orientation, angleTolerance, maxAngularSpeed);
+
+
+    return mecanumDriveWithSensor2(nextStateName, bailDistance, sensorReading, sensorTolerance,gyro,mecanumControl, rotationControl, transCtrl );
+
+    }
+
+    public static State mecanumDriveWithSensor2(final StateName nextStateName, final Distance bailDistance, final InputExtractor<Double> sensorValue, final double tolerance, final Gyro gyro, final MecanumControl mecanumControl, final RotationControl rotationControl, final TranslationControl translationControl) {
+        mecanumControl.setDriveMode(MecanumMotors.MecanumDriveMode.NORMALIZED);
+//        double speedMetersPerMillisecond = mecanumControl.getMaxRobotSpeed(Angle.subtract(direction, orientation)).metersPerMillisecond() * velocity;
+//        double durationMillis = Math.abs(distance.meters() / speedMetersPerMillisecond);
+//        final EndCondition gyroEC = EVEndConditions.gyroCloseTo(gyro, orientation, tolerance);
+//        final EndCondition timeEC = EVEndConditions.timed((long) durationMillis);
+
+        return new BasicAbstractState() {
+            Distance distanceTravelled = Distance.zero();
+            long lastTime = 0;
+
+            @Override
+            public void init() {
+                distanceTravelled = Distance.zero();
+                lastTime = System.currentTimeMillis();
+//                timeEC.init();
+//                gyroEC.init();
+                mecanumControl.setControl(rotationControl, translationControl);
+                gyro.setActive(true);
+
+
+            }
+
+            @Override
+            public boolean isDone() {
+                long now = System.currentTimeMillis();
+                Time deltaTime = Time.fromMilliseconds(lastTime - now);
+                lastTime = now;
+
+//                Log.i("Drive", "distanceTravelled: " + distanceTravelled);
+//                Log.i("Drive", "delta distance: " + Distance.multiply(
+//                        mecanumControl.getMaxRobotSpeed(Angle.subtract(direction, Angle.fromDegrees(gyro.getHeading()))).getDistance(deltaTime),
+//                        velocity * mecanumControl.getMecanumMotors().getScaleFactor()
+//                ));
+//                Log.i("Drive", "maxRobotSpeed: " + mecanumControl.getMaxRobotSpeed(Angle.subtract(direction, Angle.fromDegrees(gyro.getHeading()))));
+//                Log.i("Drive", "velocity * scaleFactor: " + velocity * mecanumControl.getMecanumMotors().getScaleFactor());
+//                Log.i("Drive", "drive direction: " + Angle.subtract(direction, Angle.fromDegrees(gyro.getHeading())));
+//
+                Vector2D translation = new Vector2D(
+                        mecanumControl.getVelocityX(),
+                        mecanumControl.getVelocityY()
+                );
+
+                distanceTravelled = Distance.add(
+                        distanceTravelled,
+                        Distance.multiply(
+                                mecanumControl.getMaxRobotSpeed(translation.getDirection()).getDistance(deltaTime),
+//                                mecanumControl.getMaxRobotSpeed(Angle.subtract(translation.getDirection(), Angle.fromDegrees(gyro.getHeading()))).getDistance(deltaTime),
+                                translation.getLength() * mecanumControl.getMecanumMotors().getScaleFactor()
+                        ).abs()
+                );
+                return Math.abs(sensorValue.getValue()) <= tolerance || distanceTravelled.meters() >= bailDistance.meters();
 //                return timeEC.isDone();
 //                if (timeEC.isDone()) {
 //                    mecanumControl.setTranslationControl(TranslationControls.ZERO);
