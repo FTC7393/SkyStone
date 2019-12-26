@@ -177,8 +177,8 @@ public class TestBotRobotCfg extends RobotCfg {
 
     @Override
     public void stop() {
-//        mecanumControl.stop();
-//        gyro.stop();
+        mecanumControl.stop();
+        gyro.stop();
 
     }
     public MecanumControl getMecanumControl() {
