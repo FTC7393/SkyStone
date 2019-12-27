@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.util.ArrayList;
 import java.util.List;
 
+import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.units.Distance;
 import ftc.electronvolts.util.units.Time;
@@ -19,8 +20,11 @@ import ftc.evlib.hardware.control.MecanumControl;
 import ftc.evlib.hardware.motors.MecanumMotors;
 import ftc.evlib.hardware.motors.MotorEnc;
 import ftc.evlib.hardware.motors.Motors;
+import ftc.evlib.hardware.sensors.AnalogSensor;
+import ftc.evlib.hardware.sensors.AveragedSensor;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.hardware.sensors.IMUGyro;
+import ftc.evlib.hardware.sensors.Sensors;
 import ftc.evlib.hardware.servos.ServoName;
 import ftc.evlib.hardware.servos.Servos;
 import ftc.evlib.util.StepTimer;
@@ -38,13 +42,14 @@ public class TestBotRobotCfg extends RobotCfg {
     private final MotorEnc frontRight;
     private final MotorEnc backLeft;
     private final MotorEnc backRight;
-
     private final DistanceSensor distanceSensor;
     private final ModernRoboticsI2cRangeSensor range;
 
     private static final Velocity MAX_ROBOT_SPEED = new Velocity(Distance.fromInches(57 * 4), Time.fromSeconds(2.83));
     private static final Velocity MAX_ROBOT_SPEED_SIDEWAYS = new Velocity(Distance.fromInches(21.2441207039), Time.fromSeconds(1));
     private final MecanumControl mecanumControl;
+    private final ftc.evlib.hardware.sensors.DistanceSensor pods;
+    private final AveragedSensor rawPods;
 
 
     private IMUGyro gyro;
@@ -84,7 +89,23 @@ public class TestBotRobotCfg extends RobotCfg {
 
         distanceSensor = hardwareMap.get(DistanceSensor.class, "cd");
 
-        range = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range");
+       range = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range");
+       Function calArduino = new Function() {
+           @Override
+           public double f(double x) {
+               return 2745*Math.pow(x/1023.,-1.19) / 2.54;
+           }
+       };
+       Function calRev = new Function() {
+           @Override
+           public double f(double x) {
+               // =         -2.04 + 2.15 * A3 - 0.0318*A3*A3
+               return (-2.04 + 2.15 * x - 0.0318*x*x) / 2.54;
+           }
+       };
+
+       pods = Sensors.scaledDistanceInches(hardwareMap, "pods", calRev);
+       rawPods = Sensors.averaged(Sensors.analog(hardwareMap, "pods"), 4);
 
 //
 //
@@ -116,6 +137,11 @@ public class TestBotRobotCfg extends RobotCfg {
 //
 //
     }
+
+    public ftc.evlib.hardware.sensors.DistanceSensor getPods() {
+       return pods;
+    }
+
     public enum PhonePanServoPresets{
         MIDDLE,
         LEFT,
@@ -207,6 +233,10 @@ public class TestBotRobotCfg extends RobotCfg {
 
     public ModernRoboticsI2cRangeSensor getRange() {
         return range;
+    }
+
+    public AveragedSensor getRawPods() {
+        return rawPods;
     }
 
 }
