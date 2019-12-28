@@ -1006,6 +1006,7 @@ public class EVStates extends States {
 
                 distanceTravelled = Distance.add(
                         distanceTravelled,
+
                         Distance.multiply(
                                 mecanumControl.getMaxRobotSpeed(translation.getDirection()).getDistance(deltaTime),
 //                                mecanumControl.getMaxRobotSpeed(Angle.subtract(translation.getDirection(), Angle.fromDegrees(gyro.getHeading()))).getDistance(deltaTime),
@@ -1121,7 +1122,11 @@ public class EVStates extends States {
                                 translation.getLength() * mecanumControl.getMecanumMotors().getScaleFactor()
                         ).abs()
                 );
+//                if( Math.abs(sensorValue.getValue()) <= tolerance) {
+////                    LogPoints.stateReason = "sensor value";
+//                } distanceTravelled.meters() >= bailDistance.meters();
                 return Math.abs(sensorValue.getValue()) <= tolerance || distanceTravelled.meters() >= bailDistance.meters();
+
 //                return timeEC.isDone();
 //                if (timeEC.isDone()) {
 //                    mecanumControl.setTranslationControl(TranslationControls.ZERO);

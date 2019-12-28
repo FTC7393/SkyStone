@@ -5,9 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-import java.text.SimpleDateFormat;
 
+import ftc.electronvolts.statemachine.EndCondition;
+import ftc.electronvolts.statemachine.EndConditions;
 import ftc.electronvolts.statemachine.StateMachine;
+import ftc.electronvolts.statemachine.StateMap;
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.TeamColor;
@@ -15,6 +17,10 @@ import ftc.electronvolts.util.Vector2D;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.units.Angle;
 import ftc.electronvolts.util.units.Distance;
+import ftc.evlib.hardware.control.RotationControls;
+import ftc.evlib.hardware.control.TranslationControl;
+import ftc.evlib.hardware.control.TranslationControls;
+import ftc.evlib.hardware.sensors.AnalogSensor;
 import ftc.evlib.hardware.sensors.DistanceSensor;
 import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
@@ -25,22 +31,61 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
 
     private ModernRoboticsI2cRangeSensor range;
     private DistanceSensor pods;
+    private double sensorInput;
+
+
 
     @Override
     public StateMachine buildStates() {
 
 
-        EVStateMachineBuilder b = new EVStateMachineBuilder(S.DRIVE_WITH_SENSOR_2, TeamColor.BLUE
-                , Angle.fromDegrees(2), robotCfg.getGyro(), servos, robotCfg.getMecanumControl());
+
+        EVStateMachineBuilder b = new EVStateMachineBuilder(S.DRIVE_WITH_SENSOR_2, TeamColor.BLUE, Angle.fromDegrees(2), robotCfg.getGyro(), servos, robotCfg.getMecanumControl());
         b.addDrive(S.DRIVE_1, S.STOP, Distance.fromFeet(4), 0.08, 270, 0);
-        b.addDriveWithSensor(S.DRIVE_WITH_SENSOR, S.DRIVE_WITH_SENSOR_2, Distance.fromFeet(2.0),
-                new Vector2D(0.8, Angle.fromDegrees(270)), 0, 0.30, createSRpods(15), 0.5, 0.01,
-                0.1);
-        b.addDriveWithSensor(S.DRIVE_WITH_SENSOR_2, S.WAIT, Distance.fromFeet(2.5),
-                new Vector2D(0.8, Angle.fromDegrees(180)), 0, 0.3, createSR(15,
-                        robotCfg.getRange2()), 1.0, 0.01, 0.1);
+        b.addDriveWithSensor(S.DRIVE_WITH_SENSOR, S.DRIVE_WITH_SENSOR_2, Distance.fromFeet(2.0), new Vector2D(0.8, Angle.fromDegrees(270)), 0, 0.30, createSRpods(15), 0.5, 0.01, 0.1);
+
+        b.addDriveWithSensor(S.DRIVE_WITH_SENSOR_2, S.WAIT, Distance.fromFeet(1), new Vector2D(0.8, Angle.fromDegrees(180)), 0, 0.3, createSR(15, robotCfg.getRange2()), 1.0, 0.01, 0.1);
         b.addWait(S.WAIT, S.STOP, 20000);
         b.addStop(S.STOP);
+        b.addStop(S.STOP_2);
+
+
+
+
+
+
+
+
+
+
+//EXPERIMENTAL CODE!!!!!!!!!!
+//USE AT YOUR OWN RISK
+
+
+        AnalogSensor ie = new AnalogSensor() {
+            @Override
+            public Double getValue() {
+                return robotCfg.getRange2().getDistance(DistanceUnit.CM);
+            }
+        };
+
+        b.addDrive( S.DRIVE_2, StateMap.of(
+                S.STOP, EndConditions.timed(3000),
+                S.STOP_2, EndConditions.valueCloseTo(ie, 15, 1, true)
+        ), RotationControls.gyro(robotCfg.getGyro(), Angle.fromDegrees(180), Angle.fromDegrees(10)),
+                TranslationControls.sensor(ie, 0.01, new Vector2D(0.08, Angle.fromDegrees(180)), 0.1));
+
+
+
+
+
+
+
+
+
+
+
+
         return b.build();
     }
 
@@ -68,10 +113,10 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
                 new Logger.Column("range2 values", new InputExtractor<Double>() {
                     @Override
                     public Double getValue() {
-                        return robotCfg.getRange2().getDistance(DistanceUnit.CM);
+                        return sensorInput;
                     }
                 })
-));
+        ));
     }
 
     @Override
@@ -102,7 +147,7 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
         DRIVE_WITH_SENSOR,
         WAIT,
         DRIVE_WITH_SENSOR_2,
-        STOP
+        STOP_2, DRIVE_2, STOP
     }
 
     private InputExtractor<Double> createSR(final double distance,
@@ -110,7 +155,8 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
         InputExtractor<Double> sensorReading = new InputExtractor<Double>() {
             @Override
             public Double getValue() {
-                return range.getDistance(DistanceUnit.CM) - distance;
+                sensorInput = range.getDistance(DistanceUnit.CM) - distance;
+                return sensorInput;
             }
         };
         return sensorReading;

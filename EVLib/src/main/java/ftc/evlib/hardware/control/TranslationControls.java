@@ -1,5 +1,7 @@
 package ftc.evlib.hardware.control;
 
+import ftc.evlib.hardware.sensors.AnalogSensor;
+import ftc.evlib.hardware.sensors.CalibratedLineSensor;
 import ftc.evlib.hardware.sensors.DoubleLineSensor;
 import ftc.evlib.hardware.sensors.LineSensorArray;
 import ftc.electronvolts.util.InputExtractor;
@@ -18,6 +20,36 @@ import ftc.electronvolts.util.units.Angle;
 
 
 public class TranslationControls {
+
+    public static TranslationControl sensor(final AnalogSensor sensorReading, final double gain, final Vector2D vector2D, final double minVelocity) {
+        return new TranslationControl() {
+            @Override
+            public boolean act() {
+                return true;
+            }
+
+            @Override
+            public Vector2D getTranslation() {
+                double sensorValue = sensorReading.getValue();
+
+                double velocityScale = sensorValue*gain;
+
+                Vector2D v = vector2D;
+                if(velocityScale<1.0){
+                    double x = vector2D.getX()*velocityScale;
+                    double y = vector2D.getY()*velocityScale;
+                    v = new Vector2D(x, y);
+                    double velocityMagnitude = v.getLength();
+                    if (velocityMagnitude<minVelocity) {
+                        double f = minVelocity / velocityMagnitude;
+                        v = new Vector2D(x*f, y*f);
+                    }
+                }
+                return v;
+            }
+        };
+    }
+
     /**
      * No movement
      */
