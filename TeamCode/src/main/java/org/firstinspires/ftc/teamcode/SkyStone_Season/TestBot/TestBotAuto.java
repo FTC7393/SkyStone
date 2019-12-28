@@ -13,23 +13,25 @@ import ftc.electronvolts.util.Vector2D;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.units.Angle;
 import ftc.electronvolts.util.units.Distance;
+import ftc.evlib.hardware.sensors.DistanceSensor;
 import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
 
-@Autonomous
+@Autonomous(name = "TestBotAuto")
 public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
 
     private ModernRoboticsI2cRangeSensor range;
-
+    private DistanceSensor pods;
 
     @Override
     public StateMachine buildStates() {
 
 
 
-        EVStateMachineBuilder b = new EVStateMachineBuilder(S.DRIVE_1, TeamColor.BLUE, Angle.fromDegrees(4), robotCfg.getGyro(), servos, robotCfg.getMecanumControl());
-        b.addDrive(S.DRIVE_1, S.DRIVE_WITH_SENSOR, Distance.fromFeet(1.0), 0.25, 270, 0);
-        b.addDriveWithSensor(S.DRIVE_WITH_SENSOR, S.STOP, Distance.fromFeet(2), new Vector2D(0.8, Angle.fromDegrees(270)), 0, 0.30, createSR(4), 1.0, 1.0, 0.1);
+        EVStateMachineBuilder b = new EVStateMachineBuilder(S.DRIVE_1, TeamColor.BLUE, Angle.fromDegrees(2), robotCfg.getGyro(), servos, robotCfg.getMecanumControl());
+        b.addDrive(S.DRIVE_1, S.DRIVE_WITH_SENSOR, Distance.fromFeet(0.7), 0.8, 270, 0);
+        b.addDriveWithSensor(S.DRIVE_WITH_SENSOR, S.WAIT, Distance.fromFeet(2.0), new Vector2D(0.8, Angle.fromDegrees(270)), 0, 0.30, createSRpods(15), 0.5, 0.03, 0.1);
+        b.addWait(S.WAIT, S.STOP, 20000);
         b.addStop(S.STOP);
         return b.build();
     }
@@ -52,7 +54,6 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
 
     @Override
     protected void setup_act() {
-
     }
 
     @Override
@@ -62,7 +63,9 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
 
     @Override
     protected void act() {
+        robotCfg.getPods().act();
         telemetry.addData("current state", stateMachine.getCurrentStateName());
+        telemetry.addData("distance from pods", robotCfg.getPods().getValue());
     }
 
     @Override
@@ -73,6 +76,7 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
     public enum S implements StateName {
         DRIVE_1,
         DRIVE_WITH_SENSOR,
+        WAIT,
         STOP
     }
 
@@ -84,6 +88,16 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
             }
         };
          return sensorReading;
+    }
+
+    private InputExtractor<Double> createSRpods(final double distance) {
+        InputExtractor<Double> sensorReading = new InputExtractor<Double>() {
+            @Override
+            public Double getValue() {
+                return robotCfg.getPods().getValue() - distance;
+            }
+        };
+        return sensorReading;
     }
 
 }

@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.util.ArrayList;
 import java.util.List;
 
+import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.units.Distance;
 import ftc.electronvolts.util.units.Time;
@@ -19,8 +20,10 @@ import ftc.evlib.hardware.control.MecanumControl;
 import ftc.evlib.hardware.motors.MecanumMotors;
 import ftc.evlib.hardware.motors.MotorEnc;
 import ftc.evlib.hardware.motors.Motors;
+import ftc.evlib.hardware.sensors.AveragedSensor;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.hardware.sensors.IMUGyro;
+import ftc.evlib.hardware.sensors.Sensors;
 import ftc.evlib.hardware.servos.ServoName;
 import ftc.evlib.hardware.servos.Servos;
 import ftc.evlib.util.StepTimer;
@@ -41,6 +44,8 @@ public class TestBotRobotCfg extends RobotCfg {
 
     private final DistanceSensor distanceSensor;
     private final ModernRoboticsI2cRangeSensor range;
+    private final ModernRoboticsI2cRangeSensor range2;
+    private final AveragedSensor pods;
 
     private static final Velocity MAX_ROBOT_SPEED = new Velocity(Distance.fromInches(57 * 4), Time.fromSeconds(2.83));
     private static final Velocity MAX_ROBOT_SPEED_SIDEWAYS = new Velocity(Distance.fromInches(21.2441207039), Time.fromSeconds(1));
@@ -48,7 +53,9 @@ public class TestBotRobotCfg extends RobotCfg {
 
 
     private IMUGyro gyro;
-//    private final Servos servos;
+
+
+    //    private final Servos servos;
 //
 //    public MotorEnc getTestMotor() {
 //        return backLeft;
@@ -86,6 +93,18 @@ public class TestBotRobotCfg extends RobotCfg {
 
         range = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range");
 
+        range2 = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range2");
+
+       Function podsCal = new Function() {
+           @Override
+           public double f(double x) {
+               return (-2.04 + 2.15 * x - 0.0318*x*x); //CENTIMETERS!!!!!!
+           }
+       };
+       final ftc.evlib.hardware.sensors.AnalogSensor analogSensorRawPods;
+       analogSensorRawPods = Sensors.analog(hardwareMap, "pods");
+
+        pods = new AveragedSensor(analogSensorRawPods, 1, podsCal);
 //
 //
 //        loggerColumns = ImmutableList.of(
@@ -209,6 +228,14 @@ public class TestBotRobotCfg extends RobotCfg {
         return range;
     }
 
+    public ftc.evlib.hardware.sensors.AveragedSensor getPods() {
+        return pods;
+    }
+
+
+    public ModernRoboticsI2cRangeSensor getRange2() {
+        return range2;
+    }
 }
 
 

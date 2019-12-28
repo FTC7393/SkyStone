@@ -18,6 +18,7 @@ public class TestBotTele extends AbstractTeleOp<TestBotRobotCfg> {
     DistanceSensor distanceSensor;
     ModernRoboticsI2cRangeSensor range;
 
+
     @Override
     protected Function getJoystickScalingFunction() {
         return Functions.none();
@@ -51,8 +52,16 @@ public class TestBotTele extends AbstractTeleOp<TestBotRobotCfg> {
 
     @Override
     protected void act() {
+        int m = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0);
+        int m1 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(1);
+        int m2 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(2);
+        int m3 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(3);
         telemetry.addData("distance", distanceSensor.getDistance(DistanceUnit.CM));
         telemetry.addData("modern robotics distance", range.cmUltrasonic());
+        telemetry.addData("motor 0", m);
+        telemetry.addData("motor 1", m1);
+        telemetry.addData("motor 2", m2);
+        telemetry.addData("motor 3", m3);
     }
 
     @Override
