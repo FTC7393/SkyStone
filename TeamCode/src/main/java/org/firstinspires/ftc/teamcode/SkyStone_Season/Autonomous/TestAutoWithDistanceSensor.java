@@ -108,10 +108,10 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
         EVStateMachineBuilder b = new EVStateMachineBuilder(S.INIT_GYRO, TeamColor.BLUE, Angle.fromDegrees(2.5),gyro, servos,mecanumControl);
         b.addCalibrateGyro(S.INIT_GYRO, S.DRIVE_1);
         b.addDrive(S.DRIVE_1, S.DRIVE_2, Distance.fromFeet(0.5), 0.8, 0, 0, 0.5);
-        b.addDrive(S.DRIVE_2, StateMap.of(
-                S.WAIT_1, EndConditions.timed(3000),
-                S.WAIT, EndConditions.valueCloseTo()
-        ));
+//        b.addDrive(S.DRIVE_2, StateMap.of(
+//                S.WAIT_1, EndConditions.timed(3000),
+//                S.WAIT, EndConditions.valueCloseTo()
+//        ));
         return b.build();
     }
 

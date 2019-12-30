@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FlyWheels;
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.LiftArm;
 import java.util.Map;
 
 import ftc.electronvolts.statemachine.StateName;
+import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.TeamColor;
 import ftc.electronvolts.util.units.Angle;
 import ftc.electronvolts.util.units.Distance;
@@ -19,6 +21,7 @@ import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.hardware.control.MecanumControl;
 import ftc.evlib.hardware.motors.MecanumMotors;
 import ftc.evlib.hardware.motors.Motors;
+import ftc.evlib.hardware.sensors.AveragedSensor;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.hardware.sensors.IMUGyro;
 import ftc.evlib.hardware.sensors.Sensors;
@@ -38,6 +41,9 @@ public class SkystoneRobotCfg extends RobotCfg {
     private Gyro gyro;
     private final LiftArm liftArm;
     private final FoundationMover foundationMover;
+    private final ModernRoboticsI2cRangeSensor plusXDistanceSensor;
+    private final ModernRoboticsI2cRangeSensor minusXDistanceSensor;
+    private final AveragedSensor plusYDistanceSensor;
 
 
 
@@ -81,6 +87,20 @@ public class SkystoneRobotCfg extends RobotCfg {
                 getLeftFoundationMover()
         );
 
+        plusXDistanceSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "plusXSensor");
+
+        minusXDistanceSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "minusXSensor");
+
+        Function podsCal = new Function() {
+            @Override
+            public double f(double x) {
+                return (-2.04 + 2.15 * x - 0.0318*x*x); //CENTIMETERS!!!!!!
+            }
+        };
+        final ftc.evlib.hardware.sensors.AnalogSensor analogSensorRawPods;
+        analogSensorRawPods = Sensors.analog(hardwareMap, "pods");
+
+        plusYDistanceSensor = new AveragedSensor(analogSensorRawPods, 1, podsCal);
     }
 
     private final Servos servos;
@@ -214,6 +234,18 @@ public class SkystoneRobotCfg extends RobotCfg {
 
     public ServoControl getStoneScraperServo() {
         return getServo(SkystoneServoName.STONE_SCRAPER_SERVO);
+    }
+
+    public ModernRoboticsI2cRangeSensor getPlusXDistanceSensor() {
+        return plusXDistanceSensor;
+    }
+
+    public ModernRoboticsI2cRangeSensor getMinusXDistanceSensor() {
+        return minusXDistanceSensor;
+    }
+
+    public AveragedSensor getPlusYDistanceSensor() {
+        return plusYDistanceSensor;
     }
 
     /**
