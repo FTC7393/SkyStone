@@ -77,7 +77,7 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
                         S.TURN_1, EndConditions.timed(5000),
                         S.TURN_1, valueCloseTo(pods, target1, 5,tolPods, true)),
                 makeStdRC(0),
-                TranslationControls.sensor(pods, target1, gainPods, dwsVel, minVelPods));
+                TranslationControls.sensor(pods, gainPods, dwsVel, minVelPods, target1));
 
         b.addDriveWithSensor(S.DRIVE_WITH_SENSOR_OLD, S.STOP, Distance.fromFeet(5.0), dwsVel, 0, 0.50, createSRpods(target1), tolPods, gainPods, minVelPods);
 
@@ -107,7 +107,7 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
                   S.STOP, EndConditions.timed(8000),
                   S.STOP_2, valueCloseTo(r2, 15.0, 8,1, true)),
                 makeStdRC(0),
-                TranslationControls.sensor(r2, 15.0, 0.015, new Vector2D(0.5, Angle.fromDegrees(180)), 0.1));
+                TranslationControls.sensor(r2, 0.015, new Vector2D(0.5, Angle.fromDegrees(180)), 0.1, 15.0));
 
 
 //        b.addWait(S.DRIVE_2A, S.STOP, 20000);
@@ -136,7 +136,6 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
             public void init() {
                 numConsecutiveTimes = 0;
             }
-
             @Override
             public boolean isDone() {
                 double value = inputExtractor.getValue();

@@ -21,9 +21,9 @@ import ftc.electronvolts.util.units.Angle;
 
 public class TranslationControls {
 
-    public static TranslationControl sensor(final AnalogSensor sensorReading, final double target,
-                                            final double gain,
-                                            final Vector2D vector2D, final double minVelocity) {
+    public static TranslationControl sensor(final AnalogSensor sensorReading, final double gain,
+                                            final Vector2D vector2D, final double minVelocity,
+                                            final double target) {
         return new TranslationControl() {
             @Override
             public boolean act() {
@@ -34,7 +34,7 @@ public class TranslationControls {
             public Vector2D getTranslation() {
                 double value = sensorReading.getValue() - target;
 
-                double velocityScale = value*gain;
+                double velocityScale = (value*gain);
 
                 Vector2D v = vector2D;
                 if(velocityScale<1.0){
