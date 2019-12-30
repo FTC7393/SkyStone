@@ -76,7 +76,7 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
                 StateMap.of(
                         S.TURN_1, EndConditions.timed(5000),
                         S.TURN_1, valueCloseTo(pods, target1, 5,tolPods, true)),
-                RC(0),
+                makeStdRC(0),
                 TranslationControls.sensor(pods, target1, gainPods, dwsVel, minVelPods));
 
         b.addDriveWithSensor(S.DRIVE_WITH_SENSOR_OLD, S.STOP, Distance.fromFeet(5.0), dwsVel, 0, 0.50, createSRpods(target1), tolPods, gainPods, minVelPods);
@@ -106,7 +106,7 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
                 StateMap.of(
                   S.STOP, EndConditions.timed(8000),
                   S.STOP_2, valueCloseTo(r2, 15.0, 8,1, true)),
-                RC(0),
+                makeStdRC(0),
                 TranslationControls.sensor(r2, 15.0, 0.015, new Vector2D(0.5, Angle.fromDegrees(180)), 0.1));
 
 
@@ -158,10 +158,10 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
         };
     }
 
-    private RotationControl RC(double deg) {
-        return RC(deg, DEFAULT_ANGULAR_TOL, DEFAULT_MAX_ANG_SPEED);
+    private RotationControl makeStdRC(double deg) {
+        return makeStdRC(deg, DEFAULT_ANGULAR_TOL, DEFAULT_MAX_ANG_SPEED);
     }
-    private RotationControl RC(double deg, Angle angleTol, double maxAngSpeed) {
+    private RotationControl makeStdRC(double deg, Angle angleTol, double maxAngSpeed) {
         return RotationControls.gyro(robotCfg.getGyro(), Angle.fromDegrees(deg), angleTol, maxAngSpeed);
     }
 
