@@ -3,13 +3,17 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous.OdometryWheels;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FlyWheels;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FoundationMover;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.LiftArm;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous.OdometryWheels;
+
 
 import java.util.Map;
 
 import ftc.electronvolts.statemachine.StateName;
+import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.TeamColor;
 import ftc.electronvolts.util.units.Angle;
 import ftc.electronvolts.util.units.Distance;
@@ -18,6 +22,7 @@ import ftc.electronvolts.util.units.Velocity;
 import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.hardware.control.MecanumControl;
 import ftc.evlib.hardware.motors.MecanumMotors;
+import ftc.evlib.hardware.motors.MotorEnc;
 import ftc.evlib.hardware.motors.Motors;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.hardware.sensors.IMUGyro;
@@ -38,6 +43,8 @@ public class SkystoneRobotCfg extends RobotCfg {
     private Gyro gyro;
     private final LiftArm liftArm;
     private final FoundationMover foundationMover;
+    private final OdometryWheels odometryXAxis;
+    private final MotorEnc odometryMotor;
 
 
 
@@ -81,7 +88,24 @@ public class SkystoneRobotCfg extends RobotCfg {
                 getLeftFoundationMover()
         );
 
+       odometryXAxis = new OdometryWheels(
+               new InputExtractor<Double>() {
+                   @Override
+                   public Double getValue() {
+                       return (Double) (double) odometryMotor.getEncoderPosition();
+                   }
+               },
+               new InputExtractor<Double>() {
+                   @Override
+                   public Double getValue() {
+                       return null;
+                   }
+               }
+       );
+        odometryMotor = Motors.withEncoder(hardwareMap.dcMotor.get("OdometryMotor"), false, true, stoppers);
     }
+
+
 
     private final Servos servos;
 
@@ -144,8 +168,12 @@ public class SkystoneRobotCfg extends RobotCfg {
     @Override
     public void pre_act() {
         liftArm.pre_act();
+        odometryMotor.update();
+        odometryXAxis.act();
     }
-
+    public OdometryWheels getOdometryXAxis(){
+        return odometryXAxis;
+    }
     @Override
     public void act() {
         mecanumControl.act();
