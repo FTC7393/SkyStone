@@ -42,7 +42,7 @@ public class TestBotRobotCfg extends RobotCfg {
     private final MotorEnc backLeft;
     private final MotorEnc backRight;
 
-    private final DistanceSensor distanceSensor;
+//    private final DistanceSensor distanceSensor;
     private final ModernRoboticsI2cRangeSensor range;
     private final ModernRoboticsI2cRangeSensor range2;
     private final AveragedSensor pods;
@@ -89,7 +89,7 @@ public class TestBotRobotCfg extends RobotCfg {
                 backRight,
                 true, MAX_ROBOT_SPEED,MAX_ROBOT_SPEED_SIDEWAYS));
 
-        distanceSensor = hardwareMap.get(DistanceSensor.class, "cd");
+//        distanceSensor = hardwareMap.get(DistanceSensor.class, "cd");
 
         range = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "range");
 
@@ -220,9 +220,9 @@ public class TestBotRobotCfg extends RobotCfg {
 //    public EVStateMachineBuilder createEVStateMachineBuilder(StateName firstStateName, TeamColor teamColor, Angle tolerance) {
 //        return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, servos, mecanumControl);
 //    }
-    public DistanceSensor getDistanceSensor() {
-        return distanceSensor;
-    }
+//    public DistanceSensor getDistanceSensor() {
+//        return distanceSensor;
+//    }
 
     public ModernRoboticsI2cRangeSensor getRange() {
         return range;
