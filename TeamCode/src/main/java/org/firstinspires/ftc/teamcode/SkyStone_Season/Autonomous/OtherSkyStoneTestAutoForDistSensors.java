@@ -42,21 +42,21 @@ public class OtherSkyStoneTestAutoForDistSensors extends AbstractAutoOp<Skystone
     private Gyro gyro;
     private MecanumControl mecanumControl;
     private OpenCvCamera camera;
-    private StateMachine initializingStateMachine;
     private BasicResultReceiver<Boolean> cameraInitRR = new BasicResultReceiver<>();
     private InputExtractor<StateName> s;
     private TeamColor teamColor = TeamColor.BLUE;
     private int minCycles = 10;
-    private BasicResultReceiver<StateName> srr = new BasicResultReceiver<>();
+    private BasicResultReceiver<StateName> stoneStateSelectionRR = new BasicResultReceiver<>();
     private BasicResultReceiver<Boolean> canUpdateSRR = new BasicResultReceiver<>();
-    private BasicResultReceiver<Boolean> initIsDoneRR = new BasicResultReceiver<>();
+    private BasicResultReceiver<Boolean> playIsPressedRR = new BasicResultReceiver<>();
+    private Thread cameraThread;
 
     private ProcessPipeline pipeline;
 
     public OtherSkyStoneTestAutoForDistSensors() {
         OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
         teamColor = optionsFile.get(SkyStoneOptionsOp.Opts.TEAM_COLOR.s, SkyStoneOptionsOp.teamColorDefault);
-        pipeline = new ProcessPipeline(srr, minCycles, teamColor, canUpdateSRR);
+        pipeline = new ProcessPipeline(stoneStateSelectionRR, minCycles, teamColor, canUpdateSRR);
     }
 
     @Override
@@ -86,19 +86,67 @@ public class OtherSkyStoneTestAutoForDistSensors extends AbstractAutoOp<Skystone
             }
         };
 
-        final Thread cameraThread = new Thread(r);
+        cameraThread = new Thread(r);
 
         gyro = robotCfg.getGyro();
 
-        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(IS.INIT_GYRO, TeamColor.UNKNOWN, Angle.fromDegrees(2.5));
-        b.addCalibrateGyro(IS.INIT_GYRO, IS.EXTRA_GYRO_WAIT);
-        long extraGyroWaitTime = 5000L;
-        b.addWait(IS.EXTRA_GYRO_WAIT, IS.CAMERA_PREP, extraGyroWaitTime);
+    }
+
+    @Override
+    protected void setup_act() {
+        stateMachine.act();
+        robotCfg.getPlusYDistanceSensor().act();
+        telemetry.addData("State:", stateMachine.getCurrentStateName());
+        telemetry.addData("Skystone position", stoneStateSelectionRR.isReady() ? stoneStateSelectionRR.getValue() : "not ready");
+        telemetry.addData("heading", String.format("%3.2f", robotCfg.getGyro().getHeading()));
+        telemetry.addData("forwardX", robotCfg.getPlusXDistanceSensor().cmUltrasonic());
+        telemetry.addData("backwardX", robotCfg.getMinusXDistanceSensor().cmUltrasonic());
+        telemetry.addData("forwardY", robotCfg.getPlusYDistanceSensor().getValue());
+    }
+
+    @Override
+    protected void go() {
+        gyro.setActive(false);
+        playIsPressedRR.setValue(true);
+    }
+
+
+    @Override
+    protected void act() {
+        robotCfg.getPlusYDistanceSensor().act();
+        telemetry.addData("gyro", robotCfg.getGyro().getHeading());
+        telemetry.addData("state", stateMachine.getCurrentStateName());
+        telemetry.addData("stoneStateSelectionRR", stoneStateSelectionRR.isReady());
+        telemetry.addData("current thread", Thread.currentThread().getName());
+        telemetry.addData("forwardX", robotCfg.getPlusXDistanceSensor().cmUltrasonic());
+        telemetry.addData("backwardX", robotCfg.getMinusXDistanceSensor().cmUltrasonic());
+        telemetry.addData("forwardY", robotCfg.getPlusYDistanceSensor().getValue());
+        telemetry.addData("state for detetcting skystone", stoneStateSelectionRR.getValue());
+        telemetry.addData("ratio of both stones", pipeline.getStoneRatioII().getValue());
+        telemetry.addData("state", stateMachine.getCurrentStateName());
+    }
+
+
+    @Override
+    protected void end() {
+
+    }
+
+    @Override
+    public StateMachine buildStates() {
+
+
+        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.INIT_GYRO, teamColor, Angle.fromDegrees(2.5));
+
+        b.addCalibrateGyro(S.INIT_GYRO, S.EXTRA_GYRO_WAIT);
+        long extraGyroWaitTime = 4000L;
+        b.addWait(S.EXTRA_GYRO_WAIT, S.CAMERA_PREP, extraGyroWaitTime);
         final long postCameraPause = 1500L;
-        b.add(IS.CAMERA_PREP, new BasicAbstractState() {
+        b.add(S.CAMERA_PREP, new BasicAbstractState() {
             long postReadyTime = -1L;
             @Override
             public void init() {
+                gyro.setActive(true);
                 cameraThread.start();
             }
 
@@ -116,65 +164,28 @@ public class OtherSkyStoneTestAutoForDistSensors extends AbstractAutoOp<Skystone
 
             @Override
             public StateName getNextStateName() {
-                return IS.POST_CAMERA_WAIT;
+                return S.POST_CAMERA_WAIT;
             }
         });
-        long postCameraWaitTime = 15000L;
-        b.addWait(IS.POST_CAMERA_WAIT, IS.REPORT_INIT_DONE, postCameraWaitTime);
-        b.add(IS.REPORT_INIT_DONE, new State() {
+        long postCameraWaitTime = 50L;
+        b.addWait(S.POST_CAMERA_WAIT, S.REPORT_INIT_DONE, postCameraWaitTime);
+        b.add(S.REPORT_INIT_DONE, new State() {
             @Override
             public StateName act() {
-                initIsDoneRR.setValue(true);
-                return IS.STOP;
+                return S.WAIT_FOR_PLAY;
             }
         });
-        b.addStop(IS.STOP);
-        initializingStateMachine = b.build();
-    }
-
-    @Override
-    protected void setup_act() {
-        initializingStateMachine.act();
-        robotCfg.getPlusYDistanceSensor().act();
-        telemetry.addData("Skystone position", srr.isReady() ? srr.getValue() : "not ready");
-        telemetry.addData("heading", String.format("%3.2f", robotCfg.getGyro().getHeading()));
-        telemetry.addData("forwardX", robotCfg.getPlusXDistanceSensor().cmUltrasonic());
-        telemetry.addData("backwardX", robotCfg.getMinusXDistanceSensor().cmUltrasonic());
-        telemetry.addData("forwardY", robotCfg.getPlusYDistanceSensor().getValue());
-    }
-
-    @Override
-    protected void go() {
-        canUpdateSRR.setValue(false);
-    }
 
 
-    @Override
-    protected void act() {
-        robotCfg.getPlusYDistanceSensor().act();
-        telemetry.addData("gyro", robotCfg.getGyro().getHeading());
-        telemetry.addData("state", stateMachine.getCurrentStateName());
-        telemetry.addData("current thread", Thread.currentThread().getName());
-        telemetry.addData("forwardX", robotCfg.getPlusXDistanceSensor().cmUltrasonic());
-        telemetry.addData("backwardX", robotCfg.getMinusXDistanceSensor().cmUltrasonic());
-        telemetry.addData("forwardY", robotCfg.getPlusYDistanceSensor().getValue());        telemetry.addData("state for detetcting skystone", srr.getValue());
-        telemetry.addData("ratio of both stones", pipeline.getStoneRatioII().getValue());
-        telemetry.addData("state", stateMachine.getCurrentStateName());
-    }
 
 
-    @Override
-    protected void end() {
 
-    }
 
-    @Override
-    public StateMachine buildStates() {
-        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.WAIT_FOR_INIT, teamColor, Angle.fromDegrees(3));
+//        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.WAIT_FOR_INIT, teamColor, Angle.fromDegrees(3));
 
-        b.addResultReceiverReady(S.WAIT_FOR_INIT, S.CAPTURE_SKYSTONE_LOCN_FROM_CAMERA, initIsDoneRR);
+        b.addResultReceiverReady(S.WAIT_FOR_PLAY, S.CAPTURE_SKYSTONE_LOCN_FROM_CAMERA, playIsPressedRR);
         b.add(S.CAPTURE_SKYSTONE_LOCN_FROM_CAMERA, createSkystoneFindingStateWithCamera());
-        b.addDrive(S.SKYSTONE_DRIVE_TO_LINE1, S.TEST_PAUSE, Distance.fromFeet(.5), 0.7, 0, 0);
+        b.addDrive(S.SKYSTONE_DRIVE_TO_LINE1, S.TEST_PAUSE, Distance.fromFeet(3), 0.15, 0, 0);
 
         b.addWait(S.TEST_PAUSE, S.STOP, 1500L);
 
@@ -401,7 +412,7 @@ public class OtherSkyStoneTestAutoForDistSensors extends AbstractAutoOp<Skystone
         return new State() {
             @Override
             public StateName act() {
-                if (srr.isReady()) {
+                if (stoneStateSelectionRR.isReady()) {
                     camera.closeCameraDevice();
                     return S.SKYSTONE_DRIVE_TO_LINE1;
                 }
@@ -414,7 +425,7 @@ public class OtherSkyStoneTestAutoForDistSensors extends AbstractAutoOp<Skystone
         return new State() {
             @Override
             public StateName act() {
-                    return srr.getValue();
+                    return stoneStateSelectionRR.getValue();
                 }
 
         };
@@ -481,8 +492,9 @@ public class OtherSkyStoneTestAutoForDistSensors extends AbstractAutoOp<Skystone
 
 
     public enum S implements StateName {
+        INIT_GYRO, EXTRA_GYRO_WAIT, CAMERA_PREP, POST_CAMERA_WAIT, REPORT_INIT_DONE,
 
-        WAIT_FOR_INIT,
+        WAIT_FOR_PLAY,
         DRIVE_1,
         TEST_PAUSE,
         PROCESS_SKYSTONE,
@@ -496,8 +508,6 @@ public class OtherSkyStoneTestAutoForDistSensors extends AbstractAutoOp<Skystone
 
     }
 
-    public enum IS implements StateName {
-        INIT_GYRO, EXTRA_GYRO_WAIT, CAMERA_PREP, POST_CAMERA_WAIT, REPORT_INIT_DONE, STOP;
-    }
+
 
     }

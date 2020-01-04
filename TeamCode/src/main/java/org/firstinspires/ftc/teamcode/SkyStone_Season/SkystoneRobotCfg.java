@@ -232,9 +232,9 @@ public class SkystoneRobotCfg extends RobotCfg {
         return liftArm;
     }
 
-    public ServoControl getStoneScraperServo() {
-        return getServo(SkystoneServoName.STONE_SCRAPER_SERVO);
-    }
+//    public ServoControl getStoneScraperServo() {
+//        return getServo(SkystoneServoName.STONE_SCRAPER_SERVO);
+//    }
 
     public ModernRoboticsI2cRangeSensor getPlusXDistanceSensor() {
         return plusXDistanceSensor;
@@ -257,8 +257,8 @@ public class SkystoneRobotCfg extends RobotCfg {
         WRIST_SERVO("wristServo", WristServoPresets.values()),
         FINGERS_SERVO("fingersServo", FingersServoPresets.values()),
         RIGHT_FOUNDATION_MOVER_SERVO("rightFoundationMoverServo", RightFoundationMoverServoPresets.values()),
-        LEFT_FOUNDATION_MOVER_SERVO("leftFoundationMoverServo", LeftFoundationMoverServoPresets.values()),
-        STONE_SCRAPER_SERVO("stoneScraperServo", StoneScraperServoPresets.values());
+        LEFT_FOUNDATION_MOVER_SERVO("leftFoundationMoverServo", LeftFoundationMoverServoPresets.values());
+//        STONE_SCRAPER_SERVO("stoneScraperServo", StoneScraperServoPresets.values());
 
 //        PUSH_SERVO("pushServo", RotateServoPresets.values());
 

@@ -65,6 +65,7 @@ class ProcessPipeline extends OpenCvPipeline {
                 option = getNextStateName(ratio);
                 stoneratio = blue / blue2;
                 StateRR.setValue(option);
+                canUpdateSRR.setValue(false);
             }
             numStabalizationCycles++;
         }
