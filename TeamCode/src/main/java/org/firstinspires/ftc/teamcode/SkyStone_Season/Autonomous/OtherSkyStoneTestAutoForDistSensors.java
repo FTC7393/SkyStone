@@ -141,23 +141,17 @@ public class OtherSkyStoneTestAutoForDistSensors extends AbstractAutoOp<Skystone
         b.addCalibrateGyro(S.INIT_GYRO, S.EXTRA_GYRO_WAIT);
         long extraGyroWaitTime = 4000L;
         b.addWait(S.EXTRA_GYRO_WAIT, S.CAMERA_PREP, extraGyroWaitTime);
-        final long postCameraPause = 1500L;
         b.add(S.CAMERA_PREP, new BasicAbstractState() {
-            long postReadyTime = -1L;
             @Override
             public void init() {
-                gyro.setActive(true);
                 cameraThread.start();
             }
 
             @Override
             public boolean isDone() {
                 if (cameraInitRR.isReady()) {
-                    if (postReadyTime == -1) {
-                        postReadyTime = System.currentTimeMillis();
-                    } else if (System.currentTimeMillis() - postReadyTime > postCameraPause) {
-                        return true;
-                    }
+                    gyro.setActive(true);
+                    return true;
                 }
                 return false;
             }
@@ -167,17 +161,8 @@ public class OtherSkyStoneTestAutoForDistSensors extends AbstractAutoOp<Skystone
                 return S.POST_CAMERA_WAIT;
             }
         });
-        long postCameraWaitTime = 50L;
-        b.addWait(S.POST_CAMERA_WAIT, S.REPORT_INIT_DONE, postCameraWaitTime);
-        b.add(S.REPORT_INIT_DONE, new State() {
-            @Override
-            public StateName act() {
-                return S.WAIT_FOR_PLAY;
-            }
-        });
-
-
-
+        final long postCameraPause = 1500L;
+        b.addWait(S.POST_CAMERA_WAIT, S.WAIT_FOR_PLAY, postCameraPause);
 
 
 
@@ -492,7 +477,7 @@ public class OtherSkyStoneTestAutoForDistSensors extends AbstractAutoOp<Skystone
 
 
     public enum S implements StateName {
-        INIT_GYRO, EXTRA_GYRO_WAIT, CAMERA_PREP, POST_CAMERA_WAIT, REPORT_INIT_DONE,
+        INIT_GYRO, EXTRA_GYRO_WAIT, CAMERA_PREP, POST_CAMERA_WAIT,
 
         WAIT_FOR_PLAY,
         DRIVE_1,
