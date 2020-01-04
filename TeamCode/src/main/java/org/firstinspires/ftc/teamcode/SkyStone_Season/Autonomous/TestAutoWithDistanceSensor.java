@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -18,12 +19,16 @@ import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.TeamColor;
+import ftc.electronvolts.util.Vector2D;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.files.OptionsFile;
 import ftc.electronvolts.util.units.Angle;
 import ftc.electronvolts.util.units.Distance;
 import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.hardware.control.MecanumControl;
+import ftc.evlib.hardware.control.RotationControls;
+import ftc.evlib.hardware.control.TranslationControls;
+import ftc.evlib.hardware.sensors.AnalogSensor;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
@@ -41,6 +46,7 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
     private BasicResultReceiver<StateName> srr = new BasicResultReceiver<>();
     private BasicResultReceiver<Boolean> canUpdateSRR = new BasicResultReceiver<>();
     private ProcessPipeline pipeline;
+
 
     @Override
     protected SkystoneRobotCfg createRobotCfg() {
@@ -107,11 +113,22 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
     public StateMachine buildStates() {
         EVStateMachineBuilder b = new EVStateMachineBuilder(S.INIT_GYRO, TeamColor.BLUE, Angle.fromDegrees(2.5),gyro, servos,mecanumControl);
         b.addCalibrateGyro(S.INIT_GYRO, S.DRIVE_1);
-        b.addDrive(S.DRIVE_1, S.DRIVE_2, Distance.fromFeet(0.5), 0.8, 0, 0, 0.5);
-//        b.addDrive(S.DRIVE_2, StateMap.of(
-//                S.WAIT_1, EndConditions.timed(3000),
-//                S.WAIT, EndConditions.valueCloseTo()
-//        ));
+
+         AnalogSensor sensor = new AnalogSensor() {
+            @Override
+            public Double getValue() {
+                return robotCfg.getPlusXDistanceSensor().getDistance(DistanceUnit.CM);
+            }
+        };
+
+        if(teamColor == TeamColor.BLUE) {
+            b.addDrive(S.DRIVE_1, S.DRIVE_2, Distance.fromFeet(0.5), 0.8, 90, 0, 0.5);
+            b.addDrive(S.DRIVE_2, StateMap.of(
+                    S.WAIT_1, EndConditions.timed(3000),
+                    S.WAIT, EndConditions.valueCloseTo(sensor, 15, 1, true)
+            ), RotationControls.gyro(gyro, Angle.fromDegrees(90), Angle.fromDegrees(2), 0.3),
+                    TranslationControls.sensor(sensor, 0.02, new Vector2D(0.8, Angle.fromDegrees(90)),0.01, 15));
+        }
         return b.build();
     }
 
