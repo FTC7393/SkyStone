@@ -110,7 +110,6 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
         telemetry.addData("ratio of both stones", pipeline.getStoneRatioII().getValue());
         telemetry.addData("state", stateMachine.getCurrentStateName());
         telemetry.addData("gyro angle", gyro.getHeading());
-        robotCfg.getPlusYDistanceSensor().act();
     }
 
 
@@ -124,7 +123,7 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
         EVStateMachineBuilder b = new EVStateMachineBuilder(S.INIT_GYRO, TeamColor.BLUE, Angle.fromDegrees(2.5),gyro, servos,mecanumControl);
         b.addCalibrateGyro(S.INIT_GYRO, S.DRIVE_1);
 
-         AnalogSensor sensor = new AnalogSensor() {
+         AnalogSensor podsSensor = new AnalogSensor() {
             @Override
             public Double getValue() {
                 return robotCfg.getPlusYDistanceSensor().getValue();
@@ -135,9 +134,9 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
             b.addDrive(S.DRIVE_1, S.DRIVE_2, Distance.fromFeet(0.5), 0.8, 90, 0, 0.5);
             b.addDrive(S.DRIVE_2, StateMap.of(
                     S.WAIT_1, EndConditions.timed(3000),
-                    S.WAIT, EndConditions.valueCloseTo(sensor, 15, 1, true)
+                    S.WAIT, EndConditions.valueCloseTo(podsSensor, 15, 1, true)
             ), RotationControls.gyro(gyro, Angle.fromDegrees(0), Angle.fromDegrees(2), 0.3),
-                    TranslationControls.sensor(sensor, 0.02, new Vector2D(0.8, Angle.fromDegrees(90)),0.01, 15));
+                    TranslationControls.sensor(podsSensor, 0.02, new Vector2D(0.8, Angle.fromDegrees(90)),0.01, 15));
         }
         return b.build();
     }
