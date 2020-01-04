@@ -142,23 +142,6 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
         return b.build();
     }
 
-//    private State createDriveToBridge1() {
-//        return new State() {
-//            @Override
-//            public StateName act() {
-//                if(srr.getValue() == SkyStoneAutonomous.S.SKYSTONE_LEFT) {
-//                    return SkyStoneAutonomous.S.SKYSTONE_CLOSE_TO_BRIDGE;
-//                } else if (srr.getValue() == SkyStoneAutonomous.S.SKYSTONE_MIDDLE) {
-//                    return SkyStoneAutonomous.S.SKYSTONE_MIDDLE_TO_BRIDGE;
-//                } else if (srr.getValue() == SkyStoneAutonomous.S.SKYSTONE_RIGHT){
-//                    return SkyStoneAutonomous.S.SKYSTONE_FAR_TO_BRIDGE;
-//                }
-//                else {
-//                    return SkyStoneAutonomous.S.SKYSTONE_FAR_TO_BRIDGE;
-//                }
-//            }
-//        };
-//    }
 
 
     private State createProcessState() {
