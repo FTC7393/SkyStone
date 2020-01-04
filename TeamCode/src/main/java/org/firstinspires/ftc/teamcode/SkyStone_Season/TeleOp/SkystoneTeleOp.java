@@ -208,7 +208,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
         }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
-        if (driver1.dpad_left.justPressed()) {
+      /**  if (driver1.dpad_left.justPressed()) {
             skystoneServoPresetDown = !skystoneServoPresetDown;
             if(skystoneServoPresetDown) {
                 robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.DOWN);
@@ -216,7 +216,7 @@ public class SkystoneTeleOp extends AbstractTeleOp<SkystoneRobotCfg> {
                 robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.UP);
             }
         }
-
+*/
         if ((driver1.left_bumper.justPressed() && !driver2.left_bumper.isPressed()) ||
                 (driver2.left_bumper.justPressed() && !driver1.left_bumper.isPressed())){
             robotCfg.getFoundationMover().servosDown();
