@@ -131,12 +131,12 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
         };
 
         if(teamColor == TeamColor.BLUE) {
-            b.addDrive(S.DRIVE_1, S.DRIVE_2, Distance.fromFeet(0.5), 0.8, 270, 0, 0.5);
+            b.addDrive(S.DRIVE_1, S.DRIVE_2, Distance.fromFeet(0.5), 0.8, 90, 0, 0.5);
             b.addDrive(S.DRIVE_2, StateMap.of(
                     S.WAIT_1, EndConditions.timed(3000),
                     S.WAIT, EndConditions.valueCloseTo(sensor, 15, 1, true)
-            ), RotationControls.gyro(gyro, Angle.fromDegrees(270), Angle.fromDegrees(2), 0.3),
-                    TranslationControls.sensor(sensor, 0.02, new Vector2D(0.8, Angle.fromDegrees(270)),0.01, 15));
+            ), RotationControls.gyro(gyro, Angle.fromDegrees(0), Angle.fromDegrees(2), 0.3),
+                    TranslationControls.sensor(sensor, 0.02, new Vector2D(0.8, Angle.fromDegrees(90)),0.01, 15));
         }
         return b.build();
     }
