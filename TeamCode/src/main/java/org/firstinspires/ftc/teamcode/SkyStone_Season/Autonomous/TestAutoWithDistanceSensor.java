@@ -101,6 +101,7 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
         telemetry.addData("state for detetcting skystone", srr.getValue());
         telemetry.addData("ratio of both stones", pipeline.getStoneRatioII().getValue());
         telemetry.addData("state", stateMachine.getCurrentStateName());
+        robotCfg.getPlusYDistanceSensor().act();
     }
 
 
@@ -117,7 +118,7 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
          AnalogSensor sensor = new AnalogSensor() {
             @Override
             public Double getValue() {
-                return robotCfg.getPlusXDistanceSensor().getDistance(DistanceUnit.CM);
+                return robotCfg.getPlusYDistanceSensor().getValue();
             }
         };
 
