@@ -57,10 +57,7 @@ public class SkystoneRobotCfg extends RobotCfg {
                 Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backRight"), true, true, stoppers), scaleFactor), // 2
                 Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backLeft"), false, true, stoppers), scaleFactor), // 3
                 true, MAX_ROBOT_SPEED,MAX_ROBOT_SPEED_SIDEWAYS));
-//        collector  = hardwareMap.get(DcMotor.class, "collection");
-//        collector.setPower(0);
-//        collector.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//
+
         servos = new Servos(ServoCfg.createServoMap(hardwareMap, servoStartPresetMap));
 
         gyro = new IMUGyro(hardwareMap.get(BNO055IMU.class, "imu"));
@@ -68,8 +65,6 @@ public class SkystoneRobotCfg extends RobotCfg {
         flyWheels = new FlyWheels(
                 Motors.withoutEncoder(hardwareMap.dcMotor.get("leftFlywheel"), false, false, stoppers),
                 Motors.withoutEncoder(hardwareMap.dcMotor.get("rightFlywheel"), false, false, stoppers)
-//                Motors.withoutEncoder(hardwareMap.dcMotor.get("frontLeft"), false, false, stoppers),
-//                Motors.withoutEncoder(hardwareMap.dcMotor.get("frontRight"), false, false, stoppers)
 
         );
 
@@ -106,7 +101,6 @@ public class SkystoneRobotCfg extends RobotCfg {
     private final Servos servos;
 
     public SkystoneRobotCfg(HardwareMap hardwareMap) {
-        //this(hardwareMap, ServoCfg.defaultServoStartPresetMap(FutureFestServoEnum.values()));
         this(hardwareMap, ServoCfg.defaultServoStartPresetMap(SkystoneServoName.values()));
     }
 
@@ -128,10 +122,7 @@ public class SkystoneRobotCfg extends RobotCfg {
         RELEASE
     }
 
-//    public enum pushServoPresets {
-//        RETRACT,
-//        EJECT
-//    }
+
 
     public ServoControl getElbow() {
         return getServo(SkystoneServoName.ELBOW_SERVO);
@@ -143,7 +134,6 @@ public class SkystoneRobotCfg extends RobotCfg {
     public ServoControl getWrist() {
         return getServo(SkystoneServoName.WRIST_SERVO);
     }
-//    private DcMotor collector = null;
 
     private static final Velocity MAX_ROBOT_SPEED = new Velocity(Distance.fromInches(57 * 4), Time.fromSeconds(2.83));
     private static final Velocity MAX_ROBOT_SPEED_SIDEWAYS = new Velocity(Distance.fromInches(21.2441207039), Time.fromSeconds(1));
@@ -171,6 +161,7 @@ public class SkystoneRobotCfg extends RobotCfg {
         mecanumControl.act();
         flyWheels.act();
         liftArm.act();
+        plusYDistanceSensor.act();
     }
 
     @Override
@@ -189,9 +180,7 @@ public class SkystoneRobotCfg extends RobotCfg {
         return getServo(SkystoneServoName.LEFT_FOUNDATION_MOVER_SERVO);
     }
 
-    //    public DcMotor getCollector(){
-//        return collector;
-//    }
+
     public MecanumControl getMecanumControl() {
         return mecanumControl;
     }
