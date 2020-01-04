@@ -66,6 +66,7 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
     public void setup() {
         gyro = robotCfg.getGyro();
         mecanumControl = robotCfg.getMecanumControl();
+        pipeline = new ProcessPipeline(srr, 4, TeamColor.BLUE, canUpdateSRR);
 
         super.setup(); //Note: the superclass init method builds the state machine
 
@@ -73,6 +74,7 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
             @Override
             public void run() {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+
 //                phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
                 camera = new OpenCvWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
                 camera.openCameraDevice();
@@ -105,9 +107,7 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
         telemetry.addData("state", stateMachine.getCurrentStateName());
         telemetry.addData("current thread", Thread.currentThread().getName());
         telemetry.addData("state for detetcting skystone", srr.getValue());
-        if(pipeline.getStoneRatioII().getValue() != null) {
-            telemetry.addData("ratio of both stones", pipeline.getStoneRatioII().getValue());
-        }
+        telemetry.addData("ratio of both stones", pipeline.getStoneRatioII().getValue());
         telemetry.addData("state", stateMachine.getCurrentStateName());
         robotCfg.getPlusYDistanceSensor().act();
     }
