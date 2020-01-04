@@ -136,7 +136,7 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
                     S.WAIT_1, EndConditions.timed(3000),
                     S.WAIT, EndConditions.valueCloseTo(sensor, 15, 1, true)
             ), RotationControls.gyro(gyro, Angle.fromDegrees(270), Angle.fromDegrees(2), 0.3),
-                    TranslationControls.sensor(sensor, 0.02, new Vector2D(0.8, Angle.fromDegrees(90)),0.01, 15));
+                    TranslationControls.sensor(sensor, 0.02, new Vector2D(0.8, Angle.fromDegrees(270)),0.01, 15));
         }
         return b.build();
     }
