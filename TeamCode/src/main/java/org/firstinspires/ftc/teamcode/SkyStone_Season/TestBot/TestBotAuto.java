@@ -121,6 +121,7 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
 
     @Override
     protected void setup_act() {
+        robotCfg.getPods().act();
     }
 
     @Override

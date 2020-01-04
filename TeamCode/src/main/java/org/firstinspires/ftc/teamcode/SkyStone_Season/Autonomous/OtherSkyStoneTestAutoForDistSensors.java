@@ -5,41 +5,59 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.TestBot.TestBotAuto;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import ftc.electronvolts.statemachine.BasicAbstractState;
+import ftc.electronvolts.statemachine.EndCondition;
+import ftc.electronvolts.statemachine.EndConditions;
 import ftc.electronvolts.statemachine.State;
 import ftc.electronvolts.statemachine.StateMachine;
+import ftc.electronvolts.statemachine.StateMap;
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.TeamColor;
+import ftc.electronvolts.util.Vector2D;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.files.OptionsFile;
 import ftc.electronvolts.util.units.Angle;
 import ftc.electronvolts.util.units.Distance;
 import ftc.evlib.hardware.control.MecanumControl;
+import ftc.evlib.hardware.control.RotationControl;
+import ftc.evlib.hardware.control.RotationControls;
+import ftc.evlib.hardware.control.TranslationControls;
+import ftc.evlib.hardware.sensors.AveragedSensor;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
 import ftc.evlib.util.EVConverters;
 import ftc.evlib.util.FileUtil;
 
-@Autonomous(name = "SkyStoneAuto")
+@Autonomous(name = "DTEST SkyStoneAuto")
 
-public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
-    Gyro gyro;
-    MecanumControl mecanumControl;
-    OpenCvCamera camera;
-    private BasicResultReceiver<Boolean> rr = new BasicResultReceiver<>();
-    InputExtractor<StateName> s;
-    TeamColor teamColor = TeamColor.BLUE;
-    int minCycles = 10;
+public class OtherSkyStoneTestAutoForDistSensors extends AbstractAutoOp<SkystoneRobotCfg> {
+    private Gyro gyro;
+    private MecanumControl mecanumControl;
+    private OpenCvCamera camera;
+    private StateMachine initializingStateMachine;
+    private BasicResultReceiver<Boolean> cameraInitRR = new BasicResultReceiver<>();
+    private InputExtractor<StateName> s;
+    private TeamColor teamColor = TeamColor.BLUE;
+    private int minCycles = 10;
     private BasicResultReceiver<StateName> srr = new BasicResultReceiver<>();
     private BasicResultReceiver<Boolean> canUpdateSRR = new BasicResultReceiver<>();
+    private BasicResultReceiver<Boolean> initIsDoneRR = new BasicResultReceiver<>();
+
     private ProcessPipeline pipeline;
+
+    public OtherSkyStoneTestAutoForDistSensors() {
+        OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
+        teamColor = optionsFile.get(SkyStoneOptionsOp.Opts.TEAM_COLOR.s, SkyStoneOptionsOp.teamColorDefault);
+        pipeline = new ProcessPipeline(srr, minCycles, teamColor, canUpdateSRR);
+    }
 
     @Override
     protected SkystoneRobotCfg createRobotCfg() {
@@ -64,21 +82,56 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
                 s = pipeline.getStateNameII();
                 camera.setPipeline(pipeline);
                 camera.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
-                rr.setValue(true);
-
+                cameraInitRR.setValue(true);
             }
         };
 
-        Thread t = new Thread(r);
-        t.start();
+        final Thread cameraThread = new Thread(r);
 
         gyro = robotCfg.getGyro();
+
+        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(IS.INIT_GYRO, TeamColor.UNKNOWN, Angle.fromDegrees(2.5));
+        b.addCalibrateGyro(IS.INIT_GYRO, IS.EXTRA_GYRO_WAIT);
+        long extraGyroWaitTime = 5000L;
+        b.addWait(IS.EXTRA_GYRO_WAIT, IS.CAMERA_PREP, extraGyroWaitTime);
+        final long postCameraPause = 1500L;
+        b.add(IS.CAMERA_PREP, new BasicAbstractState() {
+            long postReadyTime = -1L;
+            @Override
+            public void init() {
+                cameraThread.start();
+            }
+
+            @Override
+            public boolean isDone() {
+                if (cameraInitRR.isReady()) {
+                    if (postReadyTime == -1) {
+                        postReadyTime = System.currentTimeMillis();
+                    } else if (System.currentTimeMillis() - postReadyTime > postCameraPause) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public StateName getNextStateName() {
+                initIsDoneRR.setValue(true);
+                return IS.POST_CAMERA_WAIT;
+            }
+        });
+        long postCameraWaitTime = 15000L;
+        b.addWait(IS.POST_CAMERA_WAIT, IS.STOP, postCameraWaitTime);
+        b.addStop(IS.STOP);
+        initializingStateMachine = b.build();
     }
 
     @Override
     protected void setup_act() {
+        initializingStateMachine.act();
         robotCfg.getPlusYDistanceSensor().act();
         telemetry.addData("Skystone position", srr.isReady() ? srr.getValue() : "not ready");
+        telemetry.addData("heading", String.format("%3.2f", robotCfg.getGyro().getHeading()));
         telemetry.addData("forwardX", robotCfg.getPlusXDistanceSensor().cmUltrasonic());
         telemetry.addData("backwardX", robotCfg.getMinusXDistanceSensor().cmUltrasonic());
         telemetry.addData("forwardY", robotCfg.getPlusYDistanceSensor().getValue());
@@ -96,13 +149,12 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         telemetry.addData("gyro", robotCfg.getGyro().getHeading());
         telemetry.addData("state", stateMachine.getCurrentStateName());
         telemetry.addData("current thread", Thread.currentThread().getName());
-        telemetry.addData("state for detetcting skystone", srr.getValue());
+        telemetry.addData("forwardX", robotCfg.getPlusXDistanceSensor().cmUltrasonic());
+        telemetry.addData("backwardX", robotCfg.getMinusXDistanceSensor().cmUltrasonic());
+        telemetry.addData("forwardY", robotCfg.getPlusYDistanceSensor().getValue());        telemetry.addData("state for detetcting skystone", srr.getValue());
         telemetry.addData("ratio of both stones", pipeline.getStoneRatioII().getValue());
         telemetry.addData("state", stateMachine.getCurrentStateName());
     }
-
-
-
 
 
     @Override
@@ -112,17 +164,33 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
     @Override
     public StateMachine buildStates() {
-        OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
-        teamColor = optionsFile.get(SkyStoneOptionsOp.Opts.TEAM_COLOR.s, SkyStoneOptionsOp.teamColorDefault);
-        pipeline = new ProcessPipeline(srr, minCycles, teamColor, canUpdateSRR);
-//        ResultReceiver<Boolean> cont = new BasicResultReceiver<>();
-        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.INIT_GYRO, teamColor, Angle.fromDegrees(3));
-        b.addCalibrateGyro(S.INIT_GYRO,S.STOP_CAMERA);
-        b.add(S.STOP_CAMERA, createProcessState());
-        b.addDrive(S.SKYSTONE_DRIVE_TO_LINE, S.PROCESS_SKYSTONE, Distance.fromFeet(.63), 0.25, 90, 0);
+        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.CAPTURE_SKYSTONE_LOCN_FROM_CAMERA, teamColor, Angle.fromDegrees(3));
+
+        b.add(S.CAPTURE_SKYSTONE_LOCN_FROM_CAMERA, createSkystoneFindingStateWithCamera());
+        b.addDrive(S.SKYSTONE_DRIVE_TO_LINE1, S.SKYSTONE_DRIVE_TO_LINE2, Distance.fromFeet(.5), 0.7, 90, 0);
+
+        AveragedSensor pods = robotCfg.getPlusYDistanceSensor();
+        double target1 = 14.0; // cm
+        double tolPods = 1.0;
+        double gainPods = 0.015;
+        double minVelPods = 0.13;
+        Vector2D dwsVel = new Vector2D(0.8, Angle.fromDegrees(90)); // dws = Drive With Sensor
+        b.addDrive( S.SKYSTONE_DRIVE_TO_LINE2,
+                StateMap.of(
+                        S.PROCESS_SKYSTONE, EndConditions.timed(5000),
+                        S.PROCESS_SKYSTONE, valueCloseTo(pods, target1, 5,tolPods, true)),
+                makeStdRC(0),
+                TranslationControls.sensor(pods, gainPods, dwsVel, minVelPods, target1));
+
         b.add(S.PROCESS_SKYSTONE, getSkyStonePosition());
 
         if(teamColor == TeamColor.BLUE) {
+
+            b.addDrive(S.SKYSTONE_LEFT, S.STOP, Distance.fromFeet(1), .25, 180, 0);
+            b.addDrive(S.SKYSTONE_MIDDLE, S.STOP, Distance.fromFeet(1), .25, 0, 0);
+            b.addDrive(S.SKYSTONE_RIGHT, S.STOP, Distance.fromFeet(2), .25, 0, 0);
+
+
 
             b.addDrive(S.SKYSTONE_LEFT, S.TURN_FOR_LEFT, Distance.fromFeet(2), .25, 180, 0);
             b.addGyroTurn(S.TURN_FOR_LEFT, S.DRIVE_LEFT, 45, Angle.fromDegrees(2), 0.3);
@@ -254,6 +322,48 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
       return b.build();
     }
 
+
+    public EndCondition valueCloseTo(InputExtractor<Double> inputExtractor, double target, int numTimes, double tolerance, boolean inclusive) {
+        return valueBetween(inputExtractor, numTimes, target - tolerance, target + tolerance, inclusive);
+    }
+    int numConsecutiveTimes = 0;
+
+    public  EndCondition valueBetween(final InputExtractor<Double> inputExtractor, final int requiredConsecutiveNumTimes, final double min, final double max, final boolean inclusive) {
+        return new EndCondition() {
+            @Override
+            public void init() {
+                numConsecutiveTimes = 0;
+            }
+            @Override
+            public boolean isDone() {
+                double value = inputExtractor.getValue();
+                if (inclusive) {
+                    if(min <= value && value <= max) {
+                        numConsecutiveTimes++;
+                    } else {
+                        numConsecutiveTimes = 0;
+                    }
+                } else {
+                    if (min < value && value < max) {
+                        numConsecutiveTimes++;
+                    } else {
+                        numConsecutiveTimes = 0;
+                    }
+                }
+                return numConsecutiveTimes >= requiredConsecutiveNumTimes;
+            }
+        };
+    }
+
+    private RotationControl makeStdRC(double deg) {
+        Angle DEFAULT_ANGULAR_TOL = Angle.fromDegrees(2.5);
+        double DEFAULT_MAX_ANG_SPEED = 0.5;
+        return makeStdRC(deg, DEFAULT_ANGULAR_TOL, DEFAULT_MAX_ANG_SPEED);
+    }
+    private RotationControl makeStdRC(double deg, Angle angleTol, double maxAngSpeed) {
+        return RotationControls.gyro(robotCfg.getGyro(), Angle.fromDegrees(deg), angleTol, maxAngSpeed);
+    }
+
 //    private State createDriveToBridge1() {
 //        return new State() {
 //            @Override
@@ -273,13 +383,13 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 //    }
 
 
-    private State createProcessState() {
+    private State createSkystoneFindingStateWithCamera() {
         return new State() {
             @Override
             public StateName act() {
                 if (srr.isReady()) {
                     camera.closeCameraDevice();
-                    return S.SKYSTONE_DRIVE_TO_LINE;
+                    return S.SKYSTONE_DRIVE_TO_LINE1;
                 }
                 return null;
             }
@@ -366,7 +476,12 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         SKYSTONE_RIGHT,
         DRIVE_2,
         STOP,
-        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, GOBACK, MOVETOBLOCKSAGAIN, GETLEFTBLOCKAGAIN, MIDDLEAGAIN, GETRIGHTBLOCKAGAIN, DRIVE_MIDDLE, DRIVE_RIGHT_BLUE, DRIVE_LEFT_BLUE, DRIVE_RIGHT_RED, DRIVE_LEFT_RED, GRAB_BLOCK_ONE, DRIVE_BACK, SKYSTONE_MIDDLE_TO_BRIDGE, SKYSTONE_CLOSE_TO_BRIDGE, SKYSTONE_FAR_TO_BRIDGE, DRIVE_TO_BRIDGE1, WAIT1, DRIVE_LEFT, DRIVE_RIGHT, INIT_GYRO, PICKUP_SKYSTONE1, PICKUP_SKYSTONE_LEFT, PICKUP_SYSTONE_RIGHT, PICKUP_SKYSTONE_RIGHT, SKYSTONE_LEFT_READY_FOR_BRIDGE, SKYSTONE_DRIVE_TO_FOUNDATION, SKYSTONE_DRIVE_TO_BUILDING_SITE, DROP_OFF_SKYSTONE, FOUNDATIONMOVE_BACK_UP_TO_TURN, FOUNDATIONMOVE_TURN, FOUNDATIONMOVE_FORWARD, SKYSTONE_DRIVE_TO_LINE, TURN_FOR_LEFT, STOP_CAMERA, TURN_FOR_MIDDLE, PICKUP_SKYSTONE_MIDDLE, SKYSTONE_MIDDLE_READY_FOR_BRIDGE, TURN_FOR_RIGHT, SKYSTONE_RIGHT_READY_FOR_BRIDGE, SKYSTONE_RIGHT_TO_BRIDGE, LET_GO_OF_FOUNDATION, MOVE_FOUNDATION_RIGHT, MOVE_FOUNDATION, LATCH_FOUNDATION_RIGHT, DRAG_FOUNDATION, LATCH_FOUNDATIOn, LATCH_FOUNDATION, PRE_DRAP_PAUSE, PRE_DRAG_PAUSE, RELEASE_FOUNDATION_RIGHT, RELEASE_FOUNDATION, DRIVE_BACK_TO_BRIDGE, PARK, AVOID_ROBOT, WAIT_BEFORE_DRIVE_TO_BUILDING_SITE, SKYSTONE_LEFT_DRIVE_TO_BRIDGE, RED_SKYSTONE_LEFT, RED_TURN_FOR_RIGHT, RED_DRIVE_RIGHT, RED_PICKUP_SKYSTONE_RIGHT, RED_SKYSTONE_LEFT_READY_FOR_BRIDGE, RED_SKYSTONE_LEFT_DRIVE_TO_BRIDGE, RED_SKYSTONE_DRIVE_TO_BUILDING_SITE, RED_SKYSTONE_DRIVE_TO_FOUNDATION, RED_DROP_OFF_SKYSTONE, RED_SKYSTONE_MIDDLE, RED_TURN_FOR_MIDDLE, RED_DRIVE_MIDDLE, RED_PICKUP_SKYSTONE_MIDDLE, RED_SKYSTONE_MIDDLE_READY_FOR_BRIDGE, RED_SKYSTONE_MIDDLE_TO_BRIDGE, RED_SKYSTONE_RIGHT_READY_FOR_BRIDGE, RED_SKYSTONE_RIGHT_TO_BRIDGE, RED_SKYSTONE_RIGHT, RED_PICKUP_SKYSTONE_LEFT, RED_DRIVE_LEFT, RED_TURN_FOR_LEFT, RED_FOUNDATIONMOVE_BACK_UP_TO_TURN, RED_FOUNDATIONMOVE_TURN, RED_FOUNDATIONMOVE_FORWARD, RED_LATCH_FOUNDATION, RED_LATCH_FOUNDATION_RIGHT, RED_PRE_DRAG_PAUSE, RED_DRAG_FOUNDATION, RED_RELEASE_FOUNDATION, RED_RELEASE_FOUNDATION_RIGHT, RED_DRIVE_BACK_TO_BRIDGE, RED_AVOID_ROBOT, RED_PARK, CORRECTING_DRIVE_RED, RED_READY_DRIVE_MIDDLE, RED_SKYSTONE_MIDDLE_TURN_READY_FOR_BRIDGE, RED_SKYSTONE_LEFT_TURN_READY_FOR_BRIDGE, RED_READY_DRIVE_LEFT, DETECTION_2
+        DETECTION_1, GETRIGHTBLOCK, GETLEFTBLOCK, MIDDLE, GRABBLOCK, GOTOSIDE, GOBACKUP, UNLOAD, GOBACK, MOVETOBLOCKSAGAIN, GETLEFTBLOCKAGAIN, MIDDLEAGAIN, GETRIGHTBLOCKAGAIN, DRIVE_MIDDLE, DRIVE_RIGHT_BLUE, DRIVE_LEFT_BLUE, DRIVE_RIGHT_RED, DRIVE_LEFT_RED, GRAB_BLOCK_ONE, DRIVE_BACK, SKYSTONE_MIDDLE_TO_BRIDGE, SKYSTONE_CLOSE_TO_BRIDGE, SKYSTONE_FAR_TO_BRIDGE, DRIVE_TO_BRIDGE1, WAIT1, DRIVE_LEFT, DRIVE_RIGHT, PICKUP_SKYSTONE1, PICKUP_SKYSTONE_LEFT, PICKUP_SYSTONE_RIGHT, PICKUP_SKYSTONE_RIGHT, SKYSTONE_LEFT_READY_FOR_BRIDGE, SKYSTONE_DRIVE_TO_FOUNDATION, SKYSTONE_DRIVE_TO_BUILDING_SITE, DROP_OFF_SKYSTONE, FOUNDATIONMOVE_BACK_UP_TO_TURN, FOUNDATIONMOVE_TURN, FOUNDATIONMOVE_FORWARD, SKYSTONE_DRIVE_TO_LINE1, SKYSTONE_DRIVE_TO_LINE2, TURN_FOR_LEFT, CAPTURE_SKYSTONE_LOCN_FROM_CAMERA, TURN_FOR_MIDDLE, PICKUP_SKYSTONE_MIDDLE, SKYSTONE_MIDDLE_READY_FOR_BRIDGE, TURN_FOR_RIGHT, SKYSTONE_RIGHT_READY_FOR_BRIDGE, SKYSTONE_RIGHT_TO_BRIDGE, LET_GO_OF_FOUNDATION, MOVE_FOUNDATION_RIGHT, MOVE_FOUNDATION, LATCH_FOUNDATION_RIGHT, DRAG_FOUNDATION, LATCH_FOUNDATIOn, LATCH_FOUNDATION, PRE_DRAP_PAUSE, PRE_DRAG_PAUSE, RELEASE_FOUNDATION_RIGHT, RELEASE_FOUNDATION, DRIVE_BACK_TO_BRIDGE, PARK, AVOID_ROBOT, WAIT_BEFORE_DRIVE_TO_BUILDING_SITE, SKYSTONE_LEFT_DRIVE_TO_BRIDGE, RED_SKYSTONE_LEFT, RED_TURN_FOR_RIGHT, RED_DRIVE_RIGHT, RED_PICKUP_SKYSTONE_RIGHT, RED_SKYSTONE_LEFT_READY_FOR_BRIDGE, RED_SKYSTONE_LEFT_DRIVE_TO_BRIDGE, RED_SKYSTONE_DRIVE_TO_BUILDING_SITE, RED_SKYSTONE_DRIVE_TO_FOUNDATION, RED_DROP_OFF_SKYSTONE, RED_SKYSTONE_MIDDLE, RED_TURN_FOR_MIDDLE, RED_DRIVE_MIDDLE, RED_PICKUP_SKYSTONE_MIDDLE, RED_SKYSTONE_MIDDLE_READY_FOR_BRIDGE, RED_SKYSTONE_MIDDLE_TO_BRIDGE, RED_SKYSTONE_RIGHT_READY_FOR_BRIDGE, RED_SKYSTONE_RIGHT_TO_BRIDGE, RED_SKYSTONE_RIGHT, RED_PICKUP_SKYSTONE_LEFT, RED_DRIVE_LEFT, RED_TURN_FOR_LEFT, RED_FOUNDATIONMOVE_BACK_UP_TO_TURN, RED_FOUNDATIONMOVE_TURN, RED_FOUNDATIONMOVE_FORWARD, RED_LATCH_FOUNDATION, RED_LATCH_FOUNDATION_RIGHT, RED_PRE_DRAG_PAUSE, RED_DRAG_FOUNDATION, RED_RELEASE_FOUNDATION, RED_RELEASE_FOUNDATION_RIGHT, RED_DRIVE_BACK_TO_BRIDGE, RED_AVOID_ROBOT, RED_PARK, CORRECTING_DRIVE_RED, RED_READY_DRIVE_MIDDLE, RED_SKYSTONE_MIDDLE_TURN_READY_FOR_BRIDGE, RED_SKYSTONE_LEFT_TURN_READY_FOR_BRIDGE, RED_READY_DRIVE_LEFT, DETECTION_2
 
     }
-}
+
+    public enum IS implements StateName {
+        INIT_GYRO, EXTRA_GYRO_WAIT, CAMERA_PREP, POST_CAMERA_WAIT, STOP;
+    }
+
+    }
