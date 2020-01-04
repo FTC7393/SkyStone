@@ -65,6 +65,7 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
     @Override
     public void setup() {
         gyro = robotCfg.getGyro();
+        mecanumControl = robotCfg.getMecanumControl();
 
         super.setup(); //Note: the superclass init method builds the state machine
 
