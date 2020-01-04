@@ -64,7 +64,10 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
 
     @Override
     public void setup() {
+        gyro = robotCfg.getGyro();
+
         super.setup(); //Note: the superclass init method builds the state machine
+
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -82,8 +85,6 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
 
         Thread t = new Thread(r);
         t.start();
-
-        gyro = robotCfg.getGyro();
     }
 
     @Override
