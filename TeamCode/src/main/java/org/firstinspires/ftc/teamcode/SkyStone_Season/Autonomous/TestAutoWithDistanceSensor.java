@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
@@ -34,6 +36,8 @@ import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
 import ftc.evlib.util.EVConverters;
 import ftc.evlib.util.FileUtil;
+
+@Autonomous(name = "TestAutoWithDistanceSensor")
 
 public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg> {
     Gyro gyro;
@@ -123,11 +127,11 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
         };
 
         if(teamColor == TeamColor.BLUE) {
-            b.addDrive(S.DRIVE_1, S.DRIVE_2, Distance.fromFeet(0.5), 0.8, 90, 0, 0.5);
+            b.addDrive(S.DRIVE_1, S.DRIVE_2, Distance.fromFeet(0.5), 0.8, 270, 0, 0.5);
             b.addDrive(S.DRIVE_2, StateMap.of(
                     S.WAIT_1, EndConditions.timed(3000),
                     S.WAIT, EndConditions.valueCloseTo(sensor, 15, 1, true)
-            ), RotationControls.gyro(gyro, Angle.fromDegrees(90), Angle.fromDegrees(2), 0.3),
+            ), RotationControls.gyro(gyro, Angle.fromDegrees(270), Angle.fromDegrees(2), 0.3),
                     TranslationControls.sensor(sensor, 0.02, new Vector2D(0.8, Angle.fromDegrees(90)),0.01, 15));
         }
         return b.build();
