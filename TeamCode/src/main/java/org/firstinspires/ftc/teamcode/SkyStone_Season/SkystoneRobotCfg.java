@@ -122,6 +122,16 @@ public class SkystoneRobotCfg extends RobotCfg {
         RELEASE
     }
 
+    public enum SideArm {
+        STOWED,
+        GRABBING,
+        CARRY,
+        PREDRIVE
+    }
+    public enum SideGrabber {
+        OPEN,
+        CLOSED
+    }
 
 
     public ServoControl getElbow() {
@@ -179,6 +189,12 @@ public class SkystoneRobotCfg extends RobotCfg {
     public ServoControl getLeftFoundationMover() {
         return getServo(SkystoneServoName.LEFT_FOUNDATION_MOVER_SERVO);
     }
+    public ServoControl SideArm() {
+        return getServo(SkystoneServoName.SIDEARM_SERVO);
+    }
+    public ServoControl SideGrabber() {
+        return getServo(SkystoneServoName.SIDEGRABBER_SERVO);
+    }
 
 
     public MecanumControl getMecanumControl() {
@@ -199,10 +215,6 @@ public class SkystoneRobotCfg extends RobotCfg {
         DOWN
     }
 
-    public enum StoneScraperServoPresets {
-        UP,
-        DOWN
-    }
 
 
     public Gyro getGyro() {
@@ -221,9 +233,7 @@ public class SkystoneRobotCfg extends RobotCfg {
         return liftArm;
     }
 
-    public ServoControl getStoneScraperServo() {
-        return getServo(SkystoneServoName.STONE_SCRAPER_SERVO);
-    }
+
 
     public ModernRoboticsI2cRangeSensor getPlusXDistanceSensor() {
         return plusXDistanceSensor;
@@ -247,7 +257,8 @@ public class SkystoneRobotCfg extends RobotCfg {
         FINGERS_SERVO("fingersServo", FingersServoPresets.values()),
         RIGHT_FOUNDATION_MOVER_SERVO("rightFoundationMoverServo", RightFoundationMoverServoPresets.values()),
         LEFT_FOUNDATION_MOVER_SERVO("leftFoundationMoverServo", LeftFoundationMoverServoPresets.values()),
-        STONE_SCRAPER_SERVO("stoneScraperServo", StoneScraperServoPresets.values());
+        SIDEARM_SERVO("stoneGrabberArm", SideArm.values()),
+        SIDEGRABBER_SERVO("stoneGrabberServo", SideGrabber.values());
 
 //        PUSH_SERVO("pushServo", RotateServoPresets.values());
 
