@@ -116,12 +116,18 @@ public class OtherSkyStoneTestAutoForDistSensors extends AbstractAutoOp<Skystone
 
             @Override
             public StateName getNextStateName() {
-                initIsDoneRR.setValue(true);
                 return IS.POST_CAMERA_WAIT;
             }
         });
         long postCameraWaitTime = 15000L;
-        b.addWait(IS.POST_CAMERA_WAIT, IS.STOP, postCameraWaitTime);
+        b.addWait(IS.POST_CAMERA_WAIT, IS.REPORT_INIT_DONE, postCameraWaitTime);
+        b.add(IS.REPORT_INIT_DONE, new State() {
+            @Override
+            public StateName act() {
+                initIsDoneRR.setValue(true);
+                return IS.STOP;
+            }
+        });
         b.addStop(IS.STOP);
         initializingStateMachine = b.build();
     }
@@ -164,10 +170,18 @@ public class OtherSkyStoneTestAutoForDistSensors extends AbstractAutoOp<Skystone
 
     @Override
     public StateMachine buildStates() {
-        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.CAPTURE_SKYSTONE_LOCN_FROM_CAMERA, teamColor, Angle.fromDegrees(3));
+        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.WAIT_FOR_INIT, teamColor, Angle.fromDegrees(3));
 
+        b.addResultReceiverReady(S.WAIT_FOR_INIT, S.CAPTURE_SKYSTONE_LOCN_FROM_CAMERA, initIsDoneRR);
         b.add(S.CAPTURE_SKYSTONE_LOCN_FROM_CAMERA, createSkystoneFindingStateWithCamera());
-        b.addDrive(S.SKYSTONE_DRIVE_TO_LINE1, S.SKYSTONE_DRIVE_TO_LINE2, Distance.fromFeet(.5), 0.7, 90, 0);
+        b.addDrive(S.SKYSTONE_DRIVE_TO_LINE1, S.TEST_PAUSE, Distance.fromFeet(.5), 0.7, 0, 0);
+
+        b.addWait(S.TEST_PAUSE, S.STOP, 1500L);
+
+
+
+
+
 
         AveragedSensor pods = robotCfg.getPlusYDistanceSensor();
         double target1 = 14.0; // cm
@@ -468,7 +482,9 @@ public class OtherSkyStoneTestAutoForDistSensors extends AbstractAutoOp<Skystone
 
     public enum S implements StateName {
 
+        WAIT_FOR_INIT,
         DRIVE_1,
+        TEST_PAUSE,
         PROCESS_SKYSTONE,
         DRIVE_STONE,
         SKYSTONE_MIDDLE,
@@ -481,7 +497,7 @@ public class OtherSkyStoneTestAutoForDistSensors extends AbstractAutoOp<Skystone
     }
 
     public enum IS implements StateName {
-        INIT_GYRO, EXTRA_GYRO_WAIT, CAMERA_PREP, POST_CAMERA_WAIT, STOP;
+        INIT_GYRO, EXTRA_GYRO_WAIT, CAMERA_PREP, POST_CAMERA_WAIT, REPORT_INIT_DONE, STOP;
     }
 
     }
