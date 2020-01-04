@@ -128,10 +128,34 @@ public class SkystoneRobotCfg extends RobotCfg {
         RELEASE
     }
 
-//    public enum pushServoPresets {
-//        RETRACT,
-//        EJECT
-//    }
+
+    public enum SideGrabberPresets {
+        RELEASE,
+        GRAB
+    }
+    public enum SideArmPresets {
+        STOWED,
+        CARRY,
+        PREDRIVE,
+        GRABBING
+
+    }
+
+    public enum RightFoundationMoverServoPresets {
+        UP,
+        DOWN
+    }
+
+    public enum LeftFoundationMoverServoPresets {
+        UP,
+        DOWN
+    }
+
+  //  public enum StoneScraperServoPresets {
+  //      UP,
+   //     DOWN
+   // }
+
 
     public ServoControl getElbow() {
         return getServo(SkystoneServoName.ELBOW_SERVO);
@@ -188,6 +212,12 @@ public class SkystoneRobotCfg extends RobotCfg {
     public ServoControl getLeftFoundationMover() {
         return getServo(SkystoneServoName.LEFT_FOUNDATION_MOVER_SERVO);
     }
+    public ServoControl getSkystoneGrabber() {
+        return getServo(SkystoneServoName.SKYSTONE_GRABBER_SERVO);
+    }
+    public ServoControl getSkystoneGrabberArm() {
+        return getServo(SkystoneServoName.SKYSTONE_GRABBER_ARM);
+    }
 
     //    public DcMotor getCollector(){
 //        return collector;
@@ -200,20 +230,6 @@ public class SkystoneRobotCfg extends RobotCfg {
         return foundationMover;
     }
 
-    public enum RightFoundationMoverServoPresets {
-        UP,
-        DOWN
-    }
-
-    public enum LeftFoundationMoverServoPresets {
-        UP,
-        DOWN
-    }
-
-    public enum StoneScraperServoPresets {
-        UP,
-        DOWN
-    }
 
 
     public Gyro getGyro() {
@@ -232,9 +248,7 @@ public class SkystoneRobotCfg extends RobotCfg {
         return liftArm;
     }
 
-    public ServoControl getStoneScraperServo() {
-        return getServo(SkystoneServoName.STONE_SCRAPER_SERVO);
-    }
+
 
     public ModernRoboticsI2cRangeSensor getPlusXDistanceSensor() {
         return plusXDistanceSensor;
@@ -258,8 +272,8 @@ public class SkystoneRobotCfg extends RobotCfg {
         FINGERS_SERVO("fingersServo", FingersServoPresets.values()),
         RIGHT_FOUNDATION_MOVER_SERVO("rightFoundationMoverServo", RightFoundationMoverServoPresets.values()),
         LEFT_FOUNDATION_MOVER_SERVO("leftFoundationMoverServo", LeftFoundationMoverServoPresets.values()),
-        STONE_SCRAPER_SERVO("stoneScraperServo", StoneScraperServoPresets.values());
-
+        SKYSTONE_GRABBER_SERVO("stoneGrabberServo", SideGrabberPresets.values()),
+        SKYSTONE_GRABBER_ARM("stoneGrabberArm", SideArmPresets.values());
 //        PUSH_SERVO("pushServo", RotateServoPresets.values());
 
         private final String hardwareName;

@@ -17,8 +17,10 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
     public static final String FILENAME = "options_skystone.txt";
     public static final String teamColorTag = "teamColor";
     public static final TeamColor teamColorDefault = TeamColor.BLUE;
+    public static final String doSkyStoneTag = "doSkyStone";
     private int index = 0;
     private Opts[] values;
+    public static boolean doSkyStoneDefault = true;
 
     /**
      * The filename will be set by the subclasses
@@ -70,6 +72,19 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
                 saveOptionsFile();
             }
         }
+
+        if(driver1.right_bumper.justPressed()) {
+            if(values[index] == Opts.DO_SKYSTONE) {
+                boolean doSkyStone = optionsFile.get(Opts.DO_SKYSTONE.s, doSkyStoneDefault);
+                if (doSkyStone) {
+                    doSkyStone = false;
+                } else {
+                    doSkyStone = true;
+                }
+                optionsFile.set(Opts.DO_SKYSTONE.s, doSkyStone);
+                saveOptionsFile();
+            }
+        }
 //        if(driver1.right_bumper.justPressed()) {
 //            if (values[index] == Opts.WAIT_TIME) {
 //                double waitTime = optionsFile.get(wait, waitDefault);
@@ -86,10 +101,13 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
 //            else {
 //                telemetry.addData("currentValue", optionsFile.get(values[index].s,false));
 //            }
-        if (values[index] == Opts.TEAM_COLOR) {
-            telemetry.addData(teamColorTag, optionsFile.get(values[index].s, teamColorDefault));
-            telemetry.addData("index", index);
-        }
+
+            telemetry.addData(teamColorTag, optionsFile.get(Opts.TEAM_COLOR.s, teamColorDefault));
+
+
+
+            telemetry.addData(doSkyStoneTag, optionsFile.get(Opts.DO_SKYSTONE.s, doSkyStoneDefault));
+
 
 
     }
@@ -104,7 +122,7 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
     }
 
     public enum Opts {
-        TEAM_COLOR(teamColorTag);
+        TEAM_COLOR(teamColorTag), DO_SKYSTONE(doSkyStoneTag);
 
         //        public boolean b;
 //        public double f;
