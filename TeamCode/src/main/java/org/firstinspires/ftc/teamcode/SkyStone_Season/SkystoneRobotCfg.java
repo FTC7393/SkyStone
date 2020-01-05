@@ -122,13 +122,13 @@ public class SkystoneRobotCfg extends RobotCfg {
         RELEASE
     }
 
-    public enum SideArm {
+    public enum SideArmPresets {
         STOWED,
         GRABBING,
         CARRY,
         PREDRIVE
     }
-    public enum SideGrabber {
+    public enum SideGrabberPresets {
         OPEN,
         CLOSED
     }
@@ -205,6 +205,15 @@ public class SkystoneRobotCfg extends RobotCfg {
         return foundationMover;
     }
 
+    public ServoControl getSideArm() {
+        return getServo(SkystoneServoName.SIDEARM_SERVO);
+    }
+
+    public ServoControl getSideGrabber() {
+        return getServo(SkystoneServoName.SIDEGRABBER_SERVO);
+    }
+
+
     public enum RightFoundationMoverServoPresets {
         UP,
         DOWN
@@ -257,8 +266,8 @@ public class SkystoneRobotCfg extends RobotCfg {
         FINGERS_SERVO("fingersServo", FingersServoPresets.values()),
         RIGHT_FOUNDATION_MOVER_SERVO("rightFoundationMoverServo", RightFoundationMoverServoPresets.values()),
         LEFT_FOUNDATION_MOVER_SERVO("leftFoundationMoverServo", LeftFoundationMoverServoPresets.values()),
-        SIDEARM_SERVO("stoneGrabberArm", SideArm.values()),
-        SIDEGRABBER_SERVO("stoneGrabberServo", SideGrabber.values());
+        SIDEARM_SERVO("stoneGrabberArm", SideArmPresets.values()),
+        SIDEGRABBER_SERVO("stoneGrabberServo", SideGrabberPresets.values());
 
 //        PUSH_SERVO("pushServo", RotateServoPresets.values());
 
