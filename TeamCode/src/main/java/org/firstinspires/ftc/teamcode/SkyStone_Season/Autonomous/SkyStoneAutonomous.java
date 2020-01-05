@@ -85,11 +85,11 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         };
 
         cameraInit = new Thread(r);
-
     }
 
     @Override
     protected void setup_act() {
+        telemetry.addData("state", stateMachine.getCurrentStateName());
         telemetry.addData("Skystone position", skystonePosStateRR.isReady() ? skystonePosStateRR.getValue() : "not ready");
         telemetry.addData("forwardX", robotCfg.getPlusXDistanceSensor().cmUltrasonic());
         telemetry.addData("backwardX", robotCfg.getMinusXDistanceSensor().cmUltrasonic());
