@@ -171,6 +171,9 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         b.addWait(S.WAIT_1, S.DECIDE_SKYSTONE, 500);
         b.add(S.DECIDE_SKYSTONE, getSkyStonePosition());
         b.addDrive(S.SKYSTONE_LEFT, S.GRABBLOCK, Distance.fromFeet(0.2), 0.5, 180, 0);
+        b.addDrive(S.SKYSTONE_MIDDLE, S.GRABBLOCK, Distance.fromFeet(0.1), 0.5, 0, 0);
+        b.addDrive(S.SKYSTONE_RIGHT, S.GRABBLOCK, Distance.fromFeet(0.3), 0.5, 0, 0);
+
 
         b.addStop(S.STOP1);
 
