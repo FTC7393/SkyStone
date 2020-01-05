@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -36,7 +37,7 @@ import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
 import ftc.evlib.util.EVConverters;
 import ftc.evlib.util.FileUtil;
-
+@Disabled
 @Autonomous(name = "TestAutoWithDistanceSensor")
 
 public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg> {

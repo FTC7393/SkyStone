@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.RoverRuckus.RoverRuckusTests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.RoverRuckus.RoverRuckusRobotCfg;
 
@@ -13,9 +14,8 @@ import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.TeamColor;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.units.Angle;
-
 @Autonomous(name = "RoverRuckusTestingAutoOp")
-
+@Disabled
 public class AutoTest extends AbstractAutoOp<RoverRuckusRobotCfg> {
     Gyro gyro;
     MecanumControl mecanumControl;

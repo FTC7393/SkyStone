@@ -17,6 +17,9 @@ import ftc.electronvolts.util.units.Angle;
  */
 
 public class RotationControls {
+
+    private static final double DEFAULT_GYRO_GAIN = 0.6;
+
     /**
      * No movement
      */
@@ -76,16 +79,20 @@ public class RotationControls {
         return gyro(gyro, targetHeading, tolerance, ftc.evlib.hardware.control.RotationControl.DEFAULT_MAX_ANGULAR_SPEED);
     }
 
-    /**
-     * Controls the rotation of a mecanum robot with a gyro sensor
-     *
-     * @param gyro            the gyro sensor
-     * @param targetHeading   the direction to rotate to
-     * @param tolerance       the deadzone
-     * @param maxAngularSpeed the max speed to rotate at
-     * @return the created RotationControl
-     */
     public static ftc.evlib.hardware.control.RotationControl gyro(final Gyro gyro, final Angle targetHeading, final Angle tolerance, final double maxAngularSpeed) {
+        return gyro(gyro, DEFAULT_GYRO_GAIN, targetHeading, tolerance, maxAngularSpeed);
+    }
+
+        /**
+         * Controls the rotation of a mecanum robot with a gyro sensor
+         *
+         * @param gyro            the gyro sensor
+         * @param targetHeading   the direction to rotate to
+         * @param tolerance       the deadzone
+         * @param maxAngularSpeed the max speed to rotate at
+         * @return the created RotationControl
+         */
+    public static ftc.evlib.hardware.control.RotationControl gyro(final Gyro gyro, double gain, final Angle targetHeading, final Angle tolerance, final double maxAngularSpeed) {
 //        OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile("AutoOptions.txt"));
 //        double gain = optionsFile.get("gyro_gain", Double.class);
 //        double max = optionsFile.get("gyro_max", Double.class);
@@ -94,7 +101,7 @@ public class RotationControls {
         double minAngularSpeed = 0.05;
         if (maxAngularSpeed < minAngularSpeed) minAngularSpeed = maxAngularSpeed;
         //                                                         gain,      innerDeadzone,                outerDeadzone,             minOutput,       maxOutput
-        final ControlLoop gyroControl = new ProportionalController(0.6, tolerance.abs().radians(), minAngularSpeed, maxAngularSpeed);
+        final ControlLoop gyroControl = new ProportionalController(gain, tolerance.abs().radians(), minAngularSpeed, maxAngularSpeed);
 
 //        final Vector2D targetHeadingVector = new Vector2D(1, Angle.multiply(targetHeading,-1));
         final Vector2D targetHeadingVector = new Vector2D(1, targetHeading);
