@@ -167,13 +167,13 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
         final double minVelocity = 0.08;
         final double podsGain = 0.012;
-        final int rotationGain = 1;
+        final int gyroGain = 1;
         final double maxAngularSpeed = 0.7;
         b.addDrive(S.DRIVE_TO_STONES, StateMap.of(
                 S.STOP, EndConditions.timed(5000),
                 S.TURN_1, valueBetween(7, podsSensor, 9, 1)
-        ), RotationControls.gyro(gyro, 1, Angle.fromDegrees(0), Angle.fromDegrees(2.5), 0.7),
-                TranslationControls.sensor(podsSensor, 0.02, new Vector2D(0.5, Angle.fromDegrees(90)), 0.08, 9));
+        ), RotationControls.gyro(gyro, gyroGain, Angle.fromDegrees(0), tolerance, maxAngularSpeed),
+                TranslationControls.sensor(podsSensor, podsGain, new Vector2D(0.5, Angle.fromDegrees(90)), minVelocity, 9));
         b.addGyroTurn(S.TURN_1, S.DECIDE_SKYSTONE, 0);
         b.add(S.DECIDE_SKYSTONE, getSkyStonePosition());
         b.addDrive(S.SKYSTONE_LEFT, S.GRABBLOCK, Distance.fromFeet(1.1), 0.5, 180, 0);
