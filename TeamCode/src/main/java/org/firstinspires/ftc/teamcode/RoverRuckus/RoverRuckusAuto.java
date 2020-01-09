@@ -31,6 +31,7 @@ public class RoverRuckusAuto extends AbstractOp<RoverRuckusRobotCfg> {
     MecanumControl mecanumControl;
     Angle tolerance=Angle.fromRadians(0);
     double maxAngularSpeed=.5;
+    private double gyroGain = 0.6;
 
 
     private enum StateName {
@@ -202,7 +203,7 @@ public class RoverRuckusAuto extends AbstractOp<RoverRuckusRobotCfg> {
 
         mecanumControl.setDriveMode(MecanumMotors.MecanumDriveMode.NORMALIZED);
 
-        RotationControl rotationControl=RotationControls.gyro(gyro, Angle.fromDegrees(orientation), tolerance, maxAngularSpeed);
+        RotationControl rotationControl=RotationControls.gyro(gyro, gyroGain, Angle.fromDegrees(orientation), tolerance, maxAngularSpeed);
         TranslationControl translationControl=TranslationControls.constant(velocity,Angle.fromDegrees(direction));
 
 
@@ -210,7 +211,7 @@ public class RoverRuckusAuto extends AbstractOp<RoverRuckusRobotCfg> {
     }
     public  boolean mecanumDrive( final Distance distance, final double velocity, final double direction, final double orientation)
     {
-        return mecanumDrive(distance, mecanumControl, RotationControls.gyro(gyro, Angle.fromDegrees(orientation), tolerance, maxAngularSpeed), TranslationControls.constant(velocity, Angle.fromDegrees(direction)));
+        return mecanumDrive(distance, mecanumControl, RotationControls.gyro(gyro, gyroGain, Angle.fromDegrees(orientation), tolerance, maxAngularSpeed), TranslationControls.constant(velocity, Angle.fromDegrees(direction)));
     }
     public  boolean mecanumDrive(final Distance distance,  MecanumControl mecanumControl, final RotationControl rotationControl, final TranslationControl translationControl)
     {

@@ -127,6 +127,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     @Override
     public StateMachine buildStates() {
 
+        final Angle tolerance = Angle.fromDegrees(2.5);
         AnalogSensor podsSensor = new AnalogSensor() {
             @Override
             public Double getValue() {
@@ -138,7 +139,8 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         teamColor = optionsFile.get(SkyStoneOptionsOp.Opts.TEAM_COLOR.s, SkyStoneOptionsOp.teamColorDefault);
         doSkyStone = optionsFile.get(SkyStoneOptionsOp.Opts.DO_SKYSTONE.s, SkyStoneOptionsOp.doSkyStoneDefault);
         pipeline = new ProcessPipeline(skystonePosStateRR, minCycles, teamColor, canUpdateSRR);
-        EVStateMachineBuilder b = robotCfg.createEVStateMachineBuilder(S.INIT_GYRO, teamColor, Angle.fromDegrees(3));
+        EVStateMachineBuilder b = new EVStateMachineBuilder(S.INIT_GYRO, teamColor, tolerance,
+                robotCfg.getGyro(), 0.6, 0.7, robotCfg.getServos(), robotCfg.getMecanumControl());
         b.addCalibrateGyro(S.INIT_GYRO,S.POST_GYRO_WAIT);
         b.addWait(S.POST_GYRO_WAIT, S.INIT_CAMERA, 4000L);
         b.add(S.INIT_CAMERA, new BasicAbstractState() {
@@ -163,11 +165,15 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
         b.addDrive(S.DRIVE_FORWARD, S.DRIVE_TO_STONES, Distance.fromFeet(0.9), 0.6, 90,0);
 
+        final double minVelocity = 0.08;
+        final double podsGain = 0.012;
+        final int rotationGain = 1;
+        final double maxAngularSpeed = 0.7;
         b.addDrive(S.DRIVE_TO_STONES, StateMap.of(
                 S.STOP, EndConditions.timed(3000),
                 S.TURN_1, valueBetween(7, podsSensor, 9, 1)
-        ), RotationControls.gyro(gyro, 1, Angle.fromDegrees(0), Angle.fromDegrees(2.5), 0.7),
-                TranslationControls.sensor(podsSensor, 0.012, new Vector2D(0.5, Angle.fromDegrees(90)), 0.08, 9));
+        ), RotationControls.gyro(gyro, rotationGain, Angle.fromDegrees(0), tolerance, maxAngularSpeed),
+                TranslationControls.sensor(podsSensor, podsGain, new Vector2D(0.5, Angle.fromDegrees(90)), minVelocity, 9));
         b.addGyroTurn(S.TURN_1, S.DECIDE_SKYSTONE, 0);
         b.add(S.DECIDE_SKYSTONE, getSkyStonePosition());
         b.addDrive(S.SKYSTONE_LEFT, S.GRABBLOCK, Distance.fromFeet(1.1), 0.5, 180, 0);
@@ -399,10 +405,11 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
 
     private State createCollectorDriveState(final StateName nextState, double direction,
-                                            double orientation, double speed, double distance, final double collectorSpeed) {
+                                            double orientation, double speed, double distance, final double collectorSpeed,
+                                            final double gyroGain) {
         double maxAngSpeed = 0.5;
         final State s = ftc.evlib.statemachine.EVStates.mecanumDrive(nextState,
-                Distance.fromFeet(distance),robotCfg.getMecanumControl(), robotCfg.getGyro(), speed,
+                Distance.fromFeet(distance), robotCfg.getMecanumControl(),robotCfg.getGyro(), gyroGain, speed,
                 Angle.fromDegrees(direction), Angle.fromDegrees(orientation), Angle.fromDegrees(2), maxAngSpeed);
 
         return new BasicAbstractState() {

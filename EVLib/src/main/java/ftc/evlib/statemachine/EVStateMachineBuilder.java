@@ -42,6 +42,8 @@ public class EVStateMachineBuilder extends StateMachineBuilder {
     private final Gyro gyro;
 //    private final FrameGrabber frameGrabber;
     private final Servos servos;
+    private final double gyroGain;
+    private final double maxAngularSpeed;
 
     /**
      * any of the parameters can be null if the robot does not have it
@@ -53,6 +55,7 @@ public class EVStateMachineBuilder extends StateMachineBuilder {
      * @param mecanumControl the mecanum wheel controller
      */
     public EVStateMachineBuilder(StateName firstStateName, TeamColor teamColor, Angle tolerance, Gyro gyro,
+                                 double gyroGain, double maxAngularSpeed,
                                  //FrameGrabber frameGrabber,
                                  Servos servos, MecanumControl mecanumControl) {
         super(firstStateName);
@@ -62,10 +65,13 @@ public class EVStateMachineBuilder extends StateMachineBuilder {
         this.gyro = gyro;
 //        this.frameGrabber = frameGrabber;
         this.servos = servos;
+        this.gyroGain = gyroGain;
+        this.maxAngularSpeed = maxAngularSpeed;
     }
 
     public EVStateMachineBuilder(StateName firstStateName, EVStateMachineBuilder b) {
         this(firstStateName, b.teamColor, b.tolerance, b.gyro,
+                b.gyroGain, b.maxAngularSpeed,
                 // b.frameGrabber,
                 b.servos, b.mecanumControl);
     }
@@ -86,44 +92,44 @@ public class EVStateMachineBuilder extends StateMachineBuilder {
 
     ///// START DRIVE STATES /////
     public void addDrive(StateName stateName, Map<StateName, EndCondition> transitions, double velocity, double directionDegrees, double orientationDegrees, double maxAngularSpeed) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro, velocity, Angle.fromDegrees(directionDegrees), Angle.fromDegrees(orientationDegrees), tolerance, maxAngularSpeed));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro, gyroGain, velocity, Angle.fromDegrees(directionDegrees), Angle.fromDegrees(orientationDegrees), tolerance, maxAngularSpeed));
     }
 
     public void addDrive(StateName stateName, Map<StateName, EndCondition> transitions, double velocity, double directionDegrees, double orientationDegrees) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro, velocity, Angle.fromDegrees(directionDegrees), Angle.fromDegrees(orientationDegrees), tolerance));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro,gyroGain, velocity, Angle.fromDegrees(directionDegrees), Angle.fromDegrees(orientationDegrees), tolerance));
     }
 
     public void addDrive(StateName stateName, Map<StateName, EndCondition> transitions, double velocity, Angle direction, Angle orientation, double maxAngularSpeed) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro, velocity, direction, orientation, tolerance, maxAngularSpeed));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro, gyroGain, velocity, direction, orientation, tolerance, maxAngularSpeed));
     }
 
     public void addDrive(StateName stateName, Map<StateName, EndCondition> transitions, double velocity, Angle direction, Angle orientation) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro, velocity, direction, orientation, tolerance));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro, gyroGain, velocity, direction, orientation, tolerance));
     }
 
 
     public void addDrive(StateName stateName, StateName nextStateName, Distance distance, double velocity, double directionDegrees, double orientationDegrees, double maxAngularSpeed) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, velocity, Angle.fromDegrees(directionDegrees), Angle.fromDegrees(orientationDegrees), tolerance, maxAngularSpeed));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, gyroGain, velocity, Angle.fromDegrees(directionDegrees), Angle.fromDegrees(orientationDegrees), tolerance, maxAngularSpeed));
     }
 
     public void addDrive(StateName stateName, StateName nextStateName, Distance distance, double velocity, double directionDegrees, double orientationDegrees) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, velocity, Angle.fromDegrees(directionDegrees), Angle.fromDegrees(orientationDegrees), tolerance));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, gyroGain, velocity, Angle.fromDegrees(directionDegrees), Angle.fromDegrees(orientationDegrees), tolerance, maxAngularSpeed));
     }
 
     public void addDrive(StateName stateName, StateName nextStateName, Distance distance, double velocity, Angle direction, Angle orientation, double maxAngularSpeed) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, velocity, direction, orientation, tolerance, maxAngularSpeed));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, gyroGain, velocity, direction, orientation, tolerance, maxAngularSpeed));
     }
 
     public void addDrive(StateName stateName, StateName nextStateName, Distance distance, double velocity, Angle direction, Angle orientation) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, velocity, direction, orientation, tolerance));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, gyroGain, velocity, direction, orientation, tolerance, maxAngularSpeed));
     }
 
     public void addDrive(StateName stateName, StateName nextStateName, Distance distance, double velocity, Angle direction, Angle orientation, Angle tolerance, double maxAngularSpeed) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, velocity, direction, orientation, tolerance, maxAngularSpeed));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, gyroGain, velocity, direction, orientation, tolerance, maxAngularSpeed));
     }
 
     public void addDrive(StateName stateName, StateName nextStateName, Distance distance, double velocity, Angle direction, Angle orientation, Angle tolerance) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, velocity, direction, orientation, tolerance));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, gyroGain, velocity, direction, orientation, tolerance, maxAngularSpeed));
     }
 
 
@@ -145,78 +151,78 @@ public class EVStateMachineBuilder extends StateMachineBuilder {
 
 
     public void addDrive(StateName stateName, Map<StateName, EndCondition> transitions, Vector2D vector2D, double orientationDegrees, double maxAngularSpeed) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro, vector2D, Angle.fromDegrees(orientationDegrees), tolerance, maxAngularSpeed));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro, gyroGain, vector2D, Angle.fromDegrees(orientationDegrees), tolerance, maxAngularSpeed));
     }
 
     public void addDrive(StateName stateName, Map<StateName, EndCondition> transitions, Vector2D vector2D, double orientationDegrees) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro, vector2D, Angle.fromDegrees(orientationDegrees), tolerance));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro, gyroGain, vector2D, Angle.fromDegrees(orientationDegrees), tolerance));
     }
 
     public void addDrive(StateName stateName, Map<StateName, EndCondition> transitions, Vector2D vector2D, Angle orientation, double maxAngularSpeed) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro, vector2D, orientation, tolerance, maxAngularSpeed));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro, gyroGain, vector2D, orientation, tolerance, maxAngularSpeed));
     }
 
     public void addDrive(StateName stateName, Map<StateName, EndCondition> transitions, Vector2D vector2D, Angle orientation) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro, vector2D, orientation, tolerance));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(transitions, mecanumControl, gyro, gyroGain, vector2D, orientation, tolerance));
     }
 
 
     public void addDrive(StateName stateName, StateName nextStateName, Distance distance, Vector2D vector2D, double orientationDegrees, double maxAngularSpeed) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, vector2D, Angle.fromDegrees(orientationDegrees), tolerance, maxAngularSpeed));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, gyroGain, vector2D, Angle.fromDegrees(orientationDegrees), tolerance, maxAngularSpeed));
     }
 
     public void addDriveWithSensor(StateName stateName, StateName nextStateName, Distance distance, Vector2D vector2D, double orientationDegrees, double maxAngularSpeed, InputExtractor<Double> sensorReading, double sensorTolerance, double gain, double minVelocity) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDriveWithSensor(nextStateName, distance,sensorReading, sensorTolerance,gain, gyro,mecanumControl,  vector2D, minVelocity, Angle.fromDegrees(orientationDegrees), tolerance, maxAngularSpeed));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDriveWithSensor(nextStateName, distance,sensorReading, sensorTolerance,gain, gyro, gyroGain,mecanumControl,  vector2D, minVelocity, Angle.fromDegrees(orientationDegrees), tolerance, maxAngularSpeed));
     }
 
     public void addDrive(StateName stateName, StateName nextStateName, Distance distance, Vector2D vector2D, double orientationDegrees) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, vector2D, Angle.fromDegrees(orientationDegrees), tolerance));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, gyroGain, vector2D, Angle.fromDegrees(orientationDegrees), tolerance, maxAngularSpeed));
     }
 
     public void addDrive(StateName stateName, StateName nextStateName, Distance distance, Vector2D vector2D, Angle orientation, double maxAngularSpeed) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, vector2D, orientation, tolerance, maxAngularSpeed));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, gyroGain, vector2D, orientation, tolerance, maxAngularSpeed));
     }
 
     public void addDrive(StateName stateName, StateName nextStateName, Distance distance, Vector2D vector2D, Angle orientation) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, vector2D, orientation, tolerance));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, gyroGain, vector2D, orientation, tolerance, maxAngularSpeed));
     }
 
     public void addDrive(StateName stateName, StateName nextStateName, Distance distance, Vector2D vector2D, Angle orientation, Angle tolerance, double maxAngularSpeed) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, vector2D, orientation, tolerance, maxAngularSpeed));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, gyroGain, vector2D, orientation, tolerance, maxAngularSpeed));
     }
 
     public void addDrive(StateName stateName, StateName nextStateName, Distance distance, Vector2D vector2D, Angle orientation, Angle tolerance) {
-        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, vector2D, orientation, tolerance));
+        add(stateName, ftc.evlib.statemachine.EVStates.mecanumDrive(nextStateName, distance, mecanumControl, gyro, gyroGain, vector2D, orientation, tolerance, maxAngularSpeed));
     }
     ///// END DRIVE STATES /////
 
     ///// START TURN STATES /////
     public void addGyroTurn(StateName stateName, StateName nextStateName, double orientationDegrees) {
-        add(stateName, ftc.evlib.statemachine.EVStates.gyroTurn(nextStateName, mecanumControl, gyro, Angle.fromDegrees(orientationDegrees), tolerance));
+        add(stateName, ftc.evlib.statemachine.EVStates.gyroTurn(nextStateName, mecanumControl, gyro, gyroGain, Angle.fromDegrees(orientationDegrees), tolerance));
 //        add(stateName, EVStates.mecanumDrive(nextStateName, Distance.zero(), mecanumControl, gyro, 0, Angle.zero(), Angle.fromDegrees(orientationDegrees), Angle.fromDegrees(toleranceDegrees)));
     }
 
     public void addGyroTurn(StateName stateName, StateName nextStateName, double orientationDegrees, Angle tolerance) {
-        add(stateName, ftc.evlib.statemachine.EVStates.gyroTurn(nextStateName, mecanumControl, gyro, Angle.fromDegrees(orientationDegrees), tolerance));
+        add(stateName, ftc.evlib.statemachine.EVStates.gyroTurn(nextStateName, mecanumControl, gyro, gyroGain, Angle.fromDegrees(orientationDegrees), tolerance));
 //        add(stateName, EVStates.mecanumDrive(nextStateName, Distance.zero(), mecanumControl, gyro, 0, Angle.zero(), Angle.fromDegrees(orientationDegrees), Angle.fromDegrees(toleranceDegrees)));
     }
     public void addGyroTurn(StateName stateName, StateName nextStateName, double orientationDegrees, Angle tolerance,double speed) {
-        add(stateName, ftc.evlib.statemachine.EVStates.gyroTurn(nextStateName, mecanumControl, gyro, Angle.fromDegrees(orientationDegrees), tolerance,speed));
+        add(stateName, ftc.evlib.statemachine.EVStates.gyroTurn(nextStateName, mecanumControl, gyro, gyroGain, Angle.fromDegrees(orientationDegrees), tolerance,speed));
 //        add(stateName, EVStates.mecanumDrive(nextStateName, Distance.zero(), mecanumControl, gyro, 0, Angle.zero(), Angle.fromDegrees(orientationDegrees), Angle.fromDegrees(toleranceDegrees)));
     }
     public void addGyroTurn(StateName stateName, StateName nextStateName, double orientationDegrees,double speed) {
-        add(stateName, ftc.evlib.statemachine.EVStates.gyroTurn(nextStateName, mecanumControl, gyro, Angle.fromDegrees(orientationDegrees), tolerance,speed));
+        add(stateName, ftc.evlib.statemachine.EVStates.gyroTurn(nextStateName, mecanumControl, gyro, gyroGain, Angle.fromDegrees(orientationDegrees), tolerance,speed));
 //        add(stateName, EVStates.mecanumDrive(nextStateName, Distance.zero(), mecanumControl, gyro, 0, Angle.zero(), Angle.fromDegrees(orientationDegrees), Angle.fromDegrees(toleranceDegrees)));
     }
 
 
     public void addGyroTurn(StateName stateName, StateName nextStateName, Angle orientation) {
-        add(stateName, ftc.evlib.statemachine.EVStates.gyroTurn(nextStateName, mecanumControl, gyro, orientation, tolerance));
+        add(stateName, ftc.evlib.statemachine.EVStates.gyroTurn(nextStateName, mecanumControl, gyro, gyroGain, orientation, tolerance));
 //        add(stateName, EVStates.mecanumDrive(nextStateName, Distance.zero(), mecanumControl, gyro, 0, Angle.zero(), orientation, tolerance));
     }
 
     public void addGyroTurn(StateName stateName, StateName nextStateName, Angle orientation, Angle tolerance) {
-        add(stateName, ftc.evlib.statemachine.EVStates.gyroTurn(nextStateName, mecanumControl, gyro, orientation, tolerance));
+        add(stateName, ftc.evlib.statemachine.EVStates.gyroTurn(nextStateName, mecanumControl, gyro, gyroGain, orientation, tolerance));
 //        add(stateName, EVStates.mecanumDrive(nextStateName, Distance.zero(), mecanumControl, gyro, 0, Angle.zero(), orientation, tolerance));
     }
     ///// END TURN STATES /////

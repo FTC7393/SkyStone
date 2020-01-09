@@ -63,6 +63,9 @@ public class RoverRuckusRobotCfg extends RobotCfg {
     private IMUGyro gyro;
     private final Servos servos;
     ServoControl backFoot;
+    private double maxAngularSpeed = 0.7;
+    private double gyroGain = 0.6;
+
 
     public MotorEnc getTestMotor() {
         return backLeft;
@@ -355,7 +358,7 @@ public class RoverRuckusRobotCfg extends RobotCfg {
         return loggerColumns;
     }
     public EVStateMachineBuilder createEVStateMachineBuilder(StateName firstStateName, TeamColor teamColor, Angle tolerance) {
-        return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, servos, mecanumControl);
+        return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, gyroGain, maxAngularSpeed, servos, mecanumControl);
 }
 
 }

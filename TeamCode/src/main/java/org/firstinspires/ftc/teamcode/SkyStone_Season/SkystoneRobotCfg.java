@@ -234,9 +234,7 @@ public class SkystoneRobotCfg extends RobotCfg {
         return flyWheels;
     }
 
-    public EVStateMachineBuilder createEVStateMachineBuilder(StateName firstStateName, TeamColor teamColor, Angle tolerance) {
-        return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, servos, mecanumControl);
-    }
+
 
     public LiftArm getLiftArm() {
         return liftArm;

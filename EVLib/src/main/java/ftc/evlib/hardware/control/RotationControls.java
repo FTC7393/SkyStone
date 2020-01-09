@@ -18,7 +18,7 @@ import ftc.electronvolts.util.units.Angle;
 
 public class RotationControls {
 
-    private static final double DEFAULT_GYRO_GAIN = 0.6;
+//    private static final double DEFAULT_GYRO_GAIN = 0.6; <- one possible good gyro gain, was used for a while
 
     /**
      * No movement
@@ -75,13 +75,7 @@ public class RotationControls {
         };
     }
 
-    public static ftc.evlib.hardware.control.RotationControl gyro(Gyro gyro, Angle targetHeading, Angle tolerance) {
-        return gyro(gyro, targetHeading, tolerance, ftc.evlib.hardware.control.RotationControl.DEFAULT_MAX_ANGULAR_SPEED);
-    }
 
-    public static ftc.evlib.hardware.control.RotationControl gyro(final Gyro gyro, final Angle targetHeading, final Angle tolerance, final double maxAngularSpeed) {
-        return gyro(gyro, DEFAULT_GYRO_GAIN, targetHeading, tolerance, maxAngularSpeed);
-    }
 
         /**
          * Controls the rotation of a mecanum robot with a gyro sensor
@@ -152,17 +146,6 @@ public class RotationControls {
         };
     }
 
-    /**
-     * Use driver input and do gyro stabilization when the input is zero
-     * Apply corrections at the default max rotation speed
-     *
-     * @param driver the driver input
-     * @param gyro   the gyro to use for stabilization
-     * @return the created RotationControl
-     */
-    public static ftc.evlib.hardware.control.RotationControl teleOpGyro(InputExtractor<Double> driver, Gyro gyro, Angle tolerance) {
-        return teleOpGyro(driver, gyro, tolerance, ftc.evlib.hardware.control.RotationControl.DEFAULT_MAX_ANGULAR_SPEED);
-    }
 
 
     private enum TeleOpGyroMode {
@@ -180,7 +163,8 @@ public class RotationControls {
      * @param maxAngularSpeed the maximum speed to rotate at when doing gyro stabilization
      * @return the created RotationControl
      */
-    public static ftc.evlib.hardware.control.RotationControl teleOpGyro(final InputExtractor<Double> driver, final Gyro gyro, final Angle tolerance, final double maxAngularSpeed) {
+    public static ftc.evlib.hardware.control.RotationControl teleOpGyro(final InputExtractor<Double> driver, final Gyro gyro,
+                                                                        final Angle tolerance, final double maxAngularSpeed, final double gyroGain) {
         final long DELAY_BEFORE_GYRO_CONTROL = 500;
         final long INIT_TIME = 4000;
 
@@ -227,7 +211,7 @@ public class RotationControls {
                         if (System.currentTimeMillis() - driverEndTime >= DELAY_BEFORE_GYRO_CONTROL) {
                             mode = TeleOpGyroMode.GYRO;
                             //initialize the gyroControl
-                            gyroControl = gyro(gyro, Angle.fromDegrees(gyroHeading), tolerance, maxAngularSpeed);
+                            gyroControl = gyro(gyro, gyroGain, Angle.fromDegrees(gyroHeading), tolerance, maxAngularSpeed);
                         } else {
                             return true;
                         }
