@@ -90,6 +90,8 @@ public class RobotCfg2017 extends RobotCfg {
 
 
     private IMUGyro gyro;
+    private final double gyroGain = 0.6;
+    private final double maxAngularSpeed = 0.8;
 
 
     public Grabber getGrabber() {
@@ -426,7 +428,7 @@ public class RobotCfg2017 extends RobotCfg {
     }
 
     public EVStateMachineBuilder createEVStateMachineBuilder(StateName firstStateName, TeamColor teamColor, Angle tolerance) {
-        return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, servos, mecanumControl);
+        return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, gyroGain, maxAngularSpeed, servos, mecanumControl);
     }
 
 }
