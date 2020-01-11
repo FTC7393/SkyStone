@@ -38,7 +38,8 @@ import ftc.evlib.statemachine.EVStateMachineBuilder;
 public class SkystoneRobotCfg extends RobotCfg {
 
     private final FlyWheels flyWheels;
-    private Gyro gyro;
+    private final Gyro gyro1;
+    private Gyro gyro0;
     private final LiftArm liftArm;
     private final FoundationMover foundationMover;
     private final ModernRoboticsI2cRangeSensor plusXDistanceSensor;
@@ -60,7 +61,8 @@ public class SkystoneRobotCfg extends RobotCfg {
 
         servos = new Servos(ServoCfg.createServoMap(hardwareMap, servoStartPresetMap));
 
-        gyro = new IMUGyro(hardwareMap.get(BNO055IMU.class, "imu"));
+        gyro0 = new IMUGyro(hardwareMap.get(BNO055IMU.class, "imu0"));
+        gyro1 = new IMUGyro(hardwareMap.get(BNO055IMU.class, "imu1"));
 
         flyWheels = new FlyWheels(
                 Motors.withoutEncoder(hardwareMap.dcMotor.get("leftFlywheel"), false, false, stoppers),
@@ -179,7 +181,7 @@ public class SkystoneRobotCfg extends RobotCfg {
         mecanumControl.stop();
         flyWheels.stop();
         liftArm.stop();
-        gyro.stop();
+        gyro0.stop();
     }
 
     public Servos getServos(){
@@ -227,7 +229,7 @@ public class SkystoneRobotCfg extends RobotCfg {
 
 
     public Gyro getGyro() {
-        return gyro;
+        return gyro0;
     }
 
     public FlyWheels getFlyWheels() {
