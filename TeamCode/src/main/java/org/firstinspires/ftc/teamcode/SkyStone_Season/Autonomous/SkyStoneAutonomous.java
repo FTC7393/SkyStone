@@ -47,6 +47,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     private int minCycles = 10;
     private BasicResultReceiver<StateName> skystonePosStateRR = new BasicResultReceiver<>();
     private BasicResultReceiver<Boolean> canUpdateSRR = new BasicResultReceiver<>();
+
     private ProcessPipeline pipeline;
     private boolean doSkyStone = true;
     private Thread cameraInit;
@@ -65,7 +66,8 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     @Override
     public void setup() {
         gyro = robotCfg.getGyro();
-        pipeline = new ProcessPipeline(skystonePosStateRR, minCycles, teamColor, canUpdateSRR);
+        pipeline = new ProcessPipeline(skystonePosStateRR, minCycles, teamColor, canUpdateSRR); //, skystoneFoundRR);
+
         mecanumControl = robotCfg.getMecanumControl();
 
         super.setup(); //Note: the superclass init method builds the state machine
@@ -76,6 +78,11 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 //                phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
                 camera = new OpenCvWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
                 camera.openCameraDevice();
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException intEx) {
+                    // ignore
+                }
                 s = pipeline.getStateNameII();
                 camera.setPipeline(pipeline);
                 camera.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
@@ -101,7 +108,6 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     @Override
     protected void go() {
         startRR.setValue(true);
-        canUpdateSRR.setValue(false);
     }
 
 
@@ -161,12 +167,19 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         });
 
         b.addWait(S.POST_CAMERA_PAUSE, S.WAIT_FOR_START, 1000L);
-        b.addResultReceiverReady(S.WAIT_FOR_START, S.DRIVE_FORWARD, startRR);
-
+        CompositeBooleanReadyResultReceiver startAndFoundSkystoneRR = new CompositeBooleanReadyResultReceiver(startRR, skystonePosStateRR);
+        b.addResultReceiverReady(S.WAIT_FOR_START, S.STOP_UPDATING_CAMERA, startAndFoundSkystoneRR);
+        b.add(S.STOP_UPDATING_CAMERA, new State() {
+            @Override
+            public StateName act() {
+                canUpdateSRR.setValue(false);
+                return S.DRIVE_FORWARD;
+            }
+        });
         b.addDrive(S.DRIVE_FORWARD, S.DRIVE_TO_STONES, Distance.fromFeet(0.6), 0.4, 90,0);
 
         final double minVelocity = 0.08;
-        final double podsGain = 0.012;
+        final double podsGain = 0.02;
         final int gyroGain = 1;
         final double maxAngularSpeed = 0.7;
         b.addDrive(S.DRIVE_TO_STONES, StateMap.of(
@@ -174,17 +187,20 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
                 S.TURN_1, valueBetween(7, podsSensor, 9, 1)
         ), RotationControls.gyro(gyro, gyroGain, Angle.fromDegrees(0), tolerance, maxAngularSpeed),
                 TranslationControls.sensor(podsSensor, podsGain, new Vector2D(0.5, Angle.fromDegrees(90)), minVelocity, 9));
-        b.addGyroTurn(S.TURN_1, S.DECIDE_SKYSTONE, 0);
-        b.add(S.DECIDE_SKYSTONE, getSkyStonePosition());
-        b.addDrive(S.SKYSTONE_LEFT, S.GRABBLOCK, Distance.fromFeet(1.1), 0.5, 180, 0);
-        b.addDrive(S.SKYSTONE_MIDDLE, S.GRABBLOCK, Distance.fromFeet(0.1), 0.5, 180, 0);
-        b.addDrive(S.SKYSTONE_RIGHT, S.GRABBLOCK, Distance.fromFeet(0.3), 0.5, 0, 0);
-      //  b.addWait(S.GRABBLOCK, S.STOP1, 15000L);
-        b.addServo(S.GRABBLOCK, S.GRABBLOCK_1, robotCfg.getSideGrabber().getName(), SkystoneRobotCfg.SideGrabberPresets.OPEN, false);
-        b.addServo(S.GRABBLOCK_1, S.WAIT_2, robotCfg.getSideArm().getName(), SkystoneRobotCfg.SideArmPresets.GRABBING, true);
-        b.addWait(S.WAIT_2, S.CLAMP_BLOCK, 500L);
-        b.addServo(S.CLAMP_BLOCK, S.CARRY_SKYSTONE_1, robotCfg.getSideGrabber().getName(), SkystoneRobotCfg.SideGrabberPresets.CLOSED, true);
-        b.addServo(S.CARRY_SKYSTONE_1, S.STOP1, robotCfg.getSideArm().getName(), SkystoneRobotCfg.SideArmPresets.CARRY, true);
+        b.addStop(S.TURN_1);
+
+
+//        b.addGyroTurn(S.TURN_1, S.DECIDE_SKYSTONE, 0);
+//        b.add(S.DECIDE_SKYSTONE, getSkyStonePosition());
+//        b.addDrive(S.SKYSTONE_LEFT, S.GRABBLOCK, Distance.fromFeet(1.1), 0.5, 180, 0);
+//        b.addDrive(S.SKYSTONE_MIDDLE, S.GRABBLOCK, Distance.fromFeet(0.1), 0.5, 180, 0);
+//        b.addDrive(S.SKYSTONE_RIGHT, S.GRABBLOCK, Distance.fromFeet(0.3), 0.5, 0, 0);
+//      //  b.addWait(S.GRABBLOCK, S.STOP1, 15000L);
+//        b.addServo(S.GRABBLOCK, S.GRABBLOCK_1, robotCfg.getSideGrabber().getName(), SkystoneRobotCfg.SideGrabberPresets.OPEN, false);
+//        b.addServo(S.GRABBLOCK_1, S.WAIT_2, robotCfg.getSideArm().getName(), SkystoneRobotCfg.SideArmPresets.GRABBING, true);
+//        b.addWait(S.WAIT_2, S.CLAMP_BLOCK, 500L);
+//        b.addServo(S.CLAMP_BLOCK, S.CARRY_SKYSTONE_1, robotCfg.getSideGrabber().getName(), SkystoneRobotCfg.SideGrabberPresets.CLOSED, true);
+//        b.addServo(S.CARRY_SKYSTONE_1, S.STOP1, robotCfg.getSideArm().getName(), SkystoneRobotCfg.SideArmPresets.CARRY, true);
 
         b.addStop(S.STOP1);
 
@@ -440,6 +456,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
     public enum S implements StateName {
 
+        STOP_UPDATING_CAMERA,
         DRIVE_1,
         PROCESS_SKYSTONE,
         DRIVE_STONE,

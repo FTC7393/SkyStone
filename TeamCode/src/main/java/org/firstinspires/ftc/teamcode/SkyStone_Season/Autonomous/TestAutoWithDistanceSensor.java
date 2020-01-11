@@ -121,7 +121,7 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
 
     @Override
     public StateMachine buildStates() {
-        EVStateMachineBuilder b = new EVStateMachineBuilder(S.INIT_GYRO, TeamColor.BLUE, Angle.fromDegrees(2.5),gyro, servos,mecanumControl);
+        EVStateMachineBuilder b = new EVStateMachineBuilder(S.INIT_GYRO, TeamColor.BLUE, Angle.fromDegrees(2.5),gyro, 0.6, 0.5, servos,mecanumControl);
         b.addCalibrateGyro(S.INIT_GYRO, S.DRIVE_1);
 
          AnalogSensor podsSensor = new AnalogSensor() {
@@ -136,7 +136,7 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
             b.addDrive(S.DRIVE_2, StateMap.of(
                     S.WAIT_1, EndConditions.timed(3000),
                     S.WAIT, EndConditions.valueCloseTo(podsSensor, 15, 1, true)
-            ), RotationControls.gyro(gyro, Angle.fromDegrees(0), Angle.fromDegrees(2), 0.3),
+            ), RotationControls.gyro(gyro, 0.7, Angle.fromDegrees(0), Angle.fromDegrees(2), 0.3),
                     TranslationControls.sensor(podsSensor, 0.02, new Vector2D(0.8, Angle.fromDegrees(90)),0.01, 15));
         }
         return b.build();
@@ -199,7 +199,7 @@ public class TestAutoWithDistanceSensor extends AbstractAutoOp<SkystoneRobotCfg>
                                             double orientation, double speed, double distance, final double collectorSpeed) {
         double maxAngSpeed = 0.5;
         final State s = ftc.evlib.statemachine.EVStates.mecanumDrive(nextState,
-                Distance.fromFeet(distance), robotCfg.getMecanumControl(), robotCfg.getGyro(), speed,
+                Distance.fromFeet(distance), robotCfg.getMecanumControl(), robotCfg.getGyro(), 0.6, speed,
                 Angle.fromDegrees(direction), Angle.fromDegrees(orientation), Angle.fromDegrees(2), maxAngSpeed);
 
         return new BasicAbstractState() {

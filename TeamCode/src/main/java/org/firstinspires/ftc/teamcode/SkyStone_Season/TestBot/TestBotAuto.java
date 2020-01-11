@@ -42,7 +42,7 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
 
 
 
-        EVStateMachineBuilder b = new EVStateMachineBuilder(S.DRIVE_WITH_SENSOR_2, TeamColor.BLUE, Angle.fromDegrees(2), robotCfg.getGyro(), servos, robotCfg.getMecanumControl());
+        EVStateMachineBuilder b = new EVStateMachineBuilder(S.DRIVE_WITH_SENSOR_2, TeamColor.BLUE, Angle.fromDegrees(2), robotCfg.getGyro(), 0.6, 0.5, servos, robotCfg.getMecanumControl());
         b.addDrive(S.DRIVE_1, S.STOP, Distance.fromFeet(4), 0.08, 270, 0);
         b.addDriveWithSensor(S.DRIVE_WITH_SENSOR, S.DRIVE_WITH_SENSOR_2, Distance.fromFeet(2.0), new Vector2D(0.8, Angle.fromDegrees(270)), 0, 0.30, createSRpods(15), 0.5, 0.01, 0.1);
 
@@ -74,7 +74,7 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
         b.addDrive( S.DRIVE_2, StateMap.of(
                 S.STOP, EndConditions.timed(3000),
                 S.STOP_2, EndConditions.valueCloseTo(ie, 15, 1, true)
-        ), RotationControls.gyro(robotCfg.getGyro(), Angle.fromDegrees(180), Angle.fromDegrees(10)),
+        ), RotationControls.gyro(robotCfg.getGyro(), 0.6, Angle.fromDegrees(180), Angle.fromDegrees(10), 0.5),
                 TranslationControls.sensor(ie, 0.01, new Vector2D(0.08, Angle.fromDegrees(180)), 0.1, 15));
 
 

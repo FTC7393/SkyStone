@@ -426,7 +426,7 @@ public class RobotCfg2017 extends RobotCfg {
     }
 
     public EVStateMachineBuilder createEVStateMachineBuilder(StateName firstStateName, TeamColor teamColor, Angle tolerance) {
-        return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, servos, mecanumControl);
+        return new EVStateMachineBuilder(firstStateName, teamColor, tolerance, gyro, 0.6, 0.5, servos, mecanumControl);
     }
 
 }
