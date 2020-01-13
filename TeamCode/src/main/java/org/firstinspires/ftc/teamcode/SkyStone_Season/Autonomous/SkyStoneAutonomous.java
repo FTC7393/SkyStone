@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -42,15 +43,16 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     private MecanumControl mecanumControl;
     private OpenCvCamera camera;
     private BasicResultReceiver<Boolean> cameraInitRR = new BasicResultReceiver<>();
-    private InputExtractor<StateName> s;
+    private InputExtractor<SkyStonePos> s;
     private TeamColor teamColor = TeamColor.BLUE;
     private int minCycles = 10;
-    private BasicResultReceiver<StateName> skystonePosStateRR = new BasicResultReceiver<>();
+    private BasicResultReceiver<SkyStonePos> skystonePosStateRR = new BasicResultReceiver<>();
     private BasicResultReceiver<Boolean> canUpdateSRR = new BasicResultReceiver<>();
     private ProcessPipeline pipeline;
     private boolean doSkyStone = true;
     private Thread cameraInit;
     private ResultReceiver<Boolean> startRR = new BasicResultReceiver<>();
+    private double servoSpeed = 1;
 
     @Override
     protected SkystoneRobotCfg createRobotCfg() {
@@ -147,6 +149,13 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
             }
         };
 
+        AnalogSensor minusXSensor = new AnalogSensor() {
+            @Override
+            public Double getValue() {
+                return robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM);
+            }
+        };
+
         OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
         teamColor = optionsFile.get(SkyStoneOptionsOp.Opts.TEAM_COLOR.s, SkyStoneOptionsOp.teamColorDefault);
         doSkyStone = optionsFile.get(SkyStoneOptionsOp.Opts.DO_SKYSTONE.s, SkyStoneOptionsOp.doSkyStoneDefault);
@@ -179,34 +188,44 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
             @Override
             public StateName act() {
                 canUpdateSRR.setValue(false);
-                return S.DRIVE_FORWARD;
+                return S.GO_TO_PREDRIVE;
             }
         });
 
-        b.addDrive(S.DRIVE_FORWARD, S.DRIVE_TO_STONES, Distance.fromFeet(0.6), 0.4, 90,0);
-
-        final double minVelocity = 0.08;
-        final double podsGain = 0.012;
-        final int gyroGain = 1;
-        final double maxAngularSpeed = 0.7;
-        b.addDrive(S.DRIVE_TO_STONES, StateMap.of(
-                S.STOP, EndConditions.timed(5000),
-                S.TURN_1, valueBetween(7, podsSensor, 9, 1)
-        ), RotationControls.gyro(gyro, gyroGain, Angle.fromDegrees(0), tolerance, maxAngularSpeed),
-                TranslationControls.sensor(podsSensor, podsGain, new Vector2D(0.5, Angle.fromDegrees(90)), minVelocity, 9));
-        b.addGyroTurn(S.TURN_1, S.DECIDE_SKYSTONE, 0);
-        b.add(S.DECIDE_SKYSTONE, getSkyStonePosition());
-        b.addDrive(S.SKYSTONE_LEFT, S.GRABBLOCK, Distance.fromFeet(1.1), 0.5, 180, 0);
-        b.addDrive(S.SKYSTONE_MIDDLE, S.GRABBLOCK, Distance.fromFeet(0.1), 0.5, 180, 0);
-        b.addDrive(S.SKYSTONE_RIGHT, S.GRABBLOCK, Distance.fromFeet(0.3), 0.5, 0, 0);
-        b.addServo(S.GRABBLOCK, S.GRABBLOCK_1, robotCfg.getSideGrabber().getName(), SkystoneRobotCfg.SideGrabberPresets.OPEN, false);
-        b.addServo(S.GRABBLOCK_1, S.WAIT_2, robotCfg.getSideArm().getName(), SkystoneRobotCfg.SideArmPresets.PREDRIVE, true);
-        b.addDrive(S.DRIVE_LITTLE, S.CLAMP_BLOCK, Distance.fromInches(2), 0.2, 90, 0);
-        b.addServo(S.CLAMP_BLOCK, S.HOLD_BLOCK, robotCfg.getSideArm().getName(), SkystoneRobotCfg.SideArmPresets.GRABBING, true);
-        b.addServo(S.HOLD_BLOCK,S.WAIT_3, robotCfg.getSideGrabber().getName(), SkystoneRobotCfg.SideGrabberPresets.CLOSED, true);
-        b.addWait(S.WAIT_3, S.CARRY_SKYSTONE_1, 1000);
-        b.addServo(S.CARRY_SKYSTONE_1, S.STOP1, robotCfg.getSideArm().getName(), SkystoneRobotCfg.SideArmPresets.CARRY, true);
-
+        b.addServo(S.GO_TO_PREDRIVE, S.OPEN_SERVO, robotCfg.getSideArm().getName(), SkystoneRobotCfg.SideArmPresets.PREDRIVE, servoSpeed, false);
+        b.addServo(S.OPEN_SERVO, S.DRIVE_FORWARD, robotCfg.getSideGrabber().getName(), SkystoneRobotCfg.SideGrabberPresets.OPEN, servoSpeed, true);
+        if(teamColor == TeamColor.BLUE) {
+            b.addDrive(S.DRIVE_FORWARD, S.DRIVE_TO_STONES, Distance.fromFeet(0.6), 0.4, 90, 0);
+            final double minVelocity = 0.08;
+            final double podsGain = 0.02;
+            final int gyroGain = 1;
+            final double maxAngularSpeed = 0.7;
+            b.addDrive(S.DRIVE_TO_STONES, StateMap.of(
+                    S.STOP, EndConditions.timed(5000),
+                    S.TURN_1, valueBetween(7, podsSensor, 12.5, 1.5)
+                    ), RotationControls.gyro(gyro, gyroGain, Angle.fromDegrees(0), tolerance, maxAngularSpeed),
+                    TranslationControls.sensor(podsSensor, podsGain, new Vector2D(0.5, Angle.fromDegrees(90)), minVelocity, 9));
+            b.addGyroTurn(S.TURN_1, S.DECIDE_SKYSTONE, 0);
+            b.add(S.DECIDE_SKYSTONE, getSkyStonePosition());
+            b.addDrive(S.SKYSTONE_LEFT, S.PREDRIVE, Distance.fromFeet(1.2), 0.2, 180, 0);
+            b.addDrive(S.SKYSTONE_MIDDLE, S.PREDRIVE, Distance.fromFeet(0.1), 0.2, 180, 0);
+            b.addDrive(S.SKYSTONE_RIGHT, S.PREDRIVE, Distance.fromFeet(0.3), 0.2, 0, 0);
+            b.addDrive(S.PREDRIVE, S.DRIVE_FORWARD_A_LITTLE, Distance.fromFeet(0.12), 0.2, 90, 0);
+            b.addServo(S.DRIVE_FORWARD_A_LITTLE, S.GRABBLOCK, robotCfg.getSideArm().getName(), SkystoneRobotCfg.SideArmPresets.PREDRIVE, servoSpeed, true);
+//            b.addServo(S.GRABBLOCK_1, S.WAIT_2, robotCfg.getSideGrabber().getName(), SkystoneRobotCfg.SideGrabberPresets.OPEN, servoSpeed, true);
+//            b.addWait(S.WAIT_2, S.HOLD_BLOCK, 0L);
+            b.addServo(S.GRABBLOCK, S.HOLD_BLOCK, robotCfg.getSideArm().getName(), SkystoneRobotCfg.SideArmPresets.GRABBING, servoSpeed, true);
+            b.addServo(S.HOLD_BLOCK, S.WAIT_3, robotCfg.getSideGrabber().getName(), SkystoneRobotCfg.SideGrabberPresets.CLOSED, servoSpeed, true);
+            b.addWait(S.WAIT_3, S.CARRY_SKYSTONE_1, 0);
+            b.addServo(S.CARRY_SKYSTONE_1, S.STOP1, robotCfg.getSideArm().getName(), SkystoneRobotCfg.SideArmPresets.CARRY, servoSpeed, true);
+            b.addDrive(S.BACK_UP, S.DECIDE_NEXT_DRIVE, Distance.fromFeet(0.3), 0.5, 270, 0);
+            b.add(S.DECIDE_NEXT_DRIVE, getDriveState());
+            b.addDrive(S.SKYSTONE_LEFT_DRIVE_TO_BRIDGE, StateMap.of(
+                    S.STOP, EndConditions.timed(3000),
+                    S.SKYSTONE_DRIVE_TO_FOUNDATION, valueBetween(4, minusXSensor, 25, 2)
+            ),RotationControls.gyro(gyro, gyroGain, Angle.fromDegrees(0), tolerance, 0.8),
+              TranslationControls.sensor(minusXSensor, 0.001, new Vector2D(0.6, Angle.fromDegrees(180)), 0.01, 25));
+        }
         b.addStop(S.STOP1);
 
 
@@ -392,8 +411,55 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         return new State() {
             @Override
             public StateName act() {
-                    return skystonePosStateRR.getValue();
+                SkyStonePos pos = skystonePosStateRR.getValue();
+                if(teamColor == TeamColor.BLUE) {
+                    if (SkyStonePos.SKYSTONE_LEFT == pos) {
+                        return S.SKYSTONE_LEFT;
+                    } else if (SkyStonePos.SKYSTONE_MIDDLE == pos) {
+                        return S.SKYSTONE_MIDDLE;
+                    } else if (SkyStonePos.SKYSTONE_RIGHT == pos) {
+                        return S.SKYSTONE_RIGHT;
+                    }
+                } else if(teamColor == TeamColor.RED) {
+                    if (SkyStonePos.RED_SKYSTONE_LEFT == pos) {
+                        return S.RED_SKYSTONE_LEFT;
+                    } else if (SkyStonePos.RED_SKYSTONE_MIDDLE == pos) {
+                        return S.RED_SKYSTONE_MIDDLE;
+                    } else if (SkyStonePos.RED_SKYSTONE_RIGHT == pos) {
+                        return S.RED_SKYSTONE_RIGHT;
+                    }
                 }
+                    return S.SKYSTONE_MIDDLE;
+            }
+
+        };
+    }
+
+
+    private State getDriveState() {
+        return new State() {
+            @Override
+            public StateName act() {
+                SkyStonePos pos = skystonePosStateRR.getValue();
+                if(teamColor == TeamColor.BLUE) {
+                    if (SkyStonePos.SKYSTONE_LEFT == pos) {
+                        return S.SKYSTONE_LEFT_DRIVE_TO_BRIDGE;
+                    } else if (SkyStonePos.SKYSTONE_MIDDLE == pos) {
+                        return S.SKYSTONE_MIDDLE_TO_BRIDGE;
+                    } else if (SkyStonePos.SKYSTONE_RIGHT == pos) {
+                        return S.SKYSTONE_RIGHT_TO_BRIDGE;
+                    }
+                } else if(teamColor == TeamColor.RED) {
+                    if (SkyStonePos.RED_SKYSTONE_LEFT == pos) {
+                        return S.RED_SKYSTONE_LEFT_DRIVE_TO_BRIDGE;
+                    } else if (SkyStonePos.RED_SKYSTONE_MIDDLE == pos) {
+                        return S.RED_SKYSTONE_MIDDLE_TO_BRIDGE;
+                    } else if (SkyStonePos.RED_SKYSTONE_RIGHT == pos) {
+                        return S.RED_SKYSTONE_RIGHT_TO_BRIDGE;
+                    }
+                }
+                return S.SKYSTONE_MIDDLE_TO_BRIDGE;
+            }
 
         };
     }
@@ -512,7 +578,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         BLUE_FOUNDATION_WAIT_2, DRIVE_TO_STONES, STOP1, DRIVE_FORWARD, WAIT, WAIT_1,
         DRIVE_TO_LEFT_SKYSTONE, DECIDE_SKYSTONE, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE,
         WAIT_FOR_START, TURN_1, CLAMP_BLOCK, WAIT_2, CARRY_SKYSTONE_1, DETECTION_2,
-        GRABBER_OPEN_1, WAIT_3, STOP_SKYSTONE_SEARCH, WAIT_FOR_SKYSTONE, DRIVE_LITTLE, HOLD_BLOCK, GRABBLOCK_1
+        GRABBER_OPEN_1, WAIT_3, STOP_SKYSTONE_SEARCH, WAIT_FOR_SKYSTONE, DRIVE_LITTLE, HOLD_BLOCK, GO_TO_PREDRIVE, BACK_UP, DECIDE_NEXT_DRIVE, OPEN_SERVO, DRIVE_FORWARD_A_LITTLE, PREDRIVE, GRABBLOCK_1
 
     }
 }

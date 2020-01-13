@@ -17,9 +17,9 @@ class ProcessPipeline extends OpenCvPipeline {
     private double blueDiff = 0;
     private double ac = 0;
 
-    private final InputExtractor<StateName> StateNameII = new InputExtractor<StateName>() {
+    private final InputExtractor<SkyStonePos> StateNameII = new InputExtractor<SkyStonePos>() {
         @Override
-        public StateName getValue() {
+        public SkyStonePos getValue() {
             return option;
         }
     };
@@ -29,11 +29,11 @@ class ProcessPipeline extends OpenCvPipeline {
             return stoneratio;
         }
     };
-    private final BasicResultReceiver<StateName> StateRR;
+    private final BasicResultReceiver<SkyStonePos> StateRR;
     private final TeamColor tc;
     private final BasicResultReceiver<Boolean> canUpdateSRR;
-    private final int x1 = 75, y1 = 388, w1 = 73, h1 = 43;
-    private int x2 = x1 + 200, y2 = 384, w2 = w1, h2 = h1 + 10;
+    private final int x1 = 75, y1 = 368, w1 = 73, h1 = 43;
+    private int x2 = x1 + 200, y2 = 364, w2 = w1, h2 = h1 + 10;
     private Mat m1;
     private Mat m2;
     private final int minStabalizationCycles;
@@ -42,10 +42,10 @@ class ProcessPipeline extends OpenCvPipeline {
     Rect rect2 = new Rect(x2, y2, w2, h2);
     private double blue;
     private double blue2;
-    private StateName option;
+    private SkyStonePos option;
     private double stoneratio;
 
-    public ProcessPipeline(BasicResultReceiver<StateName> stateRR, int minStabalizationCycles, TeamColor tc, BasicResultReceiver<Boolean> canUpdateSRR) {
+    public ProcessPipeline(BasicResultReceiver<SkyStonePos> stateRR, int minStabalizationCycles, TeamColor tc, BasicResultReceiver<Boolean> canUpdateSRR) {
         StateRR = stateRR;
         this.minStabalizationCycles = minStabalizationCycles;
         this.tc = tc;
@@ -73,28 +73,28 @@ class ProcessPipeline extends OpenCvPipeline {
         return input;
     }
 
-    private StateName getNextStateName(double ratio) {
-        StateName opt;
+    private SkyStonePos getNextStateName(double ratio) {
+        SkyStonePos opt;
         double maxBlueRatioLeft = 0.5; //all values below this indicate that the dark stone is on the left
         double minBlueRatioRight = 2.0; //all values above this indicate that the dark stone is on the right
         if (tc == TeamColor.BLUE) {
             if (ratio < maxBlueRatioLeft) {
-                opt = SkyStoneAutonomous.S.SKYSTONE_MIDDLE;
+                opt = SkyStonePos.SKYSTONE_MIDDLE;
             } else if (ratio > minBlueRatioRight) {
-                opt = SkyStoneAutonomous.S.SKYSTONE_RIGHT;
-            } else opt = SkyStoneAutonomous.S.SKYSTONE_LEFT;
+                opt = SkyStonePos.SKYSTONE_RIGHT;
+            } else opt = SkyStonePos.SKYSTONE_LEFT;
         } else {
             if (ratio < maxBlueRatioLeft) {
-                opt = SkyStoneAutonomous.S.RED_SKYSTONE_LEFT;
+                opt = SkyStonePos.RED_SKYSTONE_LEFT;
             } else if (ratio > minBlueRatioRight) {
-                opt = SkyStoneAutonomous.S.RED_SKYSTONE_MIDDLE;
-            } else opt = SkyStoneAutonomous.S.RED_SKYSTONE_RIGHT;
+                opt = SkyStonePos.RED_SKYSTONE_MIDDLE;
+            } else opt = SkyStonePos.RED_SKYSTONE_RIGHT;
         }
         return opt;
     }
 
 
-    public InputExtractor<StateName> getStateNameII() {
+    public InputExtractor<SkyStonePos> getStateNameII() {
         return StateNameII;
     }
 
