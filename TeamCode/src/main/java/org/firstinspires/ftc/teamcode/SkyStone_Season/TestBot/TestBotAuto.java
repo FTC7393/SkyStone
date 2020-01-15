@@ -75,7 +75,7 @@ public class TestBotAuto extends AbstractAutoOp<TestBotRobotCfg> {
                 S.STOP, EndConditions.timed(3000),
                 S.STOP_2, EndConditions.valueCloseTo(ie, 15, 1, true)
         ), RotationControls.gyro(robotCfg.getGyro(), 0.6, Angle.fromDegrees(180), Angle.fromDegrees(10), 0.3),
-                TranslationControls.sensor(ie, 0.01, new Vector2D(0.08, Angle.fromDegrees(180)), 0.1, 15));
+                TranslationControls.sensor(ie, 0.01, new Vector2D(0.08, Angle.fromDegrees(180)), 0.1, 15, 1));
 
 
 

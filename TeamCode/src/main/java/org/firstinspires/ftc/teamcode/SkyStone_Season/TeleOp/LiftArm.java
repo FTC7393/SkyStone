@@ -39,7 +39,7 @@ public class LiftArm {
     private final double fingerSpeed = 1.15;
 
     public LiftArm(ServoControl elbow, ServoControl wrist, ServoControl fingers, MotorEnc extension,
-                   DigitalSensor lowerLimit, DigitalSensor upperLimit ) {
+                   DigitalSensor lowerLimit ) {
         this.elbow = elbow;
         elbow.setDefaultSpeed(elbowSpeed);
         this.wrist = wrist;
@@ -47,7 +47,7 @@ public class LiftArm {
         this.fingers = fingers;
         fingers.setDefaultSpeed(fingerSpeed);
         this.lift = new LinearSlide(extension, new PIDController(0.003, 0, 0, .5),
-              maxExtensionPosition, liftTolerance, lowerLimit, upperLimit);
+              maxExtensionPosition, liftTolerance, lowerLimit);
         this.rrCommand = new BasicResultReceiver<>();
         this.rrPlacingHeight = new InputExtractor<Integer>(){
             @Override

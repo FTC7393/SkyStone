@@ -35,6 +35,7 @@ import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
 import ftc.evlib.util.EVConverters;
 import ftc.evlib.util.FileUtil;
+import ftc.evlib.util.ImmutableList;
 
 @Autonomous(name = "SkyStoneAuto")
 
@@ -61,8 +62,44 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
     @Override
     protected Logger createLogger() {
-        return null;
-    }
+        return new Logger("log", ".csv", ImmutableList.of(
+                new Logger.Column("state", new InputExtractor<String>() {
+                    @Override
+                    public String getValue() {
+                        return stateMachine.getCurrentStateName().name();
+                    }
+                }),
+                new Logger.Column("pods values", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return robotCfg.getPlusYDistanceSensor().getValue();
+                    }
+                }),
+                new Logger.Column("mecanum control speed - max velocity", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return mecanumControl.getMaxRobotSpeed().centimetersPerSecond();
+                    }
+                }),
+                new Logger.Column("mecanum control speed - velocity r", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return mecanumControl.getVelocityR();
+                    }
+                }),
+                new Logger.Column("mecanum control speed - velocity x", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return mecanumControl.getVelocityX();
+                    }
+                }),
+                new Logger.Column("mecanum control speed - velocity y", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return mecanumControl.getVelocityY();
+                    }
+                })
+        ));    }
 
     @Override
     public void setup() {
@@ -198,17 +235,18 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
             b.addDrive(S.DRIVE_FORWARD, S.DRIVE_TO_STONES, Distance.fromFeet(0.6), 0.4, 90, 0);
             final double minVelocity = 0.08;
             final double podsGain = 0.02;
-            final int gyroGain = 1;
+            final double gyroGain = 0.7;
             final double maxAngularSpeed = 0.7;
+            final double target = 12.5;
             b.addDrive(S.DRIVE_TO_STONES, StateMap.of(
                     S.STOP, EndConditions.timed(5000),
-                    S.TURN_1, valueBetween(7, podsSensor, 12.5, 1.5)
+                    S.TURN_1, valueBetween(15, podsSensor, target, 1.5)
                     ), RotationControls.gyro(gyro, gyroGain, Angle.fromDegrees(0), tolerance, maxAngularSpeed),
-                    TranslationControls.sensor(podsSensor, podsGain, new Vector2D(0.5, Angle.fromDegrees(90)), minVelocity, 9));
+                    TranslationControls.sensor(podsSensor, podsGain, new Vector2D(0.5, Angle.fromDegrees(90)), minVelocity, target, 0.5));
             b.addGyroTurn(S.TURN_1, S.DECIDE_SKYSTONE, 0);
             b.add(S.DECIDE_SKYSTONE, getSkyStonePosition());
             b.addDrive(S.SKYSTONE_LEFT, S.PREDRIVE, Distance.fromFeet(1.2), 0.2, 180, 0);
-            b.addDrive(S.SKYSTONE_MIDDLE, S.PREDRIVE, Distance.fromFeet(0.1), 0.2, 180, 0);
+            b.addDrive(S.SKYSTONE_MIDDLE, S.PREDRIVE, Distance.fromFeet(0.5), 0.2, 180, 0);
             b.addDrive(S.SKYSTONE_RIGHT, S.PREDRIVE, Distance.fromFeet(0.3), 0.2, 0, 0);
             b.addDrive(S.PREDRIVE, S.DRIVE_FORWARD_A_LITTLE, Distance.fromFeet(0.12), 0.2, 90, 0);
             b.addServo(S.DRIVE_FORWARD_A_LITTLE, S.GRABBLOCK, robotCfg.getSideArm().getName(), SkystoneRobotCfg.SideArmPresets.PREDRIVE, servoSpeed, true);
@@ -221,10 +259,10 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
             b.addDrive(S.BACK_UP, S.DECIDE_NEXT_DRIVE, Distance.fromFeet(0.3), 0.5, 270, 0);
             b.add(S.DECIDE_NEXT_DRIVE, getDriveState());
             b.addDrive(S.SKYSTONE_LEFT_DRIVE_TO_BRIDGE, StateMap.of(
-                    S.STOP, EndConditions.timed(3000),
+                    S.SKYSTONE_DRIVE_TO_FOUNDATION, EndConditions.timed(2000),
                     S.SKYSTONE_DRIVE_TO_FOUNDATION, valueBetween(4, minusXSensor, 25, 2)
             ),RotationControls.gyro(gyro, gyroGain, Angle.fromDegrees(0), tolerance, 0.8),
-              TranslationControls.sensor(minusXSensor, 0.001, new Vector2D(0.6, Angle.fromDegrees(180)), 0.01, 25));
+              TranslationControls.sensor(minusXSensor, 0.001, new Vector2D(0.6, Angle.fromDegrees(180)), 0.01, 25, 1));
         }
         b.addStop(S.STOP1);
 
