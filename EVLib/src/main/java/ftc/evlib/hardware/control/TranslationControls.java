@@ -22,7 +22,7 @@ import ftc.electronvolts.util.units.Angle;
 public class TranslationControls {
 
     public static TranslationControl sensor(final AnalogSensor sensorReading, final double gain,
-                                            final Vector2D vector2D, final double minVelocity,
+                                            final Vector2D velocityVector, final double minVelocity,
                                             final double target, final double deadzone) {
         return new TranslationControl() {
             @Override
@@ -32,24 +32,22 @@ public class TranslationControls {
 
             @Override
             public Vector2D getTranslation() {
-                double value = sensorReading.getValue() - target;
+                double value = sensorReading.getValue() - target; // -10
 
-                double velocity = (value*gain);
-
-                Vector2D v = vector2D;
+                double velocity = (value*gain);  // 0.02 * -10 = -0.2
 
                 if(Math.abs(value) <= deadzone) {
                     velocity = 0;
                 }
                 else if(Math.abs(velocity) < minVelocity) {
                  velocity  = Math.signum(velocity) *minVelocity;
-                } else if(Math.abs(velocity) > vector2D.getLength()){
-                    velocity=Math.signum(velocity)* vector2D.getLength();
+                } else if(Math.abs(velocity) > velocityVector.getLength()){
+                    velocity=Math.signum(velocity)* velocityVector.getLength();
                 }
-                double x = vector2D.getX()/vector2D.getLength()*velocity;
-                double y = vector2D.getY()/vector2D.getLength()*velocity;
-                v = new Vector2D(x, y);
-                return v;
+                double x = velocityVector.getX()/velocityVector.getLength()*velocity;
+                double y = velocityVector.getY()/velocityVector.getLength()*velocity;
+                Vector2D velVectorToUse = new Vector2D(x, y);
+                return velVectorToUse;
             }
         };
     }

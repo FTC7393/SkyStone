@@ -148,7 +148,7 @@ public abstract class AbstractServoTuneOp extends ftc.evlib.opmodes.AbstractTele
 
 
         //if dpad up is pressed
-        if (driver1.dpad_up.justPressed() || driver2.dpad_up.justPressed()) {
+        if (driver1.y.justPressed() || driver2.y.justPressed()) {
             servoIndex += 1; //move to the next servo
             //wrap around if the index is too large
             if (servoIndex > servoNames.size() - 1) servoIndex = 0;
@@ -156,7 +156,7 @@ public abstract class AbstractServoTuneOp extends ftc.evlib.opmodes.AbstractTele
         }
 
         //if dpad down is pressed
-        if (driver1.dpad_down.justPressed() || driver2.dpad_down.justPressed()) {
+        if (driver1.x.justPressed() || driver2.x.justPressed()) {
             servoIndex -= 1; //move to the previous servo
             //wrap around if the index is too small
             if (servoIndex < 0) servoIndex = servoNames.size() - 1;
