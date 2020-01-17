@@ -319,7 +319,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
             b.addServo(S.RELEASE_FOUNDATION_1, S.RELEASE_FOUNDATION_2, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfg.RightFoundationMoverServoPresets.UP, servoSpeed, false);
             b.addServo(S.RELEASE_FOUNDATION_2, S.FOUNDATION_DRAG_4, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfg.LeftFoundationMoverServoPresets.UP, servoSpeed, true);
             b.addDrive(S.FOUNDATION_DRAG_4, S.PARK_1, Distance.fromFeet(2.2), 0.25, 180, 0);
-            b.addDrive(S.PARK_1, S.STOP, Distance.fromFeet(2.5), 0.3, -5, 0);
+            b.addDrive(S.PARK_1, S.STOP, Distance.fromFeet(2.6), 0.3, -5, 0);
 
 
 
