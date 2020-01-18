@@ -104,7 +104,13 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
                     public Double getValue() {
                         return robotCfg.getPlusXDistanceSensor().cmUltrasonic();
                     }
-                })
+                }),
+                new Logger.Column("backx ", new InputExtractor<Double>() {
+            @Override
+            public Double getValue() {
+                        return robotCfg.getMinusXDistanceSensor().cmUltrasonic();
+                    }
+        })
         ));    }
 
     @Override
@@ -267,7 +273,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
             b.add(S.DECIDE_SKYSTONE, getSkyStonePosition());
             b.addDrive(S.SKYSTONE_LEFT, StateMap.of(
                     S.PREDRIVE, EndConditions.timed(2500),
-                    S.PREDRIVE, valueBetween(5, frontDistanceSensor, 101, 2)
+                    S.PREDRIVE, valueBetween(5, frontDistanceSensor, 101, 1)
                     ), RotationControls.gyro(gyro, gyroGain, Angle.fromDegrees(0), tolerance, maxAngularSpeed),
                     TranslationControls.sensor(frontDistanceSensor, -mrGain, new Vector2D(0.2, Angle.fromDegrees(180)), minVelocity, 101, 1.1));
             b.addDrive(S.SKYSTONE_MIDDLE, StateMap.of(
@@ -319,7 +325,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
             b.addServo(S.RELEASE_FOUNDATION_1, S.RELEASE_FOUNDATION_2, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfg.RightFoundationMoverServoPresets.UP, servoSpeed, false);
             b.addServo(S.RELEASE_FOUNDATION_2, S.FOUNDATION_DRAG_4, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfg.LeftFoundationMoverServoPresets.UP, servoSpeed, true);
             b.addDrive(S.FOUNDATION_DRAG_4, S.PARK_1, Distance.fromFeet(2.2), 0.25, 180, 0);
-            b.addDrive(S.PARK_1, S.STOP, Distance.fromFeet(3), 0.5, 5, 0);
+            b.addDrive(S.PARK_1, S.STOP, Distance.fromFeet(2.5), 0.5, 5, 0);
 
 
 
@@ -346,19 +352,19 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
             b.add(S.DECIDE_SKYSTONE, getSkyStonePosition());
             b.addDrive(S.RED_SKYSTONE_LEFT, StateMap.of(
                     S.PREDRIVE, EndConditions.timed(2500),
-                    S.PREDRIVE, valueBetween(5, backDistanceSensor, 47, 2)
+                    S.PREDRIVE, valueBetween(5, backDistanceSensor, 46, 1)
                     ), RotationControls.gyro(gyro, gyroGain, Angle.fromDegrees(0), tolerance, maxAngularSpeed),
-                    TranslationControls.sensor(backDistanceSensor, mrGain, new Vector2D(0.2, Angle.fromDegrees(180)), minVelocity, 47, 1.1));
+                    TranslationControls.sensor(backDistanceSensor, mrGain, new Vector2D(0.2, Angle.fromDegrees(180)), minVelocity, 46, 1));
             b.addDrive(S.RED_SKYSTONE_MIDDLE, StateMap.of(
                     S.PREDRIVE, EndConditions.timed(1500),
-                    S.PREDRIVE, valueBetween(5, backDistanceSensor, 67, 1)
+                    S.PREDRIVE, valueBetween(5, backDistanceSensor, 66, 1)
                     ), RotationControls.gyro(gyro, gyroGain, Angle.fromDegrees(0), tolerance, maxAngularSpeed),
-                    TranslationControls.sensor(backDistanceSensor, mrGain, new Vector2D(0.2, Angle.fromDegrees(180)), minVelocity, 65, 1));
+                    TranslationControls.sensor(backDistanceSensor, mrGain, new Vector2D(0.2, Angle.fromDegrees(180)), minVelocity, 66, 1));
             b.addDrive(S.RED_SKYSTONE_RIGHT, StateMap.of(
                     S.PREDRIVE, EndConditions.timed(1500),
-                    S.PREDRIVE, valueBetween(5, backDistanceSensor, 85, 1)
+                    S.PREDRIVE, valueBetween(5, backDistanceSensor, 86, 1)
                     ), RotationControls.gyro(gyro, gyroGain, Angle.fromDegrees(0), tolerance, maxAngularSpeed),
-                    TranslationControls.sensor(backDistanceSensor, -mrGain, new Vector2D(0.2, Angle.fromDegrees(180)), minVelocity, 85, 1));
+                    TranslationControls.sensor(backDistanceSensor, mrGain, new Vector2D(0.2, Angle.fromDegrees(180)), minVelocity, 86, 1));
             b.addDrive(S.PREDRIVE, S.DRIVE_FORWARD_A_LITTLE, Distance.fromFeet(0.12), 0.2, 90, 0);
             b.addServo(S.DRIVE_FORWARD_A_LITTLE, S.GRABBLOCK, robotCfg.getSideArm().getName(), SkystoneRobotCfg.SideArmPresets.PREDRIVE, servoSpeed, true);
 //            b.addServo(S.GRABBLOCK_1, S.WAIT_2, robotCfg.getSideGrabber().getName(), SkystoneRobotCfg.SideGrabberPresets.OPEN, servoSpeed, true);
@@ -377,16 +383,16 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
                     ), RotationControls.gyro(gyro, gyroGain, Angle.fromDegrees(0), tolerance, maxAngularSpeed),
                     TranslationControls.sensor(frontDistanceSensor, mrGain, new Vector2D(0.4, Angle.fromDegrees(0)), minVelocity, 30, 9));
             b.addDrive(S.DRIVE_FOUNDATION_1, S.APPROACH_FOUNDATION_1, Distance.fromFeet(2), 0.25, 0, 0);
-            b.addDrive(S.APPROACH_FOUNDATION_1, S.DROP_OFF_SKYSTONE_1, Distance.fromFeet(0.22), 0.3, 90, 0);
+            b.addDrive(S.APPROACH_FOUNDATION_1, S.DROP_OFF_SKYSTONE_1, Distance.fromFeet(0.25), 0.3, 90, 0);
             b.addServo(S.DROP_OFF_SKYSTONE_1, S.WAIT_4, robotCfg.getSideGrabber().getName(), SkystoneRobotCfg.SideGrabberPresets.OPEN, servoSpeed, true);
             b.addWait(S.WAIT_4, S.CLOSE_ARM, 200);
             b.addServo(S.CLOSE_ARM, S.LEAVE_FOUNDATION_1, robotCfg.getSideArm().getName(), SkystoneRobotCfg.SideArmPresets.STOWED, servoSpeed, false);
-            b.addDrive(S.LEAVE_FOUNDATION_1, S.FOUNDATION_DRAG_READY_1, Distance.fromFeet(0.22), 0.3, -90, 0);
+            b.addDrive(S.LEAVE_FOUNDATION_1, S.FOUNDATION_DRAG_READY_1, Distance.fromFeet(0.25), 0.3, -90, 0);
             b.addDrive(S.FOUNDATION_DRAG_READY_1, StateMap.of(
                     S.FOUNDATION_TURN_READY_1, EndConditions.timed(2000),
-                    S.FOUNDATION_TURN_READY_1, valueBetween(2, frontDistanceSensor, 30, 3)
+                    S.FOUNDATION_TURN_READY_1, valueBetween(2, frontDistanceSensor, 50, 3)
                     ), RotationControls.gyro(gyro, gyroGain, Angle.fromDegrees(0), tolerance, maxAngularSpeed),
-                    TranslationControls.sensor(frontDistanceSensor, mrGain, new Vector2D(0.4, Angle.fromDegrees(0)), minVelocity, 30, 2));
+                    TranslationControls.sensor(frontDistanceSensor, mrGain, new Vector2D(0.4, Angle.fromDegrees(0)), minVelocity, 50, 2));
             b.addGyroTurn(S.FOUNDATION_TURN_READY_1, S.FOUNDATION_DRAG_READY_2, -90 ,Angle.fromDegrees(1));
             b.addDrive(S.FOUNDATION_DRAG_READY_2, S.GRAB_FOUNDATION_1, Distance.fromFeet(1.1), 0.1, 90, -90);
             b.addServo(S.GRAB_FOUNDATION_1, S.GRAB_FOUNDATION_2, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfg.RightFoundationMoverServoPresets.DOWN, servoSpeed, false);
