@@ -121,7 +121,7 @@ public abstract class AbstractOp<Type extends RobotCfg> extends OpMode {
     @Override
     public void init_loop() {
         setup_act();
-        servos.act();
+        //servos.act();
     }
 
     @Override

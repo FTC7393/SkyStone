@@ -4,22 +4,24 @@ import ftc.evlib.hardware.motors.Motor;
 
 public class BlockCollector {
 
-    private Motor CollectorMotor;
+    private Motor collectorMotor;
 
-    public BlockCollector(Motor CollectorMotor){
-        this.CollectorMotor = CollectorMotor;
+    public BlockCollector(Motor collectorMotor){
+        this.collectorMotor = collectorMotor;
     }
 
     public void act() {
-        CollectorMotor.update();
+        collectorMotor.update();
     }
 
     public void setPower (double newPower) {
-        CollectorMotor.setPower(newPower);
+        collectorMotor.setPower(newPower);
     }
 
     public void stop() {
-        CollectorMotor.setPower(0);
+        collectorMotor.setPower(0);
     }
 }
+
+
 

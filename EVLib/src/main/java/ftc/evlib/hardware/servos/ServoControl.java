@@ -56,7 +56,7 @@ public class ServoControl {
         targetPosition = presets.get(startPreset);
         currentPosition = targetPosition;
 
-        servo.setPosition(targetPosition);
+        //servo.setPosition(targetPosition);
         speed = MAX_SPEED;
     }
 
