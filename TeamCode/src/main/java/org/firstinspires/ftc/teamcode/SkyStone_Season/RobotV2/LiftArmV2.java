@@ -19,7 +19,7 @@ import ftc.evlib.statemachine.EVStates;
 
 public class LiftArmV2 {
 
-    private final ServoControl  wrist, grab, finger1, finger2;
+    private final ServoControl wrist, gripper, fingerLeft, fingerRight;
     private boolean isArmExtended = false;
     private LinearSlide HorizontalSlide;
     private LinearSlide VerticalSlideRight;
@@ -36,6 +36,7 @@ public class LiftArmV2 {
     private final int LiftKeepOutInnerLimit = 50;
     private final int LiftKeepOutOuterLimit = 50;
     private final int WristKeepOutWristLimit = 50;
+    private final int WristKeepOutInnerLimit = 50;
     private final int WristKeepOutOuterLimit = 50;
     private final int numberOfLevels = 6; //random number, don't know actual value yet. TODO
     private final int placingLevelHeights[] = {100, 600, 1100, 1600, 2100, 7000}; //random number, don't know actual value yet. TODO
@@ -46,14 +47,14 @@ public class LiftArmV2 {
     private final double wristSpeed = 0.6;
     private final double fingerSpeed = 1.15;
 
-    public LiftArmV2(ServoControl wrist, ServoControl grab, ServoControl finger1, ServoControl finger2, MotorEnc VerticalRightMotor,
-                     MotorEnc VerticalLeftMotor, MotorEnc HorizontalMotor, DigitalSensor lowerLimitVerticalRight ,DigitalSensor lowerLimitVerticalLeft, DigitalSensor lowerLimitHorizontal  ) {
+    public LiftArmV2(ServoControl wrist, ServoControl gripper, ServoControl fingerRight, ServoControl fingerLeft, MotorEnc VerticalRightMotor,
+                     MotorEnc VerticalLeftMotor, MotorEnc HorizontalMotor, DigitalSensor lowerLimitVerticalRight, DigitalSensor lowerLimitVerticalLeft, DigitalSensor lowerLimitHorizontal) {
         this.wrist = wrist;
-        this.grab = grab;
-        this.finger1 = finger1;
-        this.finger2 = finger2;
+        this.gripper = gripper;
+        this.fingerLeft = fingerLeft;
+        this.fingerRight = fingerRight;
         this.VerticalSlideLeft = new LinearSlide(VerticalLeftMotor, new PIDController(0.003, 0, 0, .5),
-              VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalRight);
+                VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalRight);
         this.VerticalSlideRight = new LinearSlide(VerticalRightMotor, new PIDController(0.003, 0, 0, .5),
                 VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalLeft);
         this.HorizontalSlide = new LinearSlide(HorizontalMotor, new PIDController(0.003, 0, 0, .5),
@@ -96,77 +97,104 @@ public class LiftArmV2 {
 //        };
 //
 //        this.stateMachine = buildStates();
-}
+    }
 
     public void controlExtension(double extensionDelta) {
         double newCommand = HorizontalSlide.getExtensionEncoder() + extensionDelta;
         if (VerticalSlideRight.getExtensionEncoder() < LiftKeepOutUpperLimit && VerticalSlideLeft.getExtensionEncoder() < LiftKeepOutUpperLimit) {
-            if (ExtensionCommand <= LiftKeepOutInnerLimit && newCommand > LiftKeepOutInnerLimit ){
+            if (ExtensionCommand <= LiftKeepOutInnerLimit && newCommand > LiftKeepOutInnerLimit) {
                 newCommand = LiftKeepOutInnerLimit;
             } else if (ExtensionCommand >= LiftKeepOutOuterLimit && newCommand < LiftKeepOutOuterLimit) {
                 newCommand = LiftKeepOutOuterLimit;
+            }
+        }
+        if (wrist.getCurrentPosition() > WristKeepOutWristLimit) {
+            if (ExtensionCommand > WristKeepOutOuterLimit && newCommand < WristKeepOutOuterLimit) {
+                newCommand = WristKeepOutOuterLimit;
             }
         }
         ExtensionCommand = newCommand;
         HorizontalSlide.setExtension(ExtensionCommand);
     }
 
-    public void armPlacingLeft() {
-        if (lift.getExtensionEncoder() >= manualSafeHeight || isArmExtended) {
-            elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.PLACING);
-            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.PLACING_LEFT);
-            isArmExtended = true;
-//            sendCommand(COMMANDS.MANUAL);
+    public void controlLift(double liftDelta) {
+        double newCommand = ((VerticalSlideLeft.getExtensionEncoder() + VerticalSlideRight.getExtensionEncoder()) / 2) + liftDelta;
+        if (HorizontalSlide.getExtensionEncoder() >= LiftKeepOutInnerLimit && HorizontalSlide.getExtensionEncoder() <= LiftKeepOutOuterLimit) {
+            if (LiftCommand >= LiftKeepOutUpperLimit && newCommand < LiftKeepOutUpperLimit) {
+                newCommand = LiftKeepOutUpperLimit;
+            }
+        }
+        LiftCommand = newCommand;
+        VerticalSlideLeft.setExtension(LiftCommand);
+        VerticalSlideRight.setExtension(LiftCommand);
+    }
+
+    public void fingersInjest() {
+        fingerLeft.goToPreset(SkystoneRobotCfg.FingersServoPresets.FORWARD);
+        fingerRight.goToPreset(SkystoneRobotCfg.FingersServoPresets.FORWARD);
+    }
+
+    public void fingerEject() {
+        fingerLeft.goToPreset(SkystoneRobotCfg.FingersServoPresets.BACKWARD);
+        fingerRight.goToPreset(SkystoneRobotCfg.FingersServoPresets.BACKWARD);
+    }
+
+    public void fingersRight() {
+        fingerLeft.goToPreset(SkystoneRobotCfg.FingersServoPresets.BACKWARD);
+        fingerRight.goToPreset(SkystoneRobotCfg.FingersServoPresets.FORWARD);
+    }
+
+    public void fingersLeft() {
+        fingerLeft.goToPreset(SkystoneRobotCfg.FingersServoPresets.FORWARD);
+        fingerRight.goToPreset(SkystoneRobotCfg.FingersServoPresets.BACKWARD);
+    }
+
+    public void fingersStop() {
+        fingerLeft.goToPreset(SkystoneRobotCfg.FingersServoPresets.STOP);
+        fingerRight.goToPreset(SkystoneRobotCfg.FingersServoPresets.STOP);
+    }
+
+    public void wrist90() {
+        if (HorizontalSlide.getExtensionEncoder() > WristKeepOutOuterLimit) {
+            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.NINETY);
         }
     }
 
-    public void armGrabbing() {
-        if (lift.getExtensionEncoder() >= manualSafeHeight) {
-            elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.GRABBING);
-            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.GRABBING);
-            isArmExtended = false;
-
-        }
+    public void wrist0() {
+        wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.ZERO);
     }
 
-    public void armStowed() {
-        if (lift.getExtensionEncoder() >= manualSafeHeight) {
-            elbow.goToPreset(SkystoneRobotCfg.ElbowServoPresets.STOWED);
-            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.STOWED);
-            isArmExtended = false;
-
-        }
+    public double getLiftPosition() {
+        return ((VerticalSlideLeft.getExtensionEncoder() + VerticalSlideRight.getExtensionEncoder()) / 2);
     }
 
-    public void grab() {
-        fingers.goToPreset(SkystoneRobotCfg.FingersServoPresets.GRAB);
+    public void setLiftPosition(double liftPosition) {
+        VerticalSlideLeft.setExtension(liftPosition);
+        VerticalSlideRight.setExtension(liftPosition);
     }
 
-    public void release() { fingers.goToPreset(SkystoneRobotCfg.FingersServoPresets.RELEASE); }
-
-    public LinearSlide getLift() {
-        return lift;
-    }
 
     public boolean isDone() {
-        return lift.isDone() && elbow.isDone() && wrist.isDone() && fingers.isDone();
-    }
-
-    public boolean armIsDone() {
-        return elbow.isDone() && wrist.isDone() && fingers.isDone();
+        return HorizontalSlide.isDone() && VerticalSlideRight.isDone() && VerticalSlideLeft.isDone() && wrist.isDone() && gripper.isDone();
     }
 
     public void pre_act() {
-        lift.pre_act();
+        HorizontalSlide.pre_act();
+        VerticalSlideLeft.pre_act();
+        VerticalSlideRight.pre_act();
     }
 
     public void act() {
         stateMachine.act();
-        elbow.act();
+        VerticalSlideRight.act();
+        VerticalSlideLeft.act();
+        HorizontalSlide.act();
         wrist.act();
-        fingers.act();
-        lift.act();
+        gripper.act();
+        fingerLeft.act();
+        fingerRight.act();
     }
+}
 
     /////////////////////////
     ///stateMachineSection///
