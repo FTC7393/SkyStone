@@ -130,38 +130,38 @@ public class LiftArmV2 {
     }
 
     public void fingersInjest() {
-        fingerLeft.goToPreset(SkystoneRobotCfg.FingersServoPresets.FORWARD);
-        fingerRight.goToPreset(SkystoneRobotCfg.FingersServoPresets.FORWARD);
+        fingerLeft.goToPreset(SkystoneRobotCfgV2.FingerLeftServoPresets.FORWARD);
+        fingerRight.goToPreset(SkystoneRobotCfgV2.FingerRightServoPresets.FORWARD);
     }
 
     public void fingerEject() {
-        fingerLeft.goToPreset(SkystoneRobotCfg.FingersServoPresets.BACKWARD);
-        fingerRight.goToPreset(SkystoneRobotCfg.FingersServoPresets.BACKWARD);
+        fingerLeft.goToPreset(SkystoneRobotCfgV2.FingerLeftServoPresets.BACKWARD);
+        fingerRight.goToPreset(SkystoneRobotCfgV2.FingerRightServoPresets.BACKWARD);
     }
 
     public void fingersRight() {
-        fingerLeft.goToPreset(SkystoneRobotCfg.FingersServoPresets.BACKWARD);
-        fingerRight.goToPreset(SkystoneRobotCfg.FingersServoPresets.FORWARD);
+        fingerLeft.goToPreset(SkystoneRobotCfgV2.FingerLeftServoPresets.BACKWARD);
+        fingerRight.goToPreset(SkystoneRobotCfgV2.FingerRightServoPresets.FORWARD);
     }
 
     public void fingersLeft() {
-        fingerLeft.goToPreset(SkystoneRobotCfg.FingersServoPresets.FORWARD);
-        fingerRight.goToPreset(SkystoneRobotCfg.FingersServoPresets.BACKWARD);
+        fingerLeft.goToPreset(SkystoneRobotCfgV2.FingerLeftServoPresets.FORWARD);
+        fingerRight.goToPreset(SkystoneRobotCfgV2.FingerRightServoPresets.BACKWARD);
     }
 
     public void fingersStop() {
-        fingerLeft.goToPreset(SkystoneRobotCfg.FingersServoPresets.STOP);
-        fingerRight.goToPreset(SkystoneRobotCfg.FingersServoPresets.STOP);
+        fingerLeft.goToPreset(SkystoneRobotCfgV2.FingerLeftServoPresets.STOP);
+        fingerRight.goToPreset(SkystoneRobotCfgV2.FingerRightServoPresets.STOP);
     }
 
     public void wrist90() {
         if (HorizontalSlide.getExtensionEncoder() > WristKeepOutOuterLimit) {
-            wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.NINETY);
+            wrist.goToPreset(SkystoneRobotCfgV2.WristServoPresets.NINETY);
         }
     }
 
     public void wrist0() {
-        wrist.goToPreset(SkystoneRobotCfg.WristServoPresets.ZERO);
+        wrist.goToPreset(SkystoneRobotCfgV2.WristServoPresets.ZERO);
     }
 
     public double getLiftPosition() {
@@ -193,6 +193,12 @@ public class LiftArmV2 {
         gripper.act();
         fingerLeft.act();
         fingerRight.act();
+    }
+
+    public void stop(){
+        VerticalSlideRight.stopExtension();
+        VerticalSlideLeft.stopExtension();
+        HorizontalSlide.stopExtension();
     }
 }
 
