@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FlyWheels;
@@ -52,11 +53,11 @@ public class SkystoneRobotCfg extends RobotCfg {
         super(hardwareMap);
         double scaleFactor = 1.0;
         mecanumControl = new MecanumControl(new MecanumMotors(
-                Motors.withEncoder(hardwareMap.dcMotor.get("frontLeft"), true, true, stoppers), // 0
-                Motors.withEncoder(hardwareMap.dcMotor.get("frontRight"), false, true, stoppers), // 1
+                Motors.withEncoder(hardwareMap.get(DcMotorEx.class, "frontLeft"), true, true, stoppers), // 0
+                Motors.withEncoder(hardwareMap.get(DcMotorEx.class, "frontRight"), false, true, stoppers), // 1
 
-                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backRight"), true, true, stoppers), scaleFactor), // 2
-                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backLeft"), false, true, stoppers), scaleFactor), // 3
+                Motors.scale(Motors.withEncoder(hardwareMap.get(DcMotorEx.class, "backRight"), true, true, stoppers), scaleFactor), // 2
+                Motors.scale(Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"backLeft"), false, true, stoppers), scaleFactor), // 3
                 true, MAX_ROBOT_SPEED,MAX_ROBOT_SPEED_SIDEWAYS));
 
         servos = new Servos(ServoCfg.createServoMap(hardwareMap, servoStartPresetMap));
