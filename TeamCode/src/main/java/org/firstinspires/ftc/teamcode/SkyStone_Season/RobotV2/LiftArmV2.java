@@ -129,7 +129,7 @@ public class LiftArmV2 {
         VerticalSlideRight.setExtension(LiftCommand);
     }
 
-    public void fingersInjest() {
+    public void fingersIngest() {
         fingerLeft.goToPreset(SkystoneRobotCfgV2.FingerLeftServoPresets.FORWARD);
         fingerRight.goToPreset(SkystoneRobotCfgV2.FingerRightServoPresets.FORWARD);
     }
@@ -158,6 +158,14 @@ public class LiftArmV2 {
         if (HorizontalSlide.getExtensionEncoder() > WristKeepOutOuterLimit) {
             wrist.goToPreset(SkystoneRobotCfgV2.WristServoPresets.NINETY);
         }
+    }
+
+    public void gripperGrab() {
+        gripper.goToPreset(SkystoneRobotCfgV2.GripperServoPresets.GRAB);
+    }
+
+    public void gripperRelease() {
+        gripper.goToPreset(SkystoneRobotCfgV2.GripperServoPresets.RELEASE);
     }
 
     public void wrist0() {
