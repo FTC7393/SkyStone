@@ -30,6 +30,7 @@ import ftc.evlib.hardware.control.MecanumControl;
 import ftc.evlib.hardware.control.RotationControls;
 import ftc.evlib.hardware.control.TranslationControls;
 import ftc.evlib.hardware.sensors.AnalogSensor;
+import ftc.evlib.hardware.sensors.AveragedSensor;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
@@ -54,6 +55,7 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     private Thread cameraInit;
     private ResultReceiver<Boolean> startRR = new BasicResultReceiver<>();
     private double servoSpeed = 1;
+    AveragedSensor cycleTime;
 
     @Override
     protected SkystoneRobotCfg createRobotCfg() {
@@ -109,8 +111,14 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
             @Override
             public Double getValue() {
                         return robotCfg.getMinusXDistanceSensor().cmUltrasonic();
+                }
+                 }),
+                new Logger.Column("cycle time", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return cycleTime.getValue();
                     }
-        })
+                })
         ));    }
 
     @Override
@@ -141,6 +149,20 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         };
 
         cameraInit = new Thread(r);
+
+        AnalogSensor ctSensor = new AnalogSensor() {
+            long lastTime = System.currentTimeMillis();
+            @Override
+            public Double getValue() {
+                long now = System.currentTimeMillis();
+                long diff = now - lastTime;
+                lastTime = now;
+                return (double) diff;
+            }
+        };
+
+        cycleTime = new AveragedSensor(ctSensor, 30);
+
     }
 
     private void sleep(long sleepTimeMillis) {
@@ -171,12 +193,14 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
 
     @Override
     protected void act() {
+        cycleTime.act();
         telemetry.addData("gyro", robotCfg.getGyro().getHeading());
         telemetry.addData("state", stateMachine.getCurrentStateName());
         telemetry.addData("current thread", Thread.currentThread().getName());
         telemetry.addData("state for detetcting skystone", skystonePosStateRR.getValue());
         telemetry.addData("ratio of both stones", pipeline.getStoneRatioII().getValue());
         telemetry.addData("pods distance", robotCfg.getPlusYDistanceSensor().getValue());
+        telemetry.addData("cycle time", cycleTime.getValue());
     }
 
 
@@ -267,7 +291,9 @@ public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
         final double target = 12.5;
 if(doSkyStone== true){
         if(teamColor == TeamColor.BLUE) {
-            b.addDrive(S.DRIVE_FORWARD, S.DRIVE_TO_STONES, Distance.fromFeet(0.6), 0.4, 90, 0);
+            b.addDrive(S.DRIVE_FORWARD, S.STOP, Distance.fromFeet(5), 0.15, 90, 0);
+
+//            b.addDrive(S.DRIVE_FORWARD, S.DRIVE_TO_STONES, Distance.fromFeet(0.6), 0.4, 90, 0);
             b.addDrive(S.DRIVE_TO_STONES, StateMap.of(
                     S.TURN_1, EndConditions.timed(5000),
                     S.TURN_1, valueBetween(15, podsSensor, target, 1.5)

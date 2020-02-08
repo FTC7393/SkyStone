@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -9,6 +10,7 @@ import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FlyWheels;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FoundationMover;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.LiftArm;
 
+import java.util.List;
 import java.util.Map;
 
 import ftc.electronvolts.statemachine.StateName;
@@ -59,6 +61,11 @@ public class SkystoneRobotCfg extends RobotCfg {
                 Motors.scale(Motors.withEncoder(hardwareMap.get(DcMotorEx.class, "backRight"), true, true, stoppers), scaleFactor), // 2
                 Motors.scale(Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"backLeft"), false, true, stoppers), scaleFactor), // 3
                 true, MAX_ROBOT_SPEED,MAX_ROBOT_SPEED_SIDEWAYS));
+
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+        for(LynxModule module : allHubs) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
 
         servos = new Servos(ServoCfg.createServoMap(hardwareMap, servoStartPresetMap));
 
