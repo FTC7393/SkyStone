@@ -7,6 +7,6 @@ dependencies {
     implementation (name: 'tfod-release', ext:'aar')
     implementation (name: 'tensorflow-lite-0.0.0-nightly', ext:'aar')
     implementation project(':EVLib')
-    implementation files('../libs/state-machine-framework-0.7.10.jar')
+    implementation files('../libs/state-machine-framework-0.7.11.jar')
     implementation 'com.github.dogecv:dogecv:2020.4-alpha'
 }
