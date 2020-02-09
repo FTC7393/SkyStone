@@ -80,8 +80,8 @@ public class FutureFestRobotCfg extends RobotCfg {
         mecanumControl = new MecanumControl(new MecanumMotors(
                 Motors.withEncoder(hardwareMap.dcMotor.get("fl"), false, true, stoppers), // 0
                 Motors.withEncoder(hardwareMap.dcMotor.get("fr") , true, true, stoppers), // 1
-                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("br") , false, true, stoppers),scaleFactor), // 2
-                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("bl") , true, true, stoppers),scaleFactor), // 3
+                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("br") , true, true, stoppers),scaleFactor), // 2
+                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("bl") , false, true, stoppers),scaleFactor), // 3
                 true, MAX_ROBOT_SPEED,MAX_ROBOT_SPEED_SIDEWAYS));
         collector  = hardwareMap.get(DcMotor.class, "collection");
         collector.setPower(0);

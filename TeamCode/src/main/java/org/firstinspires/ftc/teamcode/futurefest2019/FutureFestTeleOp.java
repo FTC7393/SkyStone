@@ -19,7 +19,6 @@ import ftc.evlib.opmodes.AbstractTeleOp;
  * Created by ftc7393 on 9/22/2018.
  */
 @TeleOp(name = "FutureFest")
-@Disabled
 public class FutureFestTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
 //    private int dumperDownEncTarget = 0;
 //    private int dumperUpEncTarget = 0;
@@ -95,9 +94,10 @@ public class FutureFestTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
     }
     private void forwardControl() {
         double f = currentSpeedFactor.getFactor();
-        rightY = new ScalingInputExtractor(driver1.right_stick_y, f);
-        leftX = new ScalingInputExtractor(driver1.left_stick_x, f);
         rightX = new ScalingInputExtractor(InputExtractors.negative(driver1.right_stick_x), f);
+        rightY = new ScalingInputExtractor(InputExtractors.negative(driver1.right_stick_y), f);
+
+        leftX = new ScalingInputExtractor(InputExtractors.negative(driver1.left_stick_x), f);
         //noinspection SuspiciousNameCombination
         robotCfg.getMecanumControl().setTranslationControl(TranslationControls.inputExtractorXY(rightY, rightX));
 //        robotCfg.getMecanumControl().setRotationControl(RotationControls.teleOpGyro(leftX, robotCfg.getGyro()));
@@ -141,7 +141,14 @@ public class FutureFestTeleOp extends AbstractTeleOp<FutureFestRobotCfg> {
         } else {
             dumpMotor.setPower(0);
         }
-//        telemetry.addData("dumped?" , dumperIsUp);
+        int e0 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0);
+        int e1 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(1);
+        int e2 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(2);
+        int e3 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(3);
+        telemetry.addData("fl" , e0);
+        telemetry.addData("fr" , e1);
+        telemetry.addData("br" , e2);
+        telemetry.addData("bl" , e3);
     }
 
     @Override

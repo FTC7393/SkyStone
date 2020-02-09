@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.AnalogInputEdgeDetector;
@@ -17,8 +18,8 @@ import ftc.evlib.opmodes.AbstractTeleOp;
 /**
  * Created by ftc7393 on 9/22/2018.
  */
-@TeleOp(name = "SkyStone Tele")
-
+@TeleOp(name = "SkyStone Tele2")
+@Disabled
 public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private boolean skystoneServoPresetDown = true;
     private boolean manualGrabberClosed = true;

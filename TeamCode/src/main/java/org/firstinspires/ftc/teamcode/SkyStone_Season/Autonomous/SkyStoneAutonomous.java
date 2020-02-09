@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -39,7 +40,7 @@ import ftc.evlib.util.FileUtil;
 import ftc.evlib.util.ImmutableList;
 
 @Autonomous(name = "SkyStoneAuto")
-
+@Disabled
 public class SkyStoneAutonomous extends AbstractAutoOp<SkystoneRobotCfg> {
     private Gyro gyro;
     private MecanumControl mecanumControl;
