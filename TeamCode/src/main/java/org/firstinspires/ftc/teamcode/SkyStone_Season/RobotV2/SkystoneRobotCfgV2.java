@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorREV2mDistance;
@@ -36,8 +38,8 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
     private final Gyro gyro0;
     private final LiftArmV2 liftArmV2;
     private final NewFoundationMover newFoundationMover;
-    private final SensorREV2mDistance plusYDistanceSensor;
-    private final SensorREV2mDistance minusYDistanceSensor;
+    private final Rev2mDistanceSensor plusYDistanceSensor;
+    private final Rev2mDistanceSensor minusYDistanceSensor;
 //    private final AveragedSensor plusYDistanceSensor;
 
 
@@ -81,8 +83,9 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
 
       //  plusXDistanceSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "plusXSensor");
 
-        minusYDistanceSensor = hardwareMap.get(SensorREV2mDistance.class, "minusYSensor");
-        plusYDistanceSensor = hardwareMap.get(SensorREV2mDistance.class, "plusYSensor");
+
+        minusYDistanceSensor = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "minusYSensor");
+        plusYDistanceSensor = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "plusYSensor");
 
         Function podsCal = new Function() {
             @Override
@@ -223,11 +226,11 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
 //        return plusXDistanceSensor;
 //    }
 
-    public SensorREV2mDistance getMinusYDistanceSensor() {
+    public Rev2mDistanceSensor getMinusYDistanceSensor() {
         return minusYDistanceSensor;
     }
 
-    public SensorREV2mDistance getPlusYDistanceSensor() {
+    public Rev2mDistanceSensor getPlusYDistanceSensor() {
         return plusYDistanceSensor;
     }
 
