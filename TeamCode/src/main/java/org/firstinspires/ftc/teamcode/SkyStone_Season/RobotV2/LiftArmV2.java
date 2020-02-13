@@ -24,7 +24,7 @@ public class LiftArmV2 {
     private LinearSlide HorizontalSlide;
     private LinearSlide VerticalSlideRight;
     private LinearSlide VerticalSlideLeft;
-    private StateMachine stateMachine;
+//    private StateMachine stateMachine;
     private double LiftCommand;
     private double ExtensionCommand;
     private double WristCommand;
@@ -205,7 +205,7 @@ public class LiftArmV2 {
     }
 
     public void act() {
-        stateMachine.act();
+//        stateMachine.act();
         VerticalSlideRight.act();
         VerticalSlideLeft.act();
         HorizontalSlide.act();
