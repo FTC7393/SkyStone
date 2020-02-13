@@ -17,7 +17,7 @@ import ftc.evlib.opmodes.AbstractTeleOp;
 /**
  * Created by ftc7393 on 9/22/2018.
  */
-@TeleOp(name = "SkyStone Tele")
+@TeleOp(name = "SkyStone Tele V2")
 
 public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private boolean skystoneServoPresetDown = true;
