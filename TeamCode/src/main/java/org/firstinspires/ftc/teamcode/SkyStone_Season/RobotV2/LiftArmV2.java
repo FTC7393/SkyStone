@@ -186,6 +186,18 @@ public class LiftArmV2 {
         return HorizontalSlide.isDone() && VerticalSlideRight.isDone() && VerticalSlideLeft.isDone() && wrist.isDone() && gripper.isDone();
     }
 
+    public boolean verticalIsDone() {
+       return VerticalSlideRight.isDone() && VerticalSlideLeft.isDone();
+    }
+
+    public boolean horizontalIsDone() {
+        return HorizontalSlide.isDone();
+    }
+
+    public boolean handIsDone() {
+       return wrist.isDone() && gripper.isDone();
+    }
+
     public void pre_act() {
         HorizontalSlide.pre_act();
         VerticalSlideLeft.pre_act();
