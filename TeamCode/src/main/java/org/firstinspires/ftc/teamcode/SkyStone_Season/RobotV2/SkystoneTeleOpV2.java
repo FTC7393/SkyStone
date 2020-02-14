@@ -144,6 +144,11 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         telemetry.addData("horizontalLimit",robotCfg.getLiftArmV2().getLowerLimitHorizontal().getValue());
         telemetry.addData("rightLimit",robotCfg.getLiftArmV2().getLowerLimitVerticalRight().getValue());
         telemetry.addData("LeftLimit",robotCfg.getLiftArmV2().getLowerLimitVerticalLeft().getValue());
+        telemetry.addData("liftCommand",robotCfg.getLiftArmV2().getLiftCommand());
+        telemetry.addData("extensionCommand",robotCfg.getLiftArmV2().getExtensionCommand());
+        telemetry.addData("extensionCommand",robotCfg.getLiftArmV2().getHorizontalEncoder());
+        telemetry.addData("extensionCommand",robotCfg.getLiftArmV2().getLowerLimitVerticalLeft());
+        telemetry.addData("extensionCommand",robotCfg.getLiftArmV2().getLowerLimitVerticalRight());
 
         //left stick button toggles fast and slow mode
 

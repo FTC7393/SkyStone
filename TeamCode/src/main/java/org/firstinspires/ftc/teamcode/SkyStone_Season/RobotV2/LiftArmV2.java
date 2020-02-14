@@ -196,6 +196,26 @@ public class LiftArmV2 {
         return ((VerticalSlideLeft.getExtensionEncoder() + VerticalSlideRight.getExtensionEncoder()) / 2);
     }
 
+    public double getVerticalLeftEncoder() {
+        return VerticalSlideLeft.getExtensionEncoder();
+    }
+
+    public double getVerticalRightEncoder() {
+        return VerticalSlideRight.getExtensionEncoder();
+    }
+
+    public double getHorizontalEncoder() {
+        return HorizontalSlide.getExtensionEncoder();
+    }
+
+    public double getLiftCommand(){
+        return LiftCommand;
+    }
+
+    public double getExtensionCommand(){
+        return ExtensionCommand;
+    }
+
     public void setLiftPosition(double liftPosition) {
         VerticalSlideLeft.setExtension(liftPosition);
         VerticalSlideRight.setExtension(liftPosition);
