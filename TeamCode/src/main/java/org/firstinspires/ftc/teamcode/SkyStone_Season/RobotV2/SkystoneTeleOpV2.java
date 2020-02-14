@@ -28,8 +28,8 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private AnalogInputEdgeDetector driver2RightXRight;
     private AnalogInputEdgeDetector driver2RightTrigger;
     private AnalogInputEdgeDetector driver2LeftTrigger;
-    private final double liftspeed = 1;
-    private final double extensionspeed = 1;
+    private final double liftspeed = 100;
+    private final double extensionspeed = 100;
     private final double collectorspeed = 1;
     private boolean wristtoggle = false;
 
