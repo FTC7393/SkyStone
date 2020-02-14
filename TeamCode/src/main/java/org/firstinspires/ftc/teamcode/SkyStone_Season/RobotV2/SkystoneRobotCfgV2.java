@@ -69,8 +69,8 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
                 getFingerRight(),
                 getFingerLeft(),
                 Motors.withEncoder(hardwareMap.dcMotor.get("VerticalRightMotor"), false, true, stoppers),
-                Motors.withEncoder(hardwareMap.dcMotor.get("VerticalLeftMotor"), false, true, stoppers),
-                Motors.withEncoder(hardwareMap.dcMotor.get("HorizontalMotor"), false, true, stoppers),
+                Motors.withEncoder(hardwareMap.dcMotor.get("VerticalLeftMotor"), true, true, stoppers),
+                Motors.withEncoder(hardwareMap.dcMotor.get("HorizontalMotor"), true, true, stoppers),
                 Sensors.inv(Sensors.digital(hardwareMap,"lowerLimitVerticalRight")),
                 Sensors.inv(Sensors.digital(hardwareMap,"lowerLimitVerticalLeft")),
                 Sensors.inv(Sensors.digital(hardwareMap,"lowerLimitHorizontal"))

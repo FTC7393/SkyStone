@@ -176,8 +176,8 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
             robotCfg.getNewFoundationMover().servosUp();
         }
 
-        robotCfg.getLiftArmV2().controlLift(driver2.left_stick_y.getValue()* liftspeed);
-        robotCfg.getLiftArmV2().controlExtension(driver2.right_stick_x.getValue() * extensionspeed);
+        robotCfg.getLiftArmV2().controlLift(-driver2.left_stick_y.getValue()* liftspeed);
+        robotCfg.getLiftArmV2().controlExtension(-driver2.right_stick_y.getValue() * extensionspeed);
 
 
         if(driver2.y.justPressed()) {
