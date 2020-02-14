@@ -67,17 +67,17 @@ public class LiftArmStatesV2 extends States {
         };
     }
 
-    public static State liftMove(final StateName nextStateName, final LiftArm liftArm, final double liftPosition, final boolean waitForDone){
+    public static State liftMove(final StateName nextStateName, final LiftArmV2 liftArm, final double liftPosition, final boolean waitForDone){
         return new BasicAbstractState() {
             @Override
             public void init() {
-                liftArm.getLift().setExtension(liftPosition);
+                liftArm.setLiftPosition(5);
             }
 
             @Override
             public boolean isDone() {
                 if(waitForDone){
-                    return liftArm.getLift().isDone();
+               return liftArm.isDone();
                 }else{
                     return true;
                 }
