@@ -171,9 +171,12 @@ public class LiftArmV2 {
         fingerRight.goToPreset(SkystoneRobotCfgV2.FingerRightServoPresets.STOP);
     }
 
-    public void wrist90() {
+    public boolean wrist90() {
         if (HorizontalSlide.getExtensionEncoder() > WristKeepOutOuterLimit) {
             wrist.goToPreset(SkystoneRobotCfgV2.WristServoPresets.NINETY);
+            return true;
+        } else {
+            return false;
         }
     }
 

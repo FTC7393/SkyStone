@@ -177,8 +177,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
 
         if(driver2.y.justPressed()) {
             if(wristtoggle == false) {
-                wristtoggle = true;
-                robotCfg.getLiftArmV2().wrist90();
+                wristtoggle = robotCfg.getLiftArmV2().wrist90();
             } else {
                 robotCfg.getLiftArmV2().wrist0();
                 wristtoggle = false;
