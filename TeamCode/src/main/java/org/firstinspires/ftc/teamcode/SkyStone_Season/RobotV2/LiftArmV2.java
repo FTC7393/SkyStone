@@ -20,11 +20,17 @@ import ftc.evlib.statemachine.EVStates;
 public class LiftArmV2 {
 
     private final ServoControl wrist, gripper, fingerLeft, fingerRight;
+
+
+
+    private final DigitalSensor lowerLimitVerticalRight;
+    private final DigitalSensor lowerLimitVerticalLeft;
+    private final DigitalSensor lowerLimitHorizontal;
     private boolean isArmExtended = false;
     private LinearSlide HorizontalSlide;
     private LinearSlide VerticalSlideRight;
     private LinearSlide VerticalSlideLeft;
-    private StateMachine stateMachine;
+//    private StateMachine stateMachine;
     private double LiftCommand;
     private double ExtensionCommand;
     private double WristCommand;
@@ -59,6 +65,9 @@ public class LiftArmV2 {
                 VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalLeft);
         this.HorizontalSlide = new LinearSlide(HorizontalMotor, new PIDController(0.003, 0, 0, .5),
                 HorizontalMaxExtension, LiftToleranceHorizontal, lowerLimitHorizontal);
+        this.lowerLimitVerticalRight = lowerLimitVerticalRight;
+        this.lowerLimitVerticalLeft= lowerLimitVerticalLeft;
+        this.lowerLimitHorizontal = lowerLimitHorizontal;
 //        this.rrCommand = new BasicResultReceiver<>();
 //        this.rrPlacingHeight = new InputExtractor<Integer>(){
 //            @Override
@@ -98,7 +107,15 @@ public class LiftArmV2 {
 //
 //        this.stateMachine = buildStates();
     }
-
+    public DigitalSensor getLowerLimitVerticalLeft() {
+        return lowerLimitVerticalLeft;
+    }
+    public DigitalSensor getLowerLimitHorizontal() {
+        return lowerLimitHorizontal;
+    }
+    public DigitalSensor getLowerLimitVerticalRight() {
+        return lowerLimitVerticalRight;
+    }
     public void controlExtension(double extensionDelta) {
         double newCommand = HorizontalSlide.getExtensionEncoder() + extensionDelta;
         if (VerticalSlideRight.getExtensionEncoder() < LiftKeepOutUpperLimit && VerticalSlideLeft.getExtensionEncoder() < LiftKeepOutUpperLimit) {
@@ -205,7 +222,7 @@ public class LiftArmV2 {
     }
 
     public void act() {
-        stateMachine.act();
+//        stateMachine.act();
         VerticalSlideRight.act();
         VerticalSlideLeft.act();
         HorizontalSlide.act();

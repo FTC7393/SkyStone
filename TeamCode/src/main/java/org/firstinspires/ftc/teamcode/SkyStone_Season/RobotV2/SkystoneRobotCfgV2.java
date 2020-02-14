@@ -48,11 +48,11 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         super(hardwareMap);
         double scaleFactor = 1.0;
         mecanumControl = new MecanumControl(new MecanumMotors(
-                Motors.withEncoder(hardwareMap.dcMotor.get("frontLeft"), true, true, stoppers), // 0
-                Motors.withEncoder(hardwareMap.dcMotor.get("frontRight"), false, true, stoppers), // 1
+                Motors.withEncoder(hardwareMap.dcMotor.get("backLeft"), true, true, stoppers), // 0
+                Motors.withEncoder(hardwareMap.dcMotor.get("frontLeft"), false, true, stoppers), // 1
 
-                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backRight"), true, true, stoppers), scaleFactor), // 2
-                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backLeft"), false, true, stoppers), scaleFactor), // 3
+                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("frontRight"), false, true, stoppers), scaleFactor), // 2
+                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backRight"), true, true, stoppers), scaleFactor), // 3
                 true, MAX_ROBOT_SPEED,MAX_ROBOT_SPEED_SIDEWAYS));
 
         servos = new Servos(ServoCfg.createServoMap(hardwareMap, servoStartPresetMap));
@@ -87,14 +87,14 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         minusYDistanceSensor = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "minusYSensor");
         plusYDistanceSensor = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "plusYSensor");
 
-        Function podsCal = new Function() {
-            @Override
-            public double f(double x) {
-                return (-2.04 + 2.15 * x - 0.0318*x*x); //CENTIMETERS!!!!!!
-            }
-        };
-        final ftc.evlib.hardware.sensors.AnalogSensor analogSensorRawPods;
-        analogSensorRawPods = Sensors.analog(hardwareMap, "plusYSensor");
+//        Function podsCal = new Function() {
+//            @Override
+//            public double f(double x) {
+//                return (-2.04 + 2.15 * x - 0.0318*x*x); //CENTIMETERS!!!!!!
+//            }
+//        };
+//        final ftc.evlib.hardware.sensors.AnalogSensor analogSensorRawPods;
+//        analogSensorRawPods = Sensors.analog(hardwareMap, "plusYSensor");
 
 //        plusYDistanceSensor = new AveragedSensor(analogSensorRawPods, 1, podsCal);
     }
@@ -106,8 +106,8 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
     }
 
     public enum WristServoPresets {
-        NINETY,
-        ZERO
+        ZERO,
+        NINETY
     }
 
     public enum GripperServoPresets {
@@ -116,14 +116,15 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
     }
 
     public enum FingerLeftServoPresets {
+        STOP,
         FORWARD,
-        BACKWARD,
-        STOP
+        BACKWARD
+
     }
     public enum FingerRightServoPresets {
+        STOP,
         FORWARD,
-        BACKWARD,
-        STOP
+        BACKWARD
     }
 
     public enum RightFoundationMoverServoPresets {

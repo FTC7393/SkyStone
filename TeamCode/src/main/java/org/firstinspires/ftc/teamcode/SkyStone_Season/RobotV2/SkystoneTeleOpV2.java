@@ -30,7 +30,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private AnalogInputEdgeDetector driver2LeftTrigger;
     private final double liftspeed = 1;
     private final double extensionspeed = 1;
-    private final double collectorspeed = 0.45;
+    private final double collectorspeed = 1;
     private boolean wristtoggle = false;
 
 
@@ -112,11 +112,11 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private void forwardControl() {
         double f = currentSpeedFactor.getFactor();
         // translation
-        leftX = new ScalingInputExtractor(driver1.left_stick_x, -f, f);
-        leftY = new ScalingInputExtractor(driver1.left_stick_y, -f, f);
+        leftX = new ScalingInputExtractor(driver1.right_stick_x, -f, f);
+        leftY = new ScalingInputExtractor(driver1.left_stick_x, -f, f);
 
         // rotation (only uses right X)
-        rightX = new ScalingInputExtractor(driver1.right_stick_x, -f, f);
+        rightX = new ScalingInputExtractor(driver1.left_stick_y, f, f);
         robotCfg.getMecanumControl().setTranslationControl(TranslationControls.inputExtractorXY(leftY, leftX));
 //        robotCfg.getMecanumControl().setRotationControl(RotationControls.teleOpGyro(leftX, robotCfg.getGyro()));
         robotCfg.getMecanumControl().setRotationControl(RotationControls.inputExtractor(rightX));
@@ -137,6 +137,14 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         driver2RightTrigger.update();
         driver2LeftTrigger.update();
 
+//        telemetry.addData("backLeft",robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0));
+//        telemetry.addData("frontLeft",robotCfg.getMecanumControl().getMecanumMotors().getEncoder(1));
+//        telemetry.addData("frontRight",robotCfg.getMecanumControl().getMecanumMotors().getEncoder(2));
+//        telemetry.addData("backRight",robotCfg.getMecanumControl().getMecanumMotors().getEncoder(3));
+        telemetry.addData("horizontalLimit",robotCfg.getLiftArmV2().getLowerLimitHorizontal().getValue());
+        telemetry.addData("rightLimit",robotCfg.getLiftArmV2().getLowerLimitVerticalRight().getValue());
+        telemetry.addData("LeftLimit",robotCfg.getLiftArmV2().getLowerLimitVerticalLeft().getValue());
+
         //left stick button toggles fast and slow mode
 
         if(driver1.left_stick_button.justPressed()) {
@@ -153,15 +161,13 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         // But is the right trigger is pressed in different levels (0.9, 0.6 and 0.3) it can set the collector power to different speeds
 
 
-            robotCfg.getBlockCollector().setPower(collectorspeed*(driver1.right_trigger.getValue()
+            robotCfg.getBlockCollector().setPower(-collectorspeed*(driver1.right_trigger.getValue()
             -driver1.left_trigger.getValue()));
 
-        if ((driver1.left_bumper.justPressed() && !driver2.left_bumper.isPressed()) ||
-                (driver2.left_bumper.justPressed() && !driver1.left_bumper.isPressed())){
+        if (driver1.left_bumper.justPressed()){
             robotCfg.getNewFoundationMover().servosDown();
         }
-        if ((driver1.left_bumper.justReleased() && !driver2.left_bumper.isPressed()) ||
-                (driver2.left_bumper.justReleased() && !driver1.left_bumper.isPressed())){
+        if (driver1.left_bumper.justReleased()){
             robotCfg.getNewFoundationMover().servosUp();
         }
 
