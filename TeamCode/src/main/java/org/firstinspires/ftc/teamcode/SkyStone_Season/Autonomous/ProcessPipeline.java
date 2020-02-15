@@ -7,7 +7,6 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
-import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.util.BasicResultReceiver;
 import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.TeamColor;
@@ -32,8 +31,8 @@ class ProcessPipeline extends OpenCvPipeline {
     private final BasicResultReceiver<SkyStonePos> StateRR;
     private final TeamColor tc;
     private final BasicResultReceiver<Boolean> canUpdateSRR;
-    private final int x1 = 75, y1 = 368, w1 = 73, h1 = 43;
-    private int x2 = x1 + 200, y2 = 364, w2 = w1, h2 = h1 + 10;
+    private final int x1 = 99, y1 = 146, w1 = 45, h1 = 27;
+    private int x2 = x1 + 200, y2 = 146, w2 = w1, h2 = h1 + 10;
     private Mat m1;
     private Mat m2;
     private final int minStabalizationCycles;
@@ -62,7 +61,7 @@ class ProcessPipeline extends OpenCvPipeline {
                     blue2 = 0.1;
                 }
                 double ratio = blue / blue2;
-                option = getNextStateName(ratio);
+                option = getSkyStonePos(ratio);
                 stoneratio = blue / blue2;
                 StateRR.setValue(option);
             }
@@ -73,7 +72,7 @@ class ProcessPipeline extends OpenCvPipeline {
         return input;
     }
 
-    private SkyStonePos getNextStateName(double ratio) {
+    private SkyStonePos getSkyStonePos(double ratio){
         SkyStonePos opt;
         double maxBlueRatioLeft = 0.5; //all values below this indicate that the dark stone is on the left
         double minBlueRatioRight = 2.0; //all values above this indicate that the dark stone is on the right

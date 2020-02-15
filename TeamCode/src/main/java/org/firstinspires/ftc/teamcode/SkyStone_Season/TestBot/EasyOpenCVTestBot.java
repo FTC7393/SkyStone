@@ -5,12 +5,14 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2.SkystoneRobotCfgV2;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
@@ -21,35 +23,34 @@ import ftc.electronvolts.util.files.Logger;
 import ftc.evlib.opmodes.AbstractTeleOp;
 
 @TeleOp(name = "EasyOpenCVTele")
-@Disabled
-public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
-    OpenCvCamera phoneCam;
+
+public class EasyOpenCVTestBot extends AbstractTeleOp<SkystoneRobotCfgV2> {
+    private OpenCvCamera phoneCam;
     private BasicResultReceiver<Boolean> rr = new BasicResultReceiver<>();
-    int x,y,w,h;
-    static int xStatic, yStatic, wStatic, hStatic;
-    public boolean isLocked = false;
-    InputExtractor<Integer> xii = new InputExtractor<Integer>() {
+    private int x,y,w,h;
+    private static int xStatic, yStatic, wStatic, hStatic;
+    private InputExtractor<Integer> xii = new InputExtractor<Integer>() {
         @Override
         public Integer getValue() {
             return x;
         }
     };
 
-    InputExtractor<Integer> yii = new InputExtractor<Integer>() {
+    private InputExtractor<Integer> yii = new InputExtractor<Integer>() {
         @Override
         public Integer getValue() {
             return y;
         }
     };
 
-    InputExtractor<Integer> wii = new InputExtractor<Integer>() {
+    private InputExtractor<Integer> wii = new InputExtractor<Integer>() {
         @Override
         public Integer getValue() {
             return w;
         }
     };
 
-    InputExtractor<Integer> hii = new InputExtractor<Integer>() {
+    private InputExtractor<Integer> hii = new InputExtractor<Integer>() {
         @Override
         public Integer getValue() {
             return h;
@@ -133,8 +134,8 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
     }
 
     @Override
-    protected TestBotRobotCfg createRobotCfg() {
-        return new TestBotRobotCfg(hardwareMap);
+    protected SkystoneRobotCfgV2 createRobotCfg() {
+        return new SkystoneRobotCfgV2(hardwareMap);
     }
 
     @Override
@@ -148,10 +149,10 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
             @Override
             public void run() {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-                camera = new OpenCvWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-                camera.openCameraDevice();
-                camera.setPipeline(new SamplePipeline(xii, yii, wii, hii));
-                camera.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
+                phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+                phoneCam.openCameraDevice();
+                phoneCam.setPipeline(new SamplePipeline(xii, yii, wii, hii));
+                phoneCam.startStreaming(640, 480);
                 rr.setValue(true);
             }
         };
@@ -182,16 +183,8 @@ public class EasyOpenCVTestBot extends AbstractTeleOp<TestBotRobotCfg> {
 //        telemetry.addData("Pipeline time ms", phoneCam.getPipelineTimeMs());
 //        telemetry.addData("Overhead time ms", phoneCam.getOverheadTimeMs());
 //        telemetry.addData("Theoretical max FPS", phoneCam.getCurrentPipelineMaxFps());
-        telemetry.addData("isLocked", isLocked);
-        telemetry.addData("xStatic", xStatic);
-        telemetry.addData("yStatic", yStatic);
-        telemetry.addData("wStatic",wStatic);
-        telemetry.addData("hStatic",hStatic);
-        telemetry.addData("x", x);
-        telemetry.addData("y", y);
-        telemetry.addData("h",h);
-        telemetry.addData("w", w);
-        telemetry.update();
+        boolean isLocked = false;
+
 
         /*
          * NOTE: stopping the stream from the camera early (before the end of the OpMode
