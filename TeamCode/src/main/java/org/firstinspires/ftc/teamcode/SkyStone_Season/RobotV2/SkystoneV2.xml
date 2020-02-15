@@ -13,7 +13,7 @@
             <Servo name="leftFoundationMoverServo" port="4" />
             <Servo name="gripperServo" port="5" />
             <DigitalDevice name="lowerLimitHorizontal" port="1" />
-            <DigitalDevice name="lowerLimitVerticalLeft" port="2" />
+            <DigitalDevice name="lowerLimitVerticalRight" port="2" />
             <LynxEmbeddedIMU name="imu0" port="1" bus="0" />
             <REV_VL53L0X_RANGE_SENSOR name="minusYSensor" port="0" bus="1" />
         </LynxModule>
@@ -22,7 +22,7 @@
             <goBILDA5202SeriesMotor name="backLeft" port="1" />
             <goBILDA5201SeriesMotor name="VerticalLeftMotor" port="2" />
             <goBILDA5202SeriesMotor name="collectorMotor" port="3" />
-            <DigitalDevice name="lowerLimitVerticalRight" port="0" />
+            <DigitalDevice name="lowerLimitVerticalLeft" port="0" />
             <REV_VL53L0X_RANGE_SENSOR name="plusYSensor" port="0" bus="0" />
             <Gyro name="mr0" port="0" bus="1" />
             <REV_VL53L0X_RANGE_SENSOR name="internalBlockDetector" port="0" bus="2" />
