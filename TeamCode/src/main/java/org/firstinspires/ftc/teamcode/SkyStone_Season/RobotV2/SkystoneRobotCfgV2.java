@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -21,6 +22,7 @@ import ftc.evlib.hardware.motors.Motors;
 import ftc.evlib.hardware.sensors.AveragedSensor;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.hardware.sensors.IMUGyro;
+import ftc.evlib.hardware.sensors.MRGyro;
 import ftc.evlib.hardware.sensors.Sensors;
 import ftc.evlib.hardware.servos.ServoCfg;
 import ftc.evlib.hardware.servos.ServoControl;
@@ -57,7 +59,7 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
 
         servos = new Servos(ServoCfg.createServoMap(hardwareMap, servoStartPresetMap));
 
-        gyro0 = new IMUGyro(hardwareMap.get(BNO055IMU.class, "imu0"));
+        gyro0 = new MRGyro(hardwareMap.get(ModernRoboticsI2cGyro.class, "mr0"));
 
         blockCollector = new BlockCollector(
                 Motors.withoutEncoder(hardwareMap.dcMotor.get("collectorMotor"), false, false, stoppers)
