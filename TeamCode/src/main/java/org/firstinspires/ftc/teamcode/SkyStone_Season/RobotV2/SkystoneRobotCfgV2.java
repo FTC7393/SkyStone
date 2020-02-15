@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
@@ -10,6 +11,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorREV2mDistance;
 
+import java.util.List;
 import java.util.Map;
 
 import ftc.electronvolts.util.Function;
@@ -99,6 +101,12 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         blockDetector = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "internalBlockDetector");
 
         odometryWheelSensor = new SimpleEncoderSensor(collectorMotor);
+
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+        for(LynxModule module : allHubs) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+
 
 //        Function podsCal = new Function() {
 //            @Override
