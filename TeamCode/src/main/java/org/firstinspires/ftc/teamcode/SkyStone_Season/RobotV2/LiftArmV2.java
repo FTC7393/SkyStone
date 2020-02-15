@@ -34,8 +34,8 @@ public class LiftArmV2 {
     private double LiftCommand;
     private double ExtensionCommand;
     private double WristCommand;
-    private final int VerticalMaxExtension = 3500;
-    private final int HorizontalMaxExtension = 3500;
+    private final int VerticalMaxExtension = 8000;
+    private final int HorizontalMaxExtension = 1850;
     private final int LiftToleranceHorizontal = 5;
     private final int LiftToleranceVertical = 5;
     private final int LiftKeepOutUpperLimit = 50;
