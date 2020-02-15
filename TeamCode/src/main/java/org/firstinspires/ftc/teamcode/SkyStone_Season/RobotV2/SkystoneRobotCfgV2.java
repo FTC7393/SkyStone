@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -24,6 +25,7 @@ import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.hardware.sensors.IMUGyro;
 import ftc.evlib.hardware.sensors.MRGyro;
 import ftc.evlib.hardware.sensors.Sensors;
+import ftc.evlib.hardware.sensors.SimpleEncoderSensor;
 import ftc.evlib.hardware.servos.ServoCfg;
 import ftc.evlib.hardware.servos.ServoControl;
 import ftc.evlib.hardware.servos.ServoName;
@@ -42,6 +44,8 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
     private final NewFoundationMover newFoundationMover;
     private final Rev2mDistanceSensor plusYDistanceSensor;
     private final Rev2mDistanceSensor minusYDistanceSensor;
+    private final Rev2mDistanceSensor blockDetector;
+    private final SimpleEncoderSensor odometryWheelSensor;
 //    private final AveragedSensor plusYDistanceSensor;
 
 
@@ -50,19 +54,22 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         super(hardwareMap);
         double scaleFactor = 1.0;
         mecanumControl = new MecanumControl(new MecanumMotors(
-                Motors.withEncoder(hardwareMap.dcMotor.get("backLeft"), true, true, stoppers), // 0
-                Motors.withEncoder(hardwareMap.dcMotor.get("frontLeft"), false, true, stoppers), // 1
+                Motors.withEncoder(hardwareMap.get(DcMotorEx.class, "backLeft"), true, true, stoppers), // 0
+                Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"frontLeft"), false, true, stoppers), // 1
 
-                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("frontRight"), false, true, stoppers), scaleFactor), // 2
-                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backRight"), true, true, stoppers), scaleFactor), // 3
+                Motors.scale(Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"frontRight"), false, true, stoppers), scaleFactor), // 2
+                Motors.scale(Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"backRight"), true, true, stoppers), scaleFactor), // 3
                 true, MAX_ROBOT_SPEED,MAX_ROBOT_SPEED_SIDEWAYS));
 
         servos = new Servos(ServoCfg.createServoMap(hardwareMap, servoStartPresetMap));
 
         gyro0 = new MRGyro(hardwareMap.get(ModernRoboticsI2cGyro.class, "mr0"));
 
+
+        DcMotorEx collectorMotor = hardwareMap.get(DcMotorEx.class,"collectorMotor");
+
         blockCollector = new BlockCollector(
-                Motors.withoutEncoder(hardwareMap.dcMotor.get("collectorMotor"), false, false, stoppers)
+                Motors.withoutEncoder(collectorMotor, false, false, stoppers)
         );
 
         liftArmV2 = new LiftArmV2(
@@ -70,9 +77,9 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
                 getGripper(),
                 getFingerRight(),
                 getFingerLeft(),
-                Motors.withEncoder(hardwareMap.dcMotor.get("VerticalRightMotor"), false, true, stoppers),
-                Motors.withEncoder(hardwareMap.dcMotor.get("VerticalLeftMotor"), true, true, stoppers),
-                Motors.withEncoder(hardwareMap.dcMotor.get("HorizontalMotor"), true, true, stoppers),
+                Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"VerticalRightMotor"), false, true, stoppers),
+                Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"VerticalLeftMotor"), true, true, stoppers),
+                Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"HorizontalMotor"), true, true, stoppers),
                 Sensors.inv(Sensors.digital(hardwareMap,"lowerLimitVerticalRight")),
                 Sensors.inv(Sensors.digital(hardwareMap,"lowerLimitVerticalLeft")),
                 Sensors.inv(Sensors.digital(hardwareMap,"lowerLimitHorizontal"))
@@ -88,6 +95,10 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
 
         minusYDistanceSensor = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "minusYSensor");
         plusYDistanceSensor = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "plusYSensor");
+
+        blockDetector = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "internalBlockDetector");
+
+        odometryWheelSensor = new SimpleEncoderSensor(collectorMotor);
 
 //        Function podsCal = new Function() {
 //            @Override
@@ -175,6 +186,7 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
     @Override
     public void pre_act() {
         liftArmV2.pre_act();
+        odometryWheelSensor.pre_act();
     }
 
     @Override
