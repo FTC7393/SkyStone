@@ -17,8 +17,14 @@ public class NewFoundationMover {
         leftFoundationMoverServo.goToPreset(SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.DOWN);
         rightFoundationMoverServo.goToPreset(SkystoneRobotCfgV2.RightFoundationMoverServoPresets.DOWN);
     }
+
     public void servosUp() {
         leftFoundationMoverServo.goToPreset(SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.UP);
         rightFoundationMoverServo.goToPreset(SkystoneRobotCfgV2.RightFoundationMoverServoPresets.UP);
+    }
+
+    public void servosReady() {
+        leftFoundationMoverServo.goToPreset(SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.READY);
+        rightFoundationMoverServo.goToPreset(SkystoneRobotCfgV2.RightFoundationMoverServoPresets.READY);
     }
 }

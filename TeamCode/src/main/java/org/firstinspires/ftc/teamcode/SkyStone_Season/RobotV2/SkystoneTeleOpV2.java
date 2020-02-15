@@ -3,12 +3,14 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.AnalogInputEdgeDetector;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FoundationMover;
 
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
 import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.units.Time;
+import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.hardware.control.RotationControls;
 import ftc.evlib.hardware.control.TranslationControls;
 import ftc.evlib.opmodes.AbstractTeleOp;
@@ -32,6 +34,12 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private final double extensionspeed = 100;
     private final double collectorspeed = 1;
     private boolean wristtoggle = false;
+    private enum FoundationMoverPosition{
+        UP,
+        READY,
+        DOWN
+    }
+    private FoundationMoverPosition foundationMoverPosition = FoundationMoverPosition.UP;
 
 
 
@@ -169,11 +177,34 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
             robotCfg.getBlockCollector().setPower(-collectorspeed*(driver1.right_trigger.getValue()
             -driver1.left_trigger.getValue()));
 
-        if (driver1.left_bumper.justPressed()){
-            robotCfg.getNewFoundationMover().servosDown();
+        if (driver1.right_bumper.justPressed()){
+            if( foundationMoverPosition == FoundationMoverPosition.UP) {
+                foundationMoverPosition = FoundationMoverPosition.DOWN;
+                robotCfg.getNewFoundationMover().servosDown();
+            } else if (foundationMoverPosition == FoundationMoverPosition.DOWN){
+                foundationMoverPosition = FoundationMoverPosition.UP;
+                robotCfg.getNewFoundationMover().servosUp();
+            } else if (foundationMoverPosition == FoundationMoverPosition.READY) {
+                foundationMoverPosition = FoundationMoverPosition.UP;
+                robotCfg.getNewFoundationMover().servosUp();
+            }else {
+                throw new RuntimeException("Forgot to deal with additional state/states");
+            }
         }
-        if (driver1.left_bumper.justReleased()){
-            robotCfg.getNewFoundationMover().servosUp();
+
+        if (driver1.left_bumper.justPressed()){
+            if( foundationMoverPosition == FoundationMoverPosition.UP) {
+                foundationMoverPosition = FoundationMoverPosition.READY;
+                robotCfg.getNewFoundationMover().servosReady();
+            } else if (foundationMoverPosition == FoundationMoverPosition.DOWN){
+                foundationMoverPosition = FoundationMoverPosition.READY;
+                robotCfg.getNewFoundationMover().servosReady();
+            } else if (foundationMoverPosition == FoundationMoverPosition.READY) {
+                foundationMoverPosition = FoundationMoverPosition.DOWN;
+                robotCfg.getNewFoundationMover().servosDown();
+            }else {
+                throw new RuntimeException("Forgot to deal with additional state/states");
+            }
         }
 
         robotCfg.getLiftArmV2().controlLift(-driver2.left_stick_y.getValue()* liftspeed);
