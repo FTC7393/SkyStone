@@ -238,7 +238,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         if(driver2.left_bumper.justPressed()){
             robotCfg.getLiftArmV2().gripperGrab();
         }
-
+//
         if(driver2.right_bumper.justPressed()){
             robotCfg.getLiftArmV2().gripperRelease();
         }
