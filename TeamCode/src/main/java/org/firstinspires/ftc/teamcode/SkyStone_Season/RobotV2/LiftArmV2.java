@@ -4,18 +4,18 @@ import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.LiftArmStates;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.LinearSlide;
 
-import ftc.electronvolts.statemachine.BasicAbstractState;
-import ftc.electronvolts.statemachine.StateMachine;
-import ftc.electronvolts.statemachine.StateMachineBuilder;
-import ftc.electronvolts.statemachine.StateName;
-import ftc.electronvolts.util.BasicResultReceiver;
-import ftc.electronvolts.util.InputExtractor;
+//import ftc.electronvolts.statemachine.BasicAbstractState;
+//import ftc.electronvolts.statemachine.StateMachine;
+//import ftc.electronvolts.statemachine.StateMachineBuilder;
+//import ftc.electronvolts.statemachine.StateName;
+//import ftc.electronvolts.util.BasicResultReceiver;
+//import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.PIDController;
-import ftc.electronvolts.util.ResultReceiver;
+//import ftc.electronvolts.util.ResultReceiver;
 import ftc.evlib.hardware.motors.MotorEnc;
 import ftc.evlib.hardware.sensors.DigitalSensor;
 import ftc.evlib.hardware.servos.ServoControl;
-import ftc.evlib.statemachine.EVStates;
+//import ftc.evlib.statemachine.EVStates;
 
 public class LiftArmV2 {
 
@@ -24,10 +24,10 @@ public class LiftArmV2 {
     private LinearSlide HorizontalSlide;
     private LinearSlide VerticalSlideRight;
     private LinearSlide VerticalSlideLeft;
-    private StateMachine stateMachine;
+//    private StateMachine stateMachine;
     private double LiftCommand;
     private double ExtensionCommand;
-    private double WristCommand;
+//    private double WristCommand;
     private final int VerticalMaxExtension = 3500;
     private final int HorizontalMaxExtension = 3500;
     private final int LiftToleranceHorizontal = 5;
@@ -205,7 +205,7 @@ public class LiftArmV2 {
     }
 
     public void act() {
-        stateMachine.act();
+//        stateMachine.act();
         VerticalSlideRight.act();
         VerticalSlideLeft.act();
         HorizontalSlide.act();
