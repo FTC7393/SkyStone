@@ -4,32 +4,39 @@ import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.LiftArmStates;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.LinearSlide;
 
-//import ftc.electronvolts.statemachine.BasicAbstractState;
-//import ftc.electronvolts.statemachine.StateMachine;
-//import ftc.electronvolts.statemachine.StateMachineBuilder;
-//import ftc.electronvolts.statemachine.StateName;
-//import ftc.electronvolts.util.BasicResultReceiver;
-//import ftc.electronvolts.util.InputExtractor;
+import ftc.electronvolts.statemachine.BasicAbstractState;
+import ftc.electronvolts.statemachine.StateMachine;
+import ftc.electronvolts.statemachine.StateMachineBuilder;
+import ftc.electronvolts.statemachine.StateName;
+import ftc.electronvolts.util.BasicResultReceiver;
+import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.PIDController;
-//import ftc.electronvolts.util.ResultReceiver;
+import ftc.electronvolts.util.ResultReceiver;
 import ftc.evlib.hardware.motors.MotorEnc;
 import ftc.evlib.hardware.sensors.DigitalSensor;
 import ftc.evlib.hardware.servos.ServoControl;
-//import ftc.evlib.statemachine.EVStates;
+import ftc.evlib.statemachine.EVStates;
 
 public class LiftArmV2 {
 
     private final ServoControl wrist, gripper, fingerLeft, fingerRight;
+
+
+
+    private final DigitalSensor lowerLimitVerticalRight;
+    private final DigitalSensor lowerLimitVerticalLeft;
+    private final DigitalSensor lowerLimitHorizontal;
     private boolean isArmExtended = false;
     private LinearSlide HorizontalSlide;
     private LinearSlide VerticalSlideRight;
     private LinearSlide VerticalSlideLeft;
-//    private StateMachine stateMachine;
+    private StateMachine stateMachine;
     private double LiftCommand;
     private double ExtensionCommand;
+    private double WristCommand;
+    private final int VerticalMaxExtension = 8000;
+    private final int HorizontalMaxExtension = 1850;
 //    private double WristCommand;
-    private final int VerticalMaxExtension = 3500;
-    private final int HorizontalMaxExtension = 3500;
     private final int LiftToleranceHorizontal = 5;
     private final int LiftToleranceVertical = 5;
     private final int LiftKeepOutUpperLimit = 50;
@@ -59,6 +66,9 @@ public class LiftArmV2 {
                 VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalLeft);
         this.HorizontalSlide = new LinearSlide(HorizontalMotor, new PIDController(0.003, 0, 0, .5),
                 HorizontalMaxExtension, LiftToleranceHorizontal, lowerLimitHorizontal);
+        this.lowerLimitVerticalRight = lowerLimitVerticalRight;
+        this.lowerLimitVerticalLeft= lowerLimitVerticalLeft;
+        this.lowerLimitHorizontal = lowerLimitHorizontal;
 //        this.rrCommand = new BasicResultReceiver<>();
 //        this.rrPlacingHeight = new InputExtractor<Integer>(){
 //            @Override
@@ -98,7 +108,15 @@ public class LiftArmV2 {
 //
 //        this.stateMachine = buildStates();
     }
-
+    public DigitalSensor getLowerLimitVerticalLeft() {
+        return lowerLimitVerticalLeft;
+    }
+    public DigitalSensor getLowerLimitHorizontal() {
+        return lowerLimitHorizontal;
+    }
+    public DigitalSensor getLowerLimitVerticalRight() {
+        return lowerLimitVerticalRight;
+    }
     public void controlExtension(double extensionDelta) {
         double newCommand = HorizontalSlide.getExtensionEncoder() + extensionDelta;
         if (VerticalSlideRight.getExtensionEncoder() < LiftKeepOutUpperLimit && VerticalSlideLeft.getExtensionEncoder() < LiftKeepOutUpperLimit) {
@@ -154,9 +172,12 @@ public class LiftArmV2 {
         fingerRight.goToPreset(SkystoneRobotCfgV2.FingerRightServoPresets.STOP);
     }
 
-    public void wrist90() {
+    public boolean wrist90() {
         if (HorizontalSlide.getExtensionEncoder() > WristKeepOutOuterLimit) {
             wrist.goToPreset(SkystoneRobotCfgV2.WristServoPresets.NINETY);
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -174,6 +195,26 @@ public class LiftArmV2 {
 
     public double getLiftPosition() {
         return ((VerticalSlideLeft.getExtensionEncoder() + VerticalSlideRight.getExtensionEncoder()) / 2);
+    }
+
+    public double getVerticalLeftEncoder() {
+        return VerticalSlideLeft.getExtensionEncoder();
+    }
+
+    public double getVerticalRightEncoder() {
+        return VerticalSlideRight.getExtensionEncoder();
+    }
+
+    public double getHorizontalEncoder() {
+        return HorizontalSlide.getExtensionEncoder();
+    }
+
+    public double getLiftCommand(){
+        return LiftCommand;
+    }
+
+    public double getExtensionCommand(){
+        return ExtensionCommand;
     }
 
     public void setLiftPosition(double liftPosition) {

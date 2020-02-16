@@ -3,12 +3,14 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.AnalogInputEdgeDetector;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FoundationMover;
 
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
 import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.units.Time;
+import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.hardware.control.RotationControls;
 import ftc.evlib.hardware.control.TranslationControls;
 import ftc.evlib.opmodes.AbstractTeleOp;
@@ -17,7 +19,7 @@ import ftc.evlib.opmodes.AbstractTeleOp;
 /**
  * Created by ftc7393 on 9/22/2018.
  */
-@TeleOp(name = "SkyStone Tele")
+@TeleOp(name = "SkyStone Tele V2")
 
 public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private boolean skystoneServoPresetDown = true;
@@ -28,10 +30,16 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private AnalogInputEdgeDetector driver2RightXRight;
     private AnalogInputEdgeDetector driver2RightTrigger;
     private AnalogInputEdgeDetector driver2LeftTrigger;
-    private final double liftspeed = 2;
-    private final double extensionspeed = 1;
-    private final double collectorspeed = 0.45;
+    private final double liftspeed = 100;
+    private final double extensionspeed = 100;
+    private final double collectorspeed = 1;
     private boolean wristtoggle = false;
+    private enum FoundationMoverPosition{
+        UP,
+        READY,
+        DOWN
+    }
+    private FoundationMoverPosition foundationMoverPosition = FoundationMoverPosition.UP;
 
 
 
@@ -112,11 +120,11 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private void forwardControl() {
         double f = currentSpeedFactor.getFactor();
         // translation
-        leftX = new ScalingInputExtractor(driver1.left_stick_x, -f, f);
-        leftY = new ScalingInputExtractor(driver1.left_stick_y, -f, f);
+        leftX = new ScalingInputExtractor(driver1.right_stick_x, -f, f);
+        leftY = new ScalingInputExtractor(driver1.left_stick_x, -f, f);
 
         // rotation (only uses right X)
-        rightX = new ScalingInputExtractor(driver1.right_stick_x, -f, f);
+        rightX = new ScalingInputExtractor(driver1.left_stick_y, f, f);
         robotCfg.getMecanumControl().setTranslationControl(TranslationControls.inputExtractorXY(leftY, leftX));
 //        robotCfg.getMecanumControl().setRotationControl(RotationControls.teleOpGyro(leftX, robotCfg.getGyro()));
         robotCfg.getMecanumControl().setRotationControl(RotationControls.inputExtractor(rightX));
@@ -137,6 +145,19 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         driver2RightTrigger.update();
         driver2LeftTrigger.update();
 
+//        telemetry.addData("backLeft",robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0));
+//        telemetry.addData("frontLeft",robotCfg.getMecanumControl().getMecanumMotors().getEncoder(1));
+//        telemetry.addData("frontRight",robotCfg.getMecanumControl().getMecanumMotors().getEncoder(2));
+//        telemetry.addData("backRight",robotCfg.getMecanumControl().getMecanumMotors().getEncoder(3));
+        telemetry.addData("horizontalLimit",robotCfg.getLiftArmV2().getLowerLimitHorizontal().getValue());
+        telemetry.addData("rightLimit",robotCfg.getLiftArmV2().getLowerLimitVerticalRight().getValue());
+        telemetry.addData("LeftLimit",robotCfg.getLiftArmV2().getLowerLimitVerticalLeft().getValue());
+        telemetry.addData("liftCommand",robotCfg.getLiftArmV2().getLiftCommand());
+        telemetry.addData("extensionCommand",robotCfg.getLiftArmV2().getExtensionCommand());
+        telemetry.addData("horizontalEncoder",robotCfg.getLiftArmV2().getHorizontalEncoder());
+        telemetry.addData("verticalLeftEncoder",robotCfg.getLiftArmV2().getVerticalLeftEncoder());
+        telemetry.addData("verticalRightEncoder",robotCfg.getLiftArmV2().getVerticalRightEncoder());
+
         //left stick button toggles fast and slow mode
 
         if(driver1.left_stick_button.justPressed()) {
@@ -153,26 +174,46 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         // But is the right trigger is pressed in different levels (0.9, 0.6 and 0.3) it can set the collector power to different speeds
 
 
-            robotCfg.getBlockCollector().setPower(collectorspeed*(driver1.right_trigger.getValue()
+            robotCfg.getBlockCollector().setPower(-collectorspeed*(driver1.right_trigger.getValue()
             -driver1.left_trigger.getValue()));
 
-        if ((driver1.left_bumper.justPressed() && !driver2.left_bumper.isPressed()) ||
-                (driver2.left_bumper.justPressed() && !driver1.left_bumper.isPressed())){
-            robotCfg.getNewFoundationMover().servosDown();
-        }
-        if ((driver1.left_bumper.justReleased() && !driver2.left_bumper.isPressed()) ||
-                (driver2.left_bumper.justReleased() && !driver1.left_bumper.isPressed())){
-            robotCfg.getNewFoundationMover().servosUp();
+        if (driver1.right_bumper.justPressed()){
+            if( foundationMoverPosition == FoundationMoverPosition.UP) {
+                foundationMoverPosition = FoundationMoverPosition.DOWN;
+                robotCfg.getNewFoundationMover().servosDown();
+            } else if (foundationMoverPosition == FoundationMoverPosition.DOWN){
+                foundationMoverPosition = FoundationMoverPosition.UP;
+                robotCfg.getNewFoundationMover().servosUp();
+            } else if (foundationMoverPosition == FoundationMoverPosition.READY) {
+                foundationMoverPosition = FoundationMoverPosition.UP;
+                robotCfg.getNewFoundationMover().servosUp();
+            }else {
+                throw new RuntimeException("Forgot to deal with additional state/states");
+            }
         }
 
-        robotCfg.getLiftArmV2().controlLift(driver2.left_stick_y.getValue()* liftspeed);
-        robotCfg.getLiftArmV2().controlExtension(driver2.right_stick_x.getValue() * extensionspeed);
+        if (driver1.left_bumper.justPressed()){
+            if( foundationMoverPosition == FoundationMoverPosition.UP) {
+                foundationMoverPosition = FoundationMoverPosition.READY;
+                robotCfg.getNewFoundationMover().servosReady();
+            } else if (foundationMoverPosition == FoundationMoverPosition.DOWN){
+                foundationMoverPosition = FoundationMoverPosition.READY;
+                robotCfg.getNewFoundationMover().servosReady();
+            } else if (foundationMoverPosition == FoundationMoverPosition.READY) {
+                foundationMoverPosition = FoundationMoverPosition.DOWN;
+                robotCfg.getNewFoundationMover().servosDown();
+            }else {
+                throw new RuntimeException("Forgot to deal with additional state/states");
+            }
+        }
+
+        robotCfg.getLiftArmV2().controlLift(-driver2.left_stick_y.getValue()* liftspeed);
+        robotCfg.getLiftArmV2().controlExtension(-driver2.right_stick_y.getValue() * extensionspeed);
 
 
         if(driver2.y.justPressed()) {
             if(wristtoggle == false) {
-                wristtoggle = true;
-                robotCfg.getLiftArmV2().wrist90();
+                wristtoggle = robotCfg.getLiftArmV2().wrist90();
             } else {
                 robotCfg.getLiftArmV2().wrist0();
                 wristtoggle = false;
@@ -197,7 +238,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         if(driver2.left_bumper.justPressed()){
             robotCfg.getLiftArmV2().gripperGrab();
         }
-
+//
         if(driver2.right_bumper.justPressed()){
             robotCfg.getLiftArmV2().gripperRelease();
         }

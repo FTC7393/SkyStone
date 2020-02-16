@@ -8,7 +8,7 @@ import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.opmodes.AbstractServoTuneOp;
 
 
-@TeleOp(name = "SkystoneServoTuneOp")
+@TeleOp(name = "SkystoneServoTuneOp V2")
 
 public class ServoTuneOpV2 extends AbstractServoTuneOp {
 

@@ -1,13 +1,17 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FlyWheels;
-import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FoundationMover;
-import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.LiftArm;
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorREV2mDistance;
 
+import java.util.List;
 import java.util.Map;
 
 import ftc.electronvolts.util.Function;
@@ -17,13 +21,13 @@ import ftc.electronvolts.util.units.Velocity;
 import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.hardware.control.MecanumControl;
 import ftc.evlib.hardware.motors.MecanumMotors;
-import ftc.evlib.hardware.motors.MotorEnc;
 import ftc.evlib.hardware.motors.Motors;
 import ftc.evlib.hardware.sensors.AveragedSensor;
-import ftc.evlib.hardware.sensors.DigitalSensor;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.hardware.sensors.IMUGyro;
+import ftc.evlib.hardware.sensors.MRGyro;
 import ftc.evlib.hardware.sensors.Sensors;
+import ftc.evlib.hardware.sensors.SimpleEncoderSensor;
 import ftc.evlib.hardware.servos.ServoCfg;
 import ftc.evlib.hardware.servos.ServoControl;
 import ftc.evlib.hardware.servos.ServoName;
@@ -37,13 +41,14 @@ import ftc.evlib.hardware.servos.Servos;
 public class SkystoneRobotCfgV2 extends RobotCfg {
 
     private final BlockCollector blockCollector;
-    private final Gyro gyro1;
-    private Gyro gyro0;
+    private final Gyro gyro0;
     private final LiftArmV2 liftArmV2;
     private final NewFoundationMover newFoundationMover;
-    private final ModernRoboticsI2cRangeSensor plusXDistanceSensor;
-    private final ModernRoboticsI2cRangeSensor minusXDistanceSensor;
-    private final AveragedSensor plusYDistanceSensor;
+    private final Rev2mDistanceSensor plusYDistanceSensor;
+    private final Rev2mDistanceSensor minusYDistanceSensor;
+    private final Rev2mDistanceSensor blockDetector;
+    private final SimpleEncoderSensor odometryWheelSensor;
+//    private final AveragedSensor plusYDistanceSensor;
 
 
 
@@ -51,20 +56,22 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         super(hardwareMap);
         double scaleFactor = 1.0;
         mecanumControl = new MecanumControl(new MecanumMotors(
-                Motors.withEncoder(hardwareMap.dcMotor.get("frontLeft"), true, true, stoppers), // 0
-                Motors.withEncoder(hardwareMap.dcMotor.get("frontRight"), false, true, stoppers), // 1
+                Motors.withEncoder(hardwareMap.get(DcMotorEx.class, "backLeft"), true, true, stoppers), // 0
+                Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"frontLeft"), false, true, stoppers), // 1
 
-                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backRight"), true, true, stoppers), scaleFactor), // 2
-                Motors.scale(Motors.withEncoder(hardwareMap.dcMotor.get("backLeft"), false, true, stoppers), scaleFactor), // 3
+                Motors.scale(Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"frontRight"), false, true, stoppers), scaleFactor), // 2
+                Motors.scale(Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"backRight"), true, true, stoppers), scaleFactor), // 3
                 true, MAX_ROBOT_SPEED,MAX_ROBOT_SPEED_SIDEWAYS));
 
         servos = new Servos(ServoCfg.createServoMap(hardwareMap, servoStartPresetMap));
 
-        gyro0 = new IMUGyro(hardwareMap.get(BNO055IMU.class, "imu0"));
-        gyro1 = new IMUGyro(hardwareMap.get(BNO055IMU.class, "imu1"));
+        gyro0 = new MRGyro(hardwareMap.get(ModernRoboticsI2cGyro.class, "mr0"));
+
+
+        DcMotorEx collectorMotor = hardwareMap.get(DcMotorEx.class,"collectorMotor");
 
         blockCollector = new BlockCollector(
-                Motors.withoutEncoder(hardwareMap.dcMotor.get("leftFlywheel"), false, false, stoppers)
+                Motors.withoutEncoder(collectorMotor, false, false, stoppers)
         );
 
         liftArmV2 = new LiftArmV2(
@@ -72,9 +79,9 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
                 getGripper(),
                 getFingerRight(),
                 getFingerLeft(),
-                Motors.withEncoder(hardwareMap.dcMotor.get("VerticalRightMotor"), false, true, stoppers),
-                Motors.withEncoder(hardwareMap.dcMotor.get("VerticalLeftMotor"), false, true, stoppers),
-                Motors.withEncoder(hardwareMap.dcMotor.get("HorizontalMotor"), false, true, stoppers),
+                Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"VerticalRightMotor"), false, true, stoppers),
+                Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"VerticalLeftMotor"), true, true, stoppers),
+                Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"HorizontalMotor"), true, true, stoppers),
                 Sensors.inv(Sensors.digital(hardwareMap,"lowerLimitVerticalRight")),
                 Sensors.inv(Sensors.digital(hardwareMap,"lowerLimitVerticalLeft")),
                 Sensors.inv(Sensors.digital(hardwareMap,"lowerLimitHorizontal"))
@@ -85,20 +92,32 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
                 getLeftFoundationMover()
         );
 
-        plusXDistanceSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "plusXSensor");
+      //  plusXDistanceSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "plusXSensor");
 
-        minusXDistanceSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "minusXSensor");
 
-        Function podsCal = new Function() {
-            @Override
-            public double f(double x) {
-                return (-2.04 + 2.15 * x - 0.0318*x*x); //CENTIMETERS!!!!!!
-            }
-        };
-        final ftc.evlib.hardware.sensors.AnalogSensor analogSensorRawPods;
-        analogSensorRawPods = Sensors.analog(hardwareMap, "pods");
+        minusYDistanceSensor = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "minusYSensor");
+        plusYDistanceSensor = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "plusYSensor");
 
-        plusYDistanceSensor = new AveragedSensor(analogSensorRawPods, 1, podsCal);
+        blockDetector = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "internalBlockDetector");
+
+        odometryWheelSensor = new SimpleEncoderSensor(collectorMotor);
+
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+        for(LynxModule module : allHubs) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+
+
+//        Function podsCal = new Function() {
+//            @Override
+//            public double f(double x) {
+//                return (-2.04 + 2.15 * x - 0.0318*x*x); //CENTIMETERS!!!!!!
+//            }
+//        };
+//        final ftc.evlib.hardware.sensors.AnalogSensor analogSensorRawPods;
+//        analogSensorRawPods = Sensors.analog(hardwareMap, "plusYSensor");
+
+//        plusYDistanceSensor = new AveragedSensor(analogSensorRawPods, 1, podsCal);
     }
 
     private final Servos servos;
@@ -108,8 +127,8 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
     }
 
     public enum WristServoPresets {
-        NINETY,
-        ZERO
+        ZERO,
+        NINETY
     }
 
     public enum GripperServoPresets {
@@ -118,23 +137,26 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
     }
 
     public enum FingerLeftServoPresets {
+        STOP,
         FORWARD,
-        BACKWARD,
-        STOP
+        BACKWARD
+
     }
     public enum FingerRightServoPresets {
+        STOP,
         FORWARD,
-        BACKWARD,
-        STOP
+        BACKWARD
     }
 
     public enum RightFoundationMoverServoPresets {
         UP,
+        READY,
         DOWN,
     }
 
     public enum LeftFoundationMoverServoPresets {
         UP,
+        READY,
         DOWN,
     }
 
@@ -172,6 +194,7 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
     @Override
     public void pre_act() {
         liftArmV2.pre_act();
+        odometryWheelSensor.pre_act();
     }
 
     @Override
@@ -179,7 +202,7 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         mecanumControl.act();
         blockCollector.act();
         liftArmV2.act();
-        plusYDistanceSensor.act();
+//        plusYDistanceSensor.act(); // only needed for average sensor
     }
 
     @Override
@@ -222,15 +245,15 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
 
 
 
-    public ModernRoboticsI2cRangeSensor getPlusXDistanceSensor() {
-        return plusXDistanceSensor;
+//    public ModernRoboticsI2cRangeSensor getPlusXDistanceSensor() {
+//        return plusXDistanceSensor;
+//    }
+
+    public Rev2mDistanceSensor getMinusYDistanceSensor() {
+        return minusYDistanceSensor;
     }
 
-    public ModernRoboticsI2cRangeSensor getMinusXDistanceSensor() {
-        return minusXDistanceSensor;
-    }
-
-    public AveragedSensor getPlusYDistanceSensor() {
+    public Rev2mDistanceSensor getPlusYDistanceSensor() {
         return plusYDistanceSensor;
     }
 
@@ -242,7 +265,7 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         WRIST_SERVO("wristServo", WristServoPresets.values()),
         GRIPPER_SERVO("gripperServo", GripperServoPresets.values()),
         FINGER_LEFT_SERVO("fingerLeftServo", FingerLeftServoPresets.values()),
-        FINGER_RIGHT_SERVO("fingerLeftServo", FingerRightServoPresets.values()),
+        FINGER_RIGHT_SERVO("fingerRightServo", FingerRightServoPresets.values()),
         RIGHT_FOUNDATION_MOVER_SERVO("rightFoundationMoverServo", RightFoundationMoverServoPresets.values()),
         LEFT_FOUNDATION_MOVER_SERVO("leftFoundationMoverServo", LeftFoundationMoverServoPresets.values());
 
