@@ -14,7 +14,7 @@ import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.hardware.control.RotationControls;
 import ftc.evlib.hardware.control.TranslationControls;
 import ftc.evlib.opmodes.AbstractTeleOp;
-//comment
+
 
 /**
  * Created by ftc7393 on 9/22/2018.
@@ -30,8 +30,8 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private AnalogInputEdgeDetector driver2RightXRight;
     private AnalogInputEdgeDetector driver2RightTrigger;
     private AnalogInputEdgeDetector driver2LeftTrigger;
-    private final double liftspeed = 100;
-    private final double extensionspeed = 100;
+    private final double liftspeed = 200;
+    private final double extensionspeed = 200;
     private final double collectorspeed = 1;
     private boolean wristtoggle = false;
     private enum FoundationMoverPosition{
@@ -45,7 +45,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
 
     @Override
     public Time getMatchTime() {
-        return Time.fromMinutes(2); //teleop is 2 minutes
+        return Time.fromMinutes(200); //teleop is 2 minutes
     }
 
 
@@ -157,6 +157,8 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         telemetry.addData("horizontalEncoder",robotCfg.getLiftArmV2().getHorizontalEncoder());
         telemetry.addData("verticalLeftEncoder",robotCfg.getLiftArmV2().getVerticalLeftEncoder());
         telemetry.addData("verticalRightEncoder",robotCfg.getLiftArmV2().getVerticalRightEncoder());
+        telemetry.addData("driver 2 left trigger", driver2.left_trigger.getValue());
+        telemetry.addData("driver 2 right trigger", driver2.right_trigger.getValue());
 
         //left stick button toggles fast and slow mode
 
@@ -207,7 +209,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
             }
         }
 
-        robotCfg.getLiftArmV2().controlLift(-driver2.left_stick_y.getValue()* liftspeed);
+        robotCfg.getLiftArmV2().controlLift(-driver2.left_stick_y.getValue()*liftspeed);
         robotCfg.getLiftArmV2().controlExtension(-driver2.right_stick_y.getValue() * extensionspeed);
 
 
@@ -225,21 +227,19 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
 //            robotCfg.getLiftArm().armPlacingLeft();
         }
 
-        if(driver2.b.isPressed()){
-            robotCfg.getLiftArmV2().fingersRight();
-        } else if(driver2.a.isPressed()){
-            robotCfg.getLiftArmV2().fingersLeft();
-        } else if(driver2LeftTrigger.isPressed()){
-            robotCfg.getLiftArmV2().fingerEject();
-        } else if(driver2RightTrigger.isPressed()){
+        if(driver2.right_trigger.getValue()>0.5){
             robotCfg.getLiftArmV2().fingersIngest();
+        } else if(driver2.left_trigger.getValue()>0.5) {
+            robotCfg.getLiftArmV2().fingerEject();
+        }else if(driver2.a.isPressed()){
+            robotCfg.getLiftArmV2().fingersRight();
+        } else if(driver2.b.isPressed()){
+            robotCfg.getLiftArmV2().fingersLeft();
         } else robotCfg.getLiftArmV2().fingersStop();
 
         if(driver2.left_bumper.justPressed()){
             robotCfg.getLiftArmV2().gripperGrab();
-        }
-//
-        if(driver2.right_bumper.justPressed()){
+        }else if(driver2.right_bumper.justPressed()){
             robotCfg.getLiftArmV2().gripperRelease();
         }
 
@@ -283,27 +283,12 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         }
 */
 
-//        int m = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0);
-//        int m1 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(1);
-//        int m2 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(2);
-//        int m3 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(3);
-//        telemetry.addData("motor 0 - frontRight", m);
-//        telemetry.addData("motor 1 - frontLeft", m1);
-//        telemetry.addData("motor 2 - backLeft", m2);
-//        telemetry.addData("motor 3 - backRight", m3);
-//      telemetry.addData("extension motor", robotCfg.getLiftArm().getLift().getExtensionEncoder());
-//        telemetry.addData("placing level", robotCfg.getLiftArm().getPlacingLevel());
         telemetry.addData("rightStickX", driver2.right_stick_x.getValue());
         telemetry.addData("rightStickY", driver2.right_stick_y.getValue());
         telemetry.addData("rightStickXLeft", driver2RightXLeft.getValue());
         telemetry.addData("rightStickXRight", driver2RightXRight.getValue());
         telemetry.addData("rightStickYUp", driver2RightYUp.getValue());
         telemetry.addData("rightStickYDown", driver2RightYDown.getValue());
-//        telemetry.addData("Lift Arm State", robotCfg.getLiftArm().getCurrentStateName());
-//        telemetry.addData("Upper Limit", robotCfg.getLiftArm().getLift().getUpperLimit());
-//        telemetry.addData("Lower Limit", robotCfg.getLiftArm().getLift().getLowerLimit());
-//        telemetry.addData("lift position =", robotCfg.getLiftArm().getLift().getExtensionEncoder());
-//        telemetry.addData("lift Target Position =", robotCfg.getLiftArm().getLift().getExtensionSetPoint());
 
 
 

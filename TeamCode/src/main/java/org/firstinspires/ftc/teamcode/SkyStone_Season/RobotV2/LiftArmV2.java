@@ -1,21 +1,13 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2;
 
-import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
-import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.LiftArmStates;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous.ProportionalOffsetCalculator;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.LinearSlide;
 
-import ftc.electronvolts.statemachine.BasicAbstractState;
 import ftc.electronvolts.statemachine.StateMachine;
-import ftc.electronvolts.statemachine.StateMachineBuilder;
-import ftc.electronvolts.statemachine.StateName;
-import ftc.electronvolts.util.BasicResultReceiver;
-import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.PIDController;
-import ftc.electronvolts.util.ResultReceiver;
 import ftc.evlib.hardware.motors.MotorEnc;
 import ftc.evlib.hardware.sensors.DigitalSensor;
 import ftc.evlib.hardware.servos.ServoControl;
-import ftc.evlib.statemachine.EVStates;
 
 public class LiftArmV2 {
 
@@ -27,21 +19,22 @@ public class LiftArmV2 {
     private final DigitalSensor lowerLimitVerticalLeft;
     private final DigitalSensor lowerLimitHorizontal;
     private boolean isArmExtended = false;
-    private LinearSlide HorizontalSlide;
-    private LinearSlide VerticalSlideRight;
-    private LinearSlide VerticalSlideLeft;
+    private LinearSlide horizontalSlide;
+    private LinearSlide verticalSlideRight;
+    private LinearSlide verticalSlideLeft;
     private StateMachine stateMachine;
-    private double LiftCommand;
-    private double ExtensionCommand;
+    private ProportionalOffsetCalculator calculator = new ProportionalOffsetCalculator(50, 400, 150);
+    private double liftCommand;
+    private double extensionCommand;
     private double WristCommand;
     private final int VerticalMaxExtension = 8000;
     private final int HorizontalMaxExtension = 1850;
 //    private double WristCommand;
     private final int LiftToleranceHorizontal = 5;
     private final int LiftToleranceVertical = 5;
-    private final int LiftKeepOutUpperLimit = 50;
-    private final int LiftKeepOutInnerLimit = 50;
-    private final int LiftKeepOutOuterLimit = 50;
+    private final int liftKeepOutUpperLimit = 50;
+    private final int liftKeepOutInnerLimit = 50;
+    private final int liftKeepOutOuterLimit = 50;
     private final int WristKeepOutWristLimit = 50;
     private final int WristKeepOutInnerLimit = 50;
     private final int WristKeepOutOuterLimit = 50;
@@ -60,11 +53,11 @@ public class LiftArmV2 {
         this.gripper = gripper;
         this.fingerLeft = fingerLeft;
         this.fingerRight = fingerRight;
-        this.VerticalSlideLeft = new LinearSlide(VerticalLeftMotor, new PIDController(0.003, 0, 0, .5),
-                VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalRight);
-        this.VerticalSlideRight = new LinearSlide(VerticalRightMotor, new PIDController(0.003, 0, 0, .5),
+        this.verticalSlideLeft = new LinearSlide(VerticalLeftMotor, new PIDController(0.006, 0, 0, 1),
                 VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalLeft);
-        this.HorizontalSlide = new LinearSlide(HorizontalMotor, new PIDController(0.003, 0, 0, .5),
+        this.verticalSlideRight = new LinearSlide(VerticalRightMotor, new PIDController(0.006, 0, 0, 1),
+                VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalRight);
+        this.horizontalSlide = new LinearSlide(HorizontalMotor, new PIDController(0.006, 0, 0, 1),
                 HorizontalMaxExtension, LiftToleranceHorizontal, lowerLimitHorizontal);
         this.lowerLimitVerticalRight = lowerLimitVerticalRight;
         this.lowerLimitVerticalLeft= lowerLimitVerticalLeft;
@@ -118,33 +111,36 @@ public class LiftArmV2 {
         return lowerLimitVerticalRight;
     }
     public void controlExtension(double extensionDelta) {
-        double newCommand = HorizontalSlide.getExtensionEncoder() + extensionDelta;
-        if (VerticalSlideRight.getExtensionEncoder() < LiftKeepOutUpperLimit && VerticalSlideLeft.getExtensionEncoder() < LiftKeepOutUpperLimit) {
-            if (ExtensionCommand <= LiftKeepOutInnerLimit && newCommand > LiftKeepOutInnerLimit) {
-                newCommand = LiftKeepOutInnerLimit;
-            } else if (ExtensionCommand >= LiftKeepOutOuterLimit && newCommand < LiftKeepOutOuterLimit) {
-                newCommand = LiftKeepOutOuterLimit;
+        double newCommand = horizontalSlide.getExtensionEncoder() + extensionDelta;
+        if (verticalSlideRight.getExtensionEncoder() < liftKeepOutUpperLimit && verticalSlideLeft.getExtensionEncoder() < liftKeepOutUpperLimit) {
+            if (extensionCommand <= liftKeepOutInnerLimit && newCommand > liftKeepOutInnerLimit) {
+                newCommand = liftKeepOutInnerLimit;
+            } else if (extensionCommand >= liftKeepOutOuterLimit && newCommand < liftKeepOutOuterLimit) {
+                newCommand = liftKeepOutOuterLimit;
             }
         }
         if (wrist.getCurrentPosition() > WristKeepOutWristLimit) {
-            if (ExtensionCommand > WristKeepOutOuterLimit && newCommand < WristKeepOutOuterLimit) {
+            if (extensionCommand > WristKeepOutOuterLimit && newCommand < WristKeepOutOuterLimit) {
                 newCommand = WristKeepOutOuterLimit;
             }
         }
-        ExtensionCommand = newCommand;
-        HorizontalSlide.setExtension(ExtensionCommand);
+        extensionCommand = newCommand;
+        horizontalSlide.setExtension(extensionCommand);
     }
 
     public void controlLift(double liftDelta) {
-        double newCommand = ((VerticalSlideLeft.getExtensionEncoder() + VerticalSlideRight.getExtensionEncoder()) / 2) + liftDelta;
-        if (HorizontalSlide.getExtensionEncoder() >= LiftKeepOutInnerLimit && HorizontalSlide.getExtensionEncoder() <= LiftKeepOutOuterLimit) {
-            if (LiftCommand >= LiftKeepOutUpperLimit && newCommand < LiftKeepOutUpperLimit) {
-                newCommand = LiftKeepOutUpperLimit;
+        double leftEnc = verticalSlideLeft.getExtensionEncoder();
+        double offset = calculator.calculateOffset(leftEnc);
+        double newCommand = ((leftEnc + verticalSlideRight.getExtensionEncoder() - offset) / 2) + liftDelta;
+        if (horizontalSlide.getExtensionEncoder() >= liftKeepOutInnerLimit && horizontalSlide.getExtensionEncoder() <= liftKeepOutOuterLimit) {
+            if (liftCommand >= liftKeepOutUpperLimit && newCommand < liftKeepOutUpperLimit) {
+                newCommand = liftKeepOutUpperLimit;
             }
         }
-        LiftCommand = newCommand;
-        VerticalSlideLeft.setExtension(LiftCommand);
-        VerticalSlideRight.setExtension(LiftCommand);
+        liftCommand = newCommand;
+
+        verticalSlideLeft.setExtension(liftCommand);
+        verticalSlideRight.setExtension(liftCommand + offset);
     }
 
     public void fingersIngest() {
@@ -173,7 +169,7 @@ public class LiftArmV2 {
     }
 
     public boolean wrist90() {
-        if (HorizontalSlide.getExtensionEncoder() > WristKeepOutOuterLimit) {
+        if (horizontalSlide.getExtensionEncoder() > WristKeepOutOuterLimit) {
             wrist.goToPreset(SkystoneRobotCfgV2.WristServoPresets.NINETY);
             return true;
         } else {
@@ -194,45 +190,45 @@ public class LiftArmV2 {
     }
 
     public double getLiftPosition() {
-        return ((VerticalSlideLeft.getExtensionEncoder() + VerticalSlideRight.getExtensionEncoder()) / 2);
+        return ((verticalSlideLeft.getExtensionEncoder() + verticalSlideRight.getExtensionEncoder()) / 2);
     }
 
     public double getVerticalLeftEncoder() {
-        return VerticalSlideLeft.getExtensionEncoder();
+        return verticalSlideLeft.getExtensionEncoder();
     }
 
     public double getVerticalRightEncoder() {
-        return VerticalSlideRight.getExtensionEncoder();
+        return verticalSlideRight.getExtensionEncoder();
     }
 
     public double getHorizontalEncoder() {
-        return HorizontalSlide.getExtensionEncoder();
+        return horizontalSlide.getExtensionEncoder();
     }
 
     public double getLiftCommand(){
-        return LiftCommand;
+        return liftCommand;
     }
 
     public double getExtensionCommand(){
-        return ExtensionCommand;
+        return extensionCommand;
     }
 
     public void setLiftPosition(double liftPosition) {
-        VerticalSlideLeft.setExtension(liftPosition);
-        VerticalSlideRight.setExtension(liftPosition);
+        verticalSlideLeft.setExtension(liftPosition);
+        verticalSlideRight.setExtension(liftPosition);
     }
 
 
     public boolean isDone() {
-        return HorizontalSlide.isDone() && VerticalSlideRight.isDone() && VerticalSlideLeft.isDone() && wrist.isDone() && gripper.isDone();
+        return horizontalSlide.isDone() && verticalSlideRight.isDone() && verticalSlideLeft.isDone() && wrist.isDone() && gripper.isDone();
     }
 
     public boolean verticalIsDone() {
-       return VerticalSlideRight.isDone() && VerticalSlideLeft.isDone();
+       return verticalSlideRight.isDone() && verticalSlideLeft.isDone();
     }
 
     public boolean horizontalIsDone() {
-        return HorizontalSlide.isDone();
+        return horizontalSlide.isDone();
     }
 
     public boolean handIsDone() {
@@ -240,16 +236,16 @@ public class LiftArmV2 {
     }
 
     public void pre_act() {
-        HorizontalSlide.pre_act();
-        VerticalSlideLeft.pre_act();
-        VerticalSlideRight.pre_act();
+        horizontalSlide.pre_act();
+        verticalSlideLeft.pre_act();
+        verticalSlideRight.pre_act();
     }
 
     public void act() {
 //        stateMachine.act();
-        VerticalSlideRight.act();
-        VerticalSlideLeft.act();
-        HorizontalSlide.act();
+        verticalSlideRight.act();
+        verticalSlideLeft.act();
+        horizontalSlide.act();
         wrist.act();
         gripper.act();
         fingerLeft.act();
@@ -257,9 +253,9 @@ public class LiftArmV2 {
     }
 
     public void stop(){
-        VerticalSlideRight.stopExtension();
-        VerticalSlideLeft.stopExtension();
-        HorizontalSlide.stopExtension();
+        verticalSlideRight.stopExtension();
+        verticalSlideLeft.stopExtension();
+        horizontalSlide.stopExtension();
     }
 }
 

@@ -5,9 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2.SkystoneRobotCfgV2;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import ftc.electronvolts.statemachine.BasicAbstractState;
@@ -40,7 +42,7 @@ import ftc.evlib.util.ImmutableList;
 
 @Autonomous(name = "SkyStoneAutoV2")
 
-public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfg> {
+public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
     private Gyro gyro;
     private MecanumControl mecanumControl;
     private OpenCvCamera camera;
@@ -55,71 +57,67 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfg> {
     private Thread cameraInit;
     private ResultReceiver<Boolean> startRR = new BasicResultReceiver<>();
     private double servoSpeed = 1;
-    AveragedSensor cycleTime;
+    private OpenCvInternalCamera phoneCam;
 
     @Override
-    protected SkystoneRobotCfg createRobotCfg() {
-        return new SkystoneRobotCfg(hardwareMap);
+    protected SkystoneRobotCfgV2 createRobotCfg() {
+        return new SkystoneRobotCfgV2(hardwareMap);
     }
 
     @Override
     protected Logger createLogger() {
-        return new Logger("log", ".csv", ImmutableList.of(
-                new Logger.Column("state", new InputExtractor<String>() {
-                    @Override
-                    public String getValue() {
-                        return stateMachine.getCurrentStateName().name();
-                    }
-                }),
-                new Logger.Column("pods values", new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return robotCfg.getPlusYDistanceSensor().getValue();
-                    }
-                }),
-                new Logger.Column("mecanum control speed - max velocity", new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return mecanumControl.getMaxRobotSpeed().centimetersPerSecond();
-                    }
-                }),
-                new Logger.Column("mecanum control speed - velocity r", new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return mecanumControl.getVelocityR();
-                    }
-                }),
-                new Logger.Column("mecanum control speed - velocity x", new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return mecanumControl.getVelocityX();
-                    }
-                }),
-                new Logger.Column("mecanum control speed - velocity y", new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return mecanumControl.getVelocityY();
-                    }
-                }),
-                new Logger.Column("forwardx ", new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return robotCfg.getPlusXDistanceSensor().cmUltrasonic();
-                    }
-                }),
-                new Logger.Column("backx ", new InputExtractor<Double>() {
-            @Override
-            public Double getValue() {
-                        return robotCfg.getMinusXDistanceSensor().cmUltrasonic();
-                }
-                 }),
-                new Logger.Column("cycle time", new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return cycleTime.getValue();
-                    }
-                })
-        ));    }
+//        return new Logger("log", ".csv", ImmutableList.of(
+//                new Logger.Column("state", new InputExtractor<String>() {
+//                    @Override
+//                    public String getValue() {
+//                        return stateMachine.getCurrentStateName().name();
+//                    }
+//                }),
+//                new Logger.Column("pods values", new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return robotCfg.getPlusYDistanceSensor().getValue();
+//                    }
+//                }),
+//                new Logger.Column("mecanum control speed - max velocity", new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return mecanumControl.getMaxRobotSpeed().centimetersPerSecond();
+//                    }
+//                }),
+//                new Logger.Column("mecanum control speed - velocity r", new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return mecanumControl.getVelocityR();
+//                    }
+//                }),
+//                new Logger.Column("mecanum control speed - velocity x", new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return mecanumControl.getVelocityX();
+//                    }
+//                }),
+//                new Logger.Column("mecanum control speed - velocity y", new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return mecanumControl.getVelocityY();
+//                    }
+//                }),
+//                new Logger.Column("forwardx ", new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return robotCfg.getPlusXDistanceSensor().cmUltrasonic();
+//                    }
+//                }),
+//                new Logger.Column("backx ", new InputExtractor<Double>() {
+//            @Override
+//            public Double getValue() {
+//                        return robotCfg.getMinusXDistanceSensor().cmUltrasonic();
+//                }
+//                 })
+//        ));
+return null;
+    }
 
     @Override
     public void setup() {
@@ -132,8 +130,8 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfg> {
             @Override
             public void run() {
                 int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-//                phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
-                camera = new OpenCvWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+                phoneCam = new OpenCvInternalCamera(OpenCvInternalCamera.CameraDirection.BACK, cameraMonitorViewId);
+                //camera = new OpenCvWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
                 long cameraPause = 200L;
                 sleep(cameraPause);
                 camera.openCameraDevice();
@@ -141,7 +139,7 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfg> {
                 s = pipeline.getStateNameII();
                 camera.setPipeline(pipeline);
                 sleep(cameraPause);
-                camera.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
+                camera.startStreaming(640, 480);
                 sleep(cameraPause);
                 cameraInitRR.setValue(true);
 
@@ -149,19 +147,6 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfg> {
         };
 
         cameraInit = new Thread(r);
-
-        AnalogSensor ctSensor = new AnalogSensor() {
-            long lastTime = System.currentTimeMillis();
-            @Override
-            public Double getValue() {
-                long now = System.currentTimeMillis();
-                long diff = now - lastTime;
-                lastTime = now;
-                return (double) diff;
-            }
-        };
-
-        cycleTime = new AveragedSensor(ctSensor, 30);
 
     }
 
@@ -177,10 +162,6 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfg> {
     protected void setup_act() {
         telemetry.addData("state", stateMachine.getCurrentStateName());
         telemetry.addData("Skystone position", skystonePosStateRR.isReady() ? skystonePosStateRR.getValue() : "not ready");
-        telemetry.addData("forwardX", robotCfg.getPlusXDistanceSensor().cmUltrasonic());
-        telemetry.addData("backwardX", robotCfg.getMinusXDistanceSensor().cmUltrasonic());
-        telemetry.addData("forwardY", robotCfg.getPlusYDistanceSensor().getValue());
-        robotCfg.getPlusYDistanceSensor().act();
         stateMachine.act();
         servos.act();
     }
@@ -193,13 +174,11 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfg> {
 
     @Override
     protected void act() {
-        cycleTime.act();
         telemetry.addData("gyro", robotCfg.getGyro().getHeading());
         telemetry.addData("state", stateMachine.getCurrentStateName());
         telemetry.addData("current thread", Thread.currentThread().getName());
         telemetry.addData("state for detetcting skystone", skystonePosStateRR.getValue());
         telemetry.addData("ratio of both stones", pipeline.getStoneRatioII().getValue());
-        telemetry.addData("pods distance", robotCfg.getPlusYDistanceSensor().getValue());
     }
 
 
@@ -215,6 +194,8 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfg> {
     public StateMachine buildStates() {
       EVStateMachineBuilder b = new EVStateMachineBuilder(S.DRIVE_1, TeamColor.BLUE, Angle.fromDegrees(3), gyro,
               0.7, 0.8, servos,mecanumControl);
+      b.addDrive(S.DRIVE_1, S.STOP, Distance.fromFeet(1), 0.5, 0, 0);
+      b.addStop(S.STOP);
       return b.build();
     }
 
@@ -327,13 +308,13 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfg> {
             @Override
             public void init() {
                 startTime = System.currentTimeMillis();
-                robotCfg.getFlyWheels().setPower(power);
+//                robotCfg.getFlyWheels().setPower(power);
             }
 
             @Override
             public boolean isDone() {
                 if((System.currentTimeMillis() - startTime) > durationMillis) {
-                    robotCfg.getFlyWheels().stop();
+//                    robotCfg.getFlyWheels().stop();
                     return true;
                 }
                 return false;
@@ -361,13 +342,13 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfg> {
             @Override
             public void init() {
                 s.act();
-                robotCfg.getFlyWheels().setPower(collectorSpeed);
+//                robotCfg.getFlyWheels().setPower(collectorSpeed);
             }
 
             @Override
             public boolean isDone() {
                 if(s.act() != null) {
-                    robotCfg.getFlyWheels().stop();
+  //                  robotCfg.getFlyWheels().stop();
                     return true;
                 }
                 return false;
