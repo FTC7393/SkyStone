@@ -122,7 +122,6 @@ return null;
     @Override
     public void setup() {
         gyro = robotCfg.getGyro();
-        pipeline = new ProcessPipeline(skystonePosStateRR, minCycles, teamColor, canUpdateSRR);
         mecanumControl = robotCfg.getMecanumControl();
 
         super.setup(); //Note: the superclass init method builds the state machine
@@ -134,12 +133,12 @@ return null;
                 //camera = new OpenCvWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
                 long cameraPause = 200L;
                 sleep(cameraPause);
-                camera.openCameraDevice();
+                phoneCam.openCameraDevice();
                 sleep(cameraPause);
                 s = pipeline.getStateNameII();
-                camera.setPipeline(pipeline);
+                phoneCam.setPipeline(pipeline);
                 sleep(cameraPause);
-                camera.startStreaming(640, 480);
+                phoneCam.startStreaming(640, 480);
                 sleep(cameraPause);
                 cameraInitRR.setValue(true);
 
@@ -192,9 +191,43 @@ return null;
 
     @Override
     public StateMachine buildStates() {
-      EVStateMachineBuilder b = new EVStateMachineBuilder(S.DRIVE_1, TeamColor.BLUE, Angle.fromDegrees(3), gyro,
-              0.7, 0.8, servos,mecanumControl);
-      b.addDrive(S.DRIVE_1, S.STOP, Distance.fromFeet(1), 0.5, 0, 0);
+
+
+        OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
+        teamColor = optionsFile.get(SkyStoneOptionsOp.Opts.TEAM_COLOR.s, SkyStoneOptionsOp.teamColorDefault);
+        doSkyStone = optionsFile.get(SkyStoneOptionsOp.Opts.DO_SKYSTONE.s, SkyStoneOptionsOp.doSkyStoneDefault);
+        pipeline = new ProcessPipeline(skystonePosStateRR, minCycles, teamColor, canUpdateSRR);
+        Angle tolerance = Angle.fromDegrees(2.5);
+        EVStateMachineBuilder b = new EVStateMachineBuilder(S.INIT_GYRO, teamColor, tolerance,
+                gyro, 0.6, 0.7, robotCfg.getServos(), mecanumControl);
+        b.addCalibrateGyro(S.INIT_GYRO,S.POST_GYRO_WAIT);
+        b.addWait(S.POST_GYRO_WAIT, S.INIT_CAMERA, 100);
+        b.add(S.INIT_CAMERA, new BasicAbstractState() {
+            @Override
+            public void init() {
+                cameraInit.start();
+            }
+
+            @Override
+            public boolean isDone() {
+                return cameraInitRR.isReady() && cameraInitRR.getValue();
+            }
+
+            @Override
+            public StateName getNextStateName() {
+                return S.POST_CAMERA_PAUSE;
+            }
+        });
+        b.addWait(S.POST_CAMERA_PAUSE, S.WAIT_FOR_START, 500);
+        b.addResultReceiverReady(S.WAIT_FOR_START, S.WAIT_FOR_SKYSTONE, startRR);
+        b.addResultReceiverReady(S.WAIT_FOR_SKYSTONE, S.STOP_SKYSTONE_SEARCH, skystonePosStateRR);
+        b.add(S.STOP_SKYSTONE_SEARCH, new State() {
+            @Override
+            public StateName act() {
+                canUpdateSRR.setValue(false);
+                return S.STOP;
+            }
+        });
       b.addStop(S.STOP);
       return b.build();
     }
@@ -377,6 +410,6 @@ return null;
         RED_SKYSTONE_RIGHT_TO_BRIDGE,
         RED_SKYSTONE_MIDDLE_TO_BRIDGE,
         DRIVE_1,
-        STOP
+        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, STOP
     }
 }

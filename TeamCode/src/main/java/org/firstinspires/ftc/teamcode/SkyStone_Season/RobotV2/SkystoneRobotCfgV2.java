@@ -48,9 +48,13 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
     private final Rev2mDistanceSensor minusYDistanceSensor;
     private final Rev2mDistanceSensor blockDetector;
     private final SimpleEncoderSensor odometryWheelSensor;
+    List<LynxModule> allHubs;
 //    private final AveragedSensor plusYDistanceSensor;
 
 
+    public Rev2mDistanceSensor getBlockDetector() {
+        return blockDetector;
+    }
 
     public SkystoneRobotCfgV2(HardwareMap hardwareMap, Map<ServoName, Enum> servoStartPresetMap) {
         super(hardwareMap);
@@ -71,7 +75,7 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         DcMotorEx collectorMotor = hardwareMap.get(DcMotorEx.class,"collectorMotor");
 
         blockCollector = new BlockCollector(
-                Motors.withoutEncoder(collectorMotor, false, false, stoppers)
+                Motors.withoutEncoder(collectorMotor, false, false, stoppers), getBlockDetector()
         );
 
         liftArmV2 = new LiftArmV2(
@@ -101,10 +105,9 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         blockDetector = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "internalBlockDetector");
 
         odometryWheelSensor = new SimpleEncoderSensor(collectorMotor);
-
-        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+        allHubs = hardwareMap.getAll(LynxModule.class);
         for(LynxModule module : allHubs) {
-            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
 
 
@@ -193,6 +196,9 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
 
     @Override
     public void pre_act() {
+        for(LynxModule hub : allHubs) {
+            hub.clearBulkCache();
+        }
         liftArmV2.pre_act();
         odometryWheelSensor.pre_act();
     }

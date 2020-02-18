@@ -102,11 +102,11 @@ public class LinearSlide {
 
 
         if (lowerLimit != null) {
-            if (!lowerLimitResetComplete && lowerLimit.justPressed()) {
+            if (lowerLimit.justPressed()) {
 
                 lowerLimitResetComplete = true;
                 extension.resetEncoder();
-                minExtensionPosition = 0;
+                minExtensionPosition = -50;
                 extensionSetPoint = 0;
             } else if(lowerLimit.isPressed() && extensionSetPoint <= extensionEncoder) {
                 extensionSetPoint = extensionEncoder;

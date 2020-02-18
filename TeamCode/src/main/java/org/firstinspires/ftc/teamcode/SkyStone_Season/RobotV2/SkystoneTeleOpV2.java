@@ -2,18 +2,19 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.AnalogInputEdgeDetector;
-import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.FoundationMover;
 
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
 import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.files.Logger;
 import ftc.electronvolts.util.units.Time;
-import ftc.evlib.hardware.config.RobotCfg;
 import ftc.evlib.hardware.control.RotationControls;
 import ftc.evlib.hardware.control.TranslationControls;
+import ftc.evlib.hardware.sensors.AnalogSensor;
 import ftc.evlib.opmodes.AbstractTeleOp;
+import ftc.evlib.util.ImmutableList;
 
 
 /**
@@ -30,10 +31,11 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private AnalogInputEdgeDetector driver2RightXRight;
     private AnalogInputEdgeDetector driver2RightTrigger;
     private AnalogInputEdgeDetector driver2LeftTrigger;
-    private final double liftspeed = 200;
+    private final double liftspeed = 100;
     private final double extensionspeed = 200;
     private final double collectorspeed = 1;
     private boolean wristtoggle = false;
+//    private  AnalogSensor cycleTime;
     private enum FoundationMoverPosition{
         UP,
         READY,
@@ -100,7 +102,59 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
 
     @Override
     protected Logger createLogger() {
-        return null;
+        return new Logger("log", ".csv", ImmutableList.of(
+                new Logger.Column("vertical slide left encoder", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return robotCfg.getLiftArmV2().getVerticalLeftEncoder();
+                    }
+                }), new Logger.Column("vertical slide right encoder", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return robotCfg.getLiftArmV2().getVerticalRightEncoder();
+                    }
+                }), new Logger.Column("horizontal slide encoder", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return robotCfg.getLiftArmV2().getHorizontalEncoder();
+                    }
+                }), new Logger.Column("left vertical limit switch", new InputExtractor<Boolean>() {
+                    @Override
+                    public Boolean getValue() {
+                        return robotCfg.getLiftArmV2().getLowerLimitVerticalLeft().getValue();
+                    }
+                }), new Logger.Column("right vertical limit switch", new InputExtractor<Boolean>() {
+                    @Override
+                    public Boolean getValue() {
+                        return robotCfg.getLiftArmV2().getLowerLimitVerticalRight().getValue();
+                    }
+                }), new Logger.Column("horizontal limit switch", new InputExtractor<Boolean>() {
+                    @Override
+                    public Boolean getValue() {
+                        return robotCfg.getLiftArmV2().getLowerLimitHorizontal().getValue();
+                    }
+                }), new Logger.Column("lift command - liftArmV2", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return robotCfg.getLiftArmV2().getLiftCommand();
+                    }
+                }), new Logger.Column("lift command linear slide - left", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return robotCfg.getLiftArmV2().getVerticalSlideLeft().getExtensionSetPoint();
+                    }
+                }), new Logger.Column("lift command linear slide - right", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return robotCfg.getLiftArmV2().getVerticalSlideRight().getExtensionSetPoint();
+                    }
+                }), new Logger.Column("extension command", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return robotCfg.getLiftArmV2().getExtensionCommand();
+                    }
+                })
+        ));
     }
 
     @Override
@@ -111,6 +165,16 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         this.driver2RightXLeft = new AnalogInputEdgeDetector(driver2.right_stick_x,0.3, 0.7,true);
         this.driver2RightTrigger = new AnalogInputEdgeDetector(driver2.right_trigger,0.3, 0.7,true);
         this.driver2LeftTrigger = new AnalogInputEdgeDetector(driver2.left_trigger,0.3, 0.7,true);
+//        cycleTime = new AnalogSensor() {
+//            long timeAtLastRead = 0;
+//            @Override
+//            public Double getValue() {
+//                long newSystemTime = System.currentTimeMillis();
+//                long delta = newSystemTime - timeAtLastRead;
+//                timeAtLastRead = newSystemTime;
+//                return delta + 0.0;
+//            }
+//        };
 }
 
     @Override
@@ -159,6 +223,9 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         telemetry.addData("verticalRightEncoder",robotCfg.getLiftArmV2().getVerticalRightEncoder());
         telemetry.addData("driver 2 left trigger", driver2.left_trigger.getValue());
         telemetry.addData("driver 2 right trigger", driver2.right_trigger.getValue());
+        telemetry.addData("internal block detector", robotCfg.getBlockDetector().getDistance(DistanceUnit.CM));
+        telemetry.addData("rear facing distance sensor", robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM));
+//        telemetry.addData("cycle time", cycleTime.getValue());
 
         //left stick button toggles fast and slow mode
 
