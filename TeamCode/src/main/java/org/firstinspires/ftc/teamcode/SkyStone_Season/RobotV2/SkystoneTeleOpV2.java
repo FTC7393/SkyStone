@@ -304,12 +304,12 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
             robotCfg.getLiftArmV2().fingersLeft();
         } else robotCfg.getLiftArmV2().fingersStop();
 
-        if(driver2.left_bumper.justPressed()){
-            robotCfg.getLiftArmV2().gripperGrab();
-        }else if(driver2.right_bumper.justPressed()){
-            robotCfg.getLiftArmV2().gripperRelease();
-        }
 
+        if(driver2.right_bumper.isPressed()){
+            robotCfg.getLiftArmV2().gripperRelease();
+        }else {
+            robotCfg.getLiftArmV2().gripperGrab();
+        }
 // LiftArm auto commands ///////////////////////////////////////////////////////////////////
 //        if(driver2RightYDown.justPressed()){
 //            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.STOW);
