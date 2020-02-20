@@ -225,6 +225,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         telemetry.addData("driver 2 right trigger", driver2.right_trigger.getValue());
         telemetry.addData("internal block detector", robotCfg.getBlockDetector().getDistance(DistanceUnit.CM));
         telemetry.addData("rear facing distance sensor", robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM));
+        telemetry.addData("odometry Encoder", robotCfg.getOdometryWheelSensor().getValue());
 //        telemetry.addData("cycle time", cycleTime.getValue());
 
         //left stick button toggles fast and slow mode

@@ -249,9 +249,9 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         return liftArmV2;
     }
 
+ public SimpleEncoderSensor getOdometryWheelSensor(){return odometryWheelSensor;}
 
-
-//    public ModernRoboticsI2cRangeSensor getPlusXDistanceSensor() {
+        //    public ModernRoboticsI2cRangeSensor getPlusXDistanceSensor() {
 //        return plusXDistanceSensor;
 //    }
 
