@@ -116,7 +116,7 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
 //                }
 //                 })
 //        ));
-return null;
+        return null;
     }
 
     @Override
@@ -146,6 +146,8 @@ return null;
         };
 
         cameraInit = new Thread(r);
+
+        robotCfg.getOdometryServo().goToPreset(SkystoneRobotCfgV2.OdometryServoPresets.DOWN);
 
     }
 

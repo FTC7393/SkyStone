@@ -110,7 +110,6 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
 
-
 //        Function podsCal = new Function() {
 //            @Override
 //            public double f(double x) {
@@ -163,6 +162,11 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         DOWN,
     }
 
+    public enum OdometryServoPresets {
+        DOWN,
+        UP
+    }
+
 
     public ServoControl getGripper() {
         return getServo(SkystoneServoName.GRIPPER_SERVO);
@@ -172,6 +176,10 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
 
     public ServoControl getWrist() {
         return getServo(SkystoneServoName.WRIST_SERVO);
+    }
+
+    public ServoControl getOdometryServo() {
+        return getServo(SkystoneServoName.ODOMETRY_SERVO);
     }
 
     private static final Velocity MAX_ROBOT_SPEED = new Velocity(Distance.fromInches(57 * 4), Time.fromSeconds(2.83));
@@ -273,7 +281,8 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         FINGER_LEFT_SERVO("fingerLeftServo", FingerLeftServoPresets.values()),
         FINGER_RIGHT_SERVO("fingerRightServo", FingerRightServoPresets.values()),
         RIGHT_FOUNDATION_MOVER_SERVO("rightFoundationMoverServo", RightFoundationMoverServoPresets.values()),
-        LEFT_FOUNDATION_MOVER_SERVO("leftFoundationMoverServo", LeftFoundationMoverServoPresets.values());
+        LEFT_FOUNDATION_MOVER_SERVO("leftFoundationMoverServo", LeftFoundationMoverServoPresets.values()),
+        ODOMETRY_SERVO("odometryServo", OdometryServoPresets.values());
 
 //        PUSH_SERVO("pushServo", RotateServoPresets.values());
 

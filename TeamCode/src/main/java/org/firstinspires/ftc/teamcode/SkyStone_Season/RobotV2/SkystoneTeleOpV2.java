@@ -165,6 +165,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         this.driver2RightXLeft = new AnalogInputEdgeDetector(driver2.right_stick_x,0.3, 0.7,true);
         this.driver2RightTrigger = new AnalogInputEdgeDetector(driver2.right_trigger,0.3, 0.7,true);
         this.driver2LeftTrigger = new AnalogInputEdgeDetector(driver2.left_trigger,0.3, 0.7,true);
+        robotCfg.getOdometryServo().goToPreset(SkystoneRobotCfgV2.OdometryServoPresets.UP);
 //        cycleTime = new AnalogSensor() {
 //            long timeAtLastRead = 0;
 //            @Override
