@@ -5,10 +5,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.AnalogInputEdgeDetector;
 
+import ftc.electronvolts.util.DigitalInputEdgeDetector;
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
 import ftc.electronvolts.util.InputExtractor;
+import ftc.electronvolts.util.Vector2D;
 import ftc.electronvolts.util.files.Logger;
+import ftc.electronvolts.util.units.Angle;
 import ftc.electronvolts.util.units.Time;
 import ftc.evlib.hardware.control.RotationControls;
 import ftc.evlib.hardware.control.TranslationControls;
@@ -35,7 +38,8 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private final double extensionspeed = 200;
     private final double collectorspeed = 1;
     private boolean wristtoggle = false;
-//    private  AnalogSensor cycleTime;
+
+    //    private  AnalogSensor cycleTime;
     private enum FoundationMoverPosition{
         UP,
         READY,
@@ -80,7 +84,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private MotorSpeedFactor lastXSpeedFactor = currentSpeedFactor;
 
     enum MotorSpeedFactor {
-        FAST(1.0), SLOW(0.4), SUPER_SLOW(0.2);
+        FAST(1.0), SLOW(0.2), SUPER_SLOW(0.2);
         private double factor;
         MotorSpeedFactor(double x) {
             this.factor = x;
@@ -238,6 +242,33 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         if(driver1.right_stick_button.justPressed()) {
             currentSpeedFactor = MotorSpeedFactor.FAST;
         }
+        boolean up = driver2.dpad_up.isPressed();
+        boolean down = driver2.dpad_down.isPressed();
+        boolean right = driver2.dpad_right.isPressed();
+        boolean left = driver2.dpad_left.isPressed();
+        //There are two ways to control the fingers, the priority way is to
+        //control using the left and right tirggers as well as the a and b buttons,
+        //the alternate way of controlling the fingers is through the dpad.
+
+        if(driver2.right_trigger.getValue()>0.5){
+            robotCfg.getLiftArmV2().fingersIngest();
+        } else if(driver2.left_trigger.getValue()>0.5) {
+            robotCfg.getLiftArmV2().fingerEject();
+        }else if(driver2.a.isPressed()){
+            robotCfg.getLiftArmV2().fingersRight();
+        } else if(driver2.b.isPressed()){
+            robotCfg.getLiftArmV2().fingersLeft();
+        } else if(up) {
+            robotCfg.getLiftArmV2().fingersIngest();
+        } else if(down) {
+            robotCfg.getLiftArmV2().fingerEject();
+        } else if(right) {
+            robotCfg.getLiftArmV2().fingersRight();
+        } else if(left) {
+            robotCfg.getLiftArmV2().fingersLeft();
+        } else {
+            robotCfg.getLiftArmV2().fingersStop();
+        }
 
         forwardControl(); // driver 1 mechanum control for motors
 
@@ -296,15 +327,6 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
 //            robotCfg.getLiftArm().armPlacingLeft();
         }
 
-        if(driver2.right_trigger.getValue()>0.5){
-            robotCfg.getLiftArmV2().fingersIngest();
-        } else if(driver2.left_trigger.getValue()>0.5) {
-            robotCfg.getLiftArmV2().fingerEject();
-        }else if(driver2.a.isPressed()){
-            robotCfg.getLiftArmV2().fingersRight();
-        } else if(driver2.b.isPressed()){
-            robotCfg.getLiftArmV2().fingersLeft();
-        } else robotCfg.getLiftArmV2().fingersStop();
 
 
         if(driver2.right_bumper.isPressed()){
