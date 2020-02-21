@@ -225,6 +225,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         telemetry.addData("driver 2 right trigger", driver2.right_trigger.getValue());
         telemetry.addData("internal block detector", robotCfg.getBlockDetector().getDistance(DistanceUnit.CM));
         telemetry.addData("rear facing distance sensor", robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM));
+        telemetry.addData("odometry Encoder", robotCfg.getOdometryWheelSensor().getValue());
 //        telemetry.addData("cycle time", cycleTime.getValue());
 
         //left stick button toggles fast and slow mode
@@ -304,12 +305,12 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
             robotCfg.getLiftArmV2().fingersLeft();
         } else robotCfg.getLiftArmV2().fingersStop();
 
-        if(driver2.left_bumper.justPressed()){
-            robotCfg.getLiftArmV2().gripperGrab();
-        }else if(driver2.right_bumper.justPressed()){
-            robotCfg.getLiftArmV2().gripperRelease();
-        }
 
+        if(driver2.right_bumper.isPressed()){
+            robotCfg.getLiftArmV2().gripperRelease();
+        }else {
+            robotCfg.getLiftArmV2().gripperGrab();
+        }
 // LiftArm auto commands ///////////////////////////////////////////////////////////////////
 //        if(driver2RightYDown.justPressed()){
 //            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.STOW);
