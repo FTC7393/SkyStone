@@ -56,12 +56,21 @@ public class LiftArmV2 {
         this.gripper = gripper;
         this.fingerLeft = fingerLeft;
         this.fingerRight = fingerRight;
-        this.verticalSlideLeft = new LinearSlide(VerticalLeftMotor, new PIDController(0.003, 0, 0, 1),
-                VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalLeft);
+//        this.verticalSlideLeft = new LinearSlide(VerticalLeftMotor, new PIDController(0.003, 0, 0, 1),
+//                VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalLeft);
+//        this.verticalSlideRight = new LinearSlide(VerticalRightMotor, new PIDController(0.003, 0, 0, 1),
+//                VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalRight);
+//        this.horizontalSlide = new LinearSlide(HorizontalMotor, new PIDController(0.003, 0, 0.1, 1),
+//                HorizontalMaxExtension, LiftToleranceHorizontal, lowerLimitHorizontal);
+        this.horizontalSlide = new LinearSlide(HorizontalMotor, null,
+                HorizontalMaxExtension, LiftToleranceHorizontal, lowerLimitHorizontal);
+        horizontalSlide.setMaxCorrectionPower(0.6);
         this.verticalSlideRight = new LinearSlide(VerticalRightMotor, new PIDController(0.003, 0, 0, 1),
                 VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalRight);
-        this.horizontalSlide = new LinearSlide(HorizontalMotor, new PIDController(0.003, 0, 0.1, 1),
-                HorizontalMaxExtension, LiftToleranceHorizontal, lowerLimitHorizontal);
+        verticalSlideRight.setMaxCorrectionPower(0.8);
+        this.verticalSlideRight = new LinearSlide(VerticalRightMotor, new PIDController(0.003, 0, 0, 1),
+                VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalRight);
+        verticalSlideLeft.setMaxCorrectionPower(0.8);
         this.lowerLimitVerticalRight = lowerLimitVerticalRight;
         this.lowerLimitVerticalLeft= lowerLimitVerticalLeft;
         this.lowerLimitHorizontal = lowerLimitHorizontal;
@@ -77,13 +86,13 @@ public class LiftArmV2 {
     }
     public void controlExtension(double extensionDelta) {
         double newCommand = horizontalSlide.getExtensionSetPoint() + extensionDelta;
-        if (verticalSlideRight.getExtensionEncoder() < liftKeepOutUpperLimit && verticalSlideLeft.getExtensionEncoder() < liftKeepOutUpperLimit) {
-            if (horizontalSlide.getExtensionSetPoint() <= liftKeepOutInnerLimit && newCommand > liftKeepOutInnerLimit) {
-                newCommand = liftKeepOutInnerLimit;
-            } else if (horizontalSlide.getExtensionSetPoint() >= liftKeepOutOuterLimit && newCommand < liftKeepOutOuterLimit) {
-                newCommand = liftKeepOutOuterLimit;
-            }
-        }
+//        if (verticalSlideRight.getExtensionEncoder() < liftKeepOutUpperLimit && verticalSlideLeft.getExtensionEncoder() < liftKeepOutUpperLimit) {
+//            if (horizontalSlide.getExtensionSetPoint() <= liftKeepOutInnerLimit && newCommand > liftKeepOutInnerLimit) {
+//                newCommand = liftKeepOutInnerLimit;
+//            } else if (horizontalSlide.getExtensionSetPoint() >= liftKeepOutOuterLimit && newCommand < liftKeepOutOuterLimit) {
+//                newCommand = liftKeepOutOuterLimit;
+//            }
+//        }
         if (isNinety) {
             if (horizontalSlide.getExtensionSetPoint() > WristKeepOutOuterLimit && newCommand < WristKeepOutOuterLimit) {
                 newCommand = WristKeepOutOuterLimit;
@@ -97,11 +106,11 @@ public class LiftArmV2 {
 //        double newCommand = ((leftEnc + verticalSlideRight.getExtensionEncoder()) / 2) + liftDelta;
         double offset = calculator.calculateOffset(leftEnc);
         double newCommand = liftCommand+liftDelta;
-        if (horizontalSlide.getExtensionEncoder() >= liftKeepOutInnerLimit && horizontalSlide.getExtensionEncoder() <= liftKeepOutOuterLimit) {
-            if (liftCommand >= liftKeepOutUpperLimit && newCommand < liftKeepOutUpperLimit) {
-                newCommand = liftKeepOutUpperLimit;
-            }
-        }
+//        if (horizontalSlide.getExtensionEncoder() >= liftKeepOutInnerLimit && horizontalSlide.getExtensionEncoder() <= liftKeepOutOuterLimit) {
+//            if (liftCommand >= liftKeepOutUpperLimit && newCommand < liftKeepOutUpperLimit) {
+//                newCommand = liftKeepOutUpperLimit;
+//            }
+//        }
         liftCommand = Math.min(Math.max(newCommand, VerticalMinExtension), VerticalMaxExtension);
 
 

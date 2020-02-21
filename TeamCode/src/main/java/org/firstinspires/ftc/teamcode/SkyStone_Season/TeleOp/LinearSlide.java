@@ -31,46 +31,45 @@ public class LinearSlide {
     
 
 
-    int minExtensionPosition=-10000;   // !!! Change this to -10000 when limit switch is reinstalled !!!
+    double minExtensionPosition;   // !!! Change this to -10000 when limit switch is reinstalled !!!
     double extensionSetPoint=0;
     double extensionPower=0;
 
-
-
-    public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, int tolerance ) {
-        this.extension = extension;
-        this.lowerLimit= null;
-        this.lowerLimitResetComplete= true;
-        this.extensionPID= extensionPID;
-        this.maxExtensionPosition = maxExtensionPosition;
-        this.minExtensionPosition = 0;
-        this.upperLimit = null;
-        this.tolerance = tolerance;
+    public double getMaxCorrectionPower() {
+        return maxCorrectionPower;
     }
 
-    public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, int tolerance,
-                       DigitalSensor lowerLimit) {
+    public void setMaxCorrectionPower(double maxCorrectionPower) {
+        this.maxCorrectionPower = maxCorrectionPower;
+    }
+
+    private double maxCorrectionPower = 1;
+
+
+    private LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, int tolerance,
+                       DigitalSensor lowerLimit, DigitalSensor upperLimit, double minExtensionPosition) {
         this.extension = extension;
         this.lowerLimit= new DigitalInputEdgeDetector(lowerLimit);
         this.extensionPID= extensionPID;
         this.maxExtensionPosition = maxExtensionPosition;
-        this.minExtensionPosition = -10000;
-        this.upperLimit = null;
+        this.upperLimit = new DigitalInputEdgeDetector(upperLimit);
         this.tolerance = tolerance;
+        this.minExtensionPosition = minExtensionPosition;
     }
 
     public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, int tolerance,
                        DigitalSensor lowerLimit, DigitalSensor upperLimit) {
-        this.extension = extension;
-        this.lowerLimit= new DigitalInputEdgeDetector(lowerLimit);
-        this.extensionPID= extensionPID;
-        this.maxExtensionPosition = maxExtensionPosition;
-        this.minExtensionPosition = -10000;
-        this.upperLimit = new DigitalInputEdgeDetector(upperLimit);
-        this.tolerance = tolerance;
-        
+        this(extension, extensionPID, maxExtensionPosition, tolerance, lowerLimit, upperLimit, -10000);
     }
 
+    public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, int tolerance,
+                       DigitalSensor lowerLimit) {
+        this(extension, extensionPID, maxExtensionPosition, tolerance, lowerLimit, null, -10000);
+    }
+
+    public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, int tolerance) {
+        this(extension, extensionPID, maxExtensionPosition, tolerance, null, null, -10000);
+    }
     
 
     //StepTimer t = new StepTimer("Arm", Log.VERBOSE);
@@ -125,11 +124,16 @@ public class LinearSlide {
         if(extensionSetPoint<minExtensionPosition){
             extensionSetPoint=minExtensionPosition;
         }
-        extensionPower=extensionPID.computeCorrection(extensionSetPoint,extensionEncoder);
+
+        if(extensionPID != null) {
+            extensionPower = extensionPID.computeCorrection(extensionSetPoint, extensionEncoder);
 
 //        t.step("extension set power");
 
-        extension.setSpeed(extensionPower);
+            extension.setSpeed(extensionPower);
+        } else {
+            extension.setPosition((int)extensionSetPoint, maxCorrectionPower);
+        }
 
 
 //        t.step("arm updates");
@@ -166,7 +170,7 @@ public class LinearSlide {
     }
 
     public double getExtensionEncoder(){return extensionEncoder;}
-    public int getMinExtensionValue(){return minExtensionPosition;}
+    public int getMinExtensionValue(){return (int)minExtensionPosition;}
 
 
     public double getExtensionPower(){return extensionPower;}
