@@ -443,7 +443,9 @@ public class Motors {
                 encoderPosition = dcMotor.getCurrentPosition();
 
                 t.step("motor_setMode");
-
+                if (mode == Mode.POSITION) {
+                    dcMotor.setTargetPosition(encoderTarget);
+                }
                 if (mode != lastMode) {
 
                     dcMotor.setMode(motorModeToDcMotorRunMode(mode));
@@ -452,9 +454,7 @@ public class Motors {
 
                 t.step("motor_setTargetPosition");
 
-                if (mode == Mode.POSITION) {
-                    dcMotor.setTargetPosition(encoderTarget);
-                }
+
 
                 t.step("motor_setPower");
                 if(power!=lastPower) {

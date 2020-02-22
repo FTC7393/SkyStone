@@ -49,10 +49,18 @@ public class LinearSlide {
     private LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, int tolerance,
                        DigitalSensor lowerLimit, DigitalSensor upperLimit, double minExtensionPosition) {
         this.extension = extension;
-        this.lowerLimit= new DigitalInputEdgeDetector(lowerLimit);
+        if(lowerLimit == null) {
+            this.lowerLimit = null;
+        } else {
+            this.lowerLimit = new DigitalInputEdgeDetector(lowerLimit);
+        }
         this.extensionPID= extensionPID;
         this.maxExtensionPosition = maxExtensionPosition;
-        this.upperLimit = new DigitalInputEdgeDetector(upperLimit);
+        if(upperLimit == null) {
+            this.upperLimit = null;
+        } else {
+            this.upperLimit = new DigitalInputEdgeDetector(upperLimit);
+        }
         this.tolerance = tolerance;
         this.minExtensionPosition = minExtensionPosition;
     }

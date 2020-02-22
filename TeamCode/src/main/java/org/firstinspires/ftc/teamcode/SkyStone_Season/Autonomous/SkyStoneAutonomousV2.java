@@ -343,31 +343,6 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         };
     }
 
-    private State createTimedFlywheelState(final StateName nextState, final double power, final long durationMillis) {
-
-        return new BasicAbstractState() {
-            long startTime;
-            @Override
-            public void init() {
-                startTime = System.currentTimeMillis();
-//                robotCfg.getFlyWheels().setPower(power);
-            }
-
-            @Override
-            public boolean isDone() {
-                if((System.currentTimeMillis() - startTime) > durationMillis) {
-//                    robotCfg.getFlyWheels().stop();
-                    return true;
-                }
-                return false;
-            }
-
-            @Override
-            public StateName getNextStateName() {
-                return nextState;
-            }
-        };
-    }
 
 
 

@@ -65,14 +65,14 @@ public class LiftArmV2 {
         this.horizontalSlide = new LinearSlide(HorizontalMotor, null,
                 HorizontalMaxExtension, LiftToleranceHorizontal, lowerLimitHorizontal);
         horizontalSlide.setMaxCorrectionPower(0.6);
-        this.verticalSlideRight = new LinearSlide(VerticalRightMotor, new PIDController(0.003, 0, 0, 1),
+        this.verticalSlideRight = new LinearSlide(VerticalRightMotor, null,
                 VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalRight);
         verticalSlideRight.setMaxCorrectionPower(0.8);
-        this.verticalSlideLeft = new LinearSlide(VerticalLeftMotor, new PIDController(0.003, 0, 0, 1),
-                VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalRight);
+        this.verticalSlideLeft = new LinearSlide(VerticalLeftMotor, null,
+                VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalLeft);
         verticalSlideLeft.setMaxCorrectionPower(0.8);
         this.lowerLimitVerticalRight = lowerLimitVerticalRight;
-        this.lowerLimitVerticalLeft= lowerLimitVerticalLeft;
+        this.lowerLimitVerticalLeft = lowerLimitVerticalLeft;
         this.lowerLimitHorizontal = lowerLimitHorizontal;
     }
     public DigitalSensor getLowerLimitVerticalLeft() {

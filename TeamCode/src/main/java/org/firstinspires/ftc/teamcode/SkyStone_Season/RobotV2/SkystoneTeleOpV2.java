@@ -82,7 +82,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private MotorSpeedFactor lastXSpeedFactor = currentSpeedFactor;
 
     enum MotorSpeedFactor {
-        FAST(1.0), SLOW(0.2), SUPER_SLOW(0.2);
+        FAST(1.0), SLOW(0.1), SUPER_SLOW(0.2);
         private double factor;
         MotorSpeedFactor(double x) {
             this.factor = x;
@@ -212,26 +212,21 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         driver2RightTrigger.update();
         driver2LeftTrigger.update();
 
-//        telemetry.addData("backLeft",robotCfg.getMecanumControl().getMecanumMotors().getEncoder(0));
-//        telemetry.addData("frontLeft",robotCfg.getMecanumControl().getMecanumMotors().getEncoder(1));
-//        telemetry.addData("frontRight",robotCfg.getMecanumControl().getMecanumMotors().getEncoder(2));
-//        telemetry.addData("backRight",robotCfg.getMecanumControl().getMecanumMotors().getEncoder(3));
-        telemetry.addData("horizontalLimit",robotCfg.getLiftArmV2().getLowerLimitHorizontal().getValue());
-        telemetry.addData("rightLimit",robotCfg.getLiftArmV2().getLowerLimitVerticalRight().getValue());
-        telemetry.addData("LeftLimit",robotCfg.getLiftArmV2().getLowerLimitVerticalLeft().getValue());
-        telemetry.addData("liftCommand",robotCfg.getLiftArmV2().getLiftCommand());
-        telemetry.addData("extensionCommand",robotCfg.getLiftArmV2().getExtensionCommand());
-        telemetry.addData("horizontalEncoder",robotCfg.getLiftArmV2().getHorizontalEncoder());
-        telemetry.addData("verticalLeftEncoder",robotCfg.getLiftArmV2().getVerticalLeftEncoder());
-        telemetry.addData("verticalRightEncoder",robotCfg.getLiftArmV2().getVerticalRightEncoder());
-        telemetry.addData("driver 2 left trigger", driver2.left_trigger.getValue());
-        telemetry.addData("driver 2 right trigger", driver2.right_trigger.getValue());
-        telemetry.addData("internal block detector", robotCfg.getBlockDetector().getDistance(DistanceUnit.CM));
-        telemetry.addData("plusY distance sensor", robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM));
-        telemetry.addData("minusY distance sensor", robotCfg.getMinusYDistanceSensor().getDistance(DistanceUnit.CM));
-        telemetry.addData("minusX distance sensor", robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM));
-        telemetry.addData("odometry Encoder", robotCfg.getOdometryWheelSensor().getValue());
-//        telemetry.addData("cycle time", cycleTime.getValue());
+//        telemetry.addData("horizontalLimit",robotCfg.getLiftArmV2().getLowerLimitHorizontal().getValue());
+//        telemetry.addData("rightLimit",robotCfg.getLiftArmV2().getLowerLimitVerticalRight().getValue());
+//        telemetry.addData("LeftLimit",robotCfg.getLiftArmV2().getLowerLimitVerticalLeft().getValue());
+//        telemetry.addData("liftCommand",robotCfg.getLiftArmV2().getLiftCommand());
+//        telemetry.addData("extensionCommand",robotCfg.getLiftArmV2().getExtensionCommand());
+//        telemetry.addData("horizontalEncoder",robotCfg.getLiftArmV2().getHorizontalEncoder());
+//        telemetry.addData("verticalLeftEncoder",robotCfg.getLiftArmV2().getVerticalLeftEncoder());
+//        telemetry.addData("verticalRightEncoder",robotCfg.getLiftArmV2().getVerticalRightEncoder());
+//        telemetry.addData("driver 2 left trigger", driver2.left_trigger.getValue());
+//        telemetry.addData("driver 2 right trigger", driver2.right_trigger.getValue());
+//        telemetry.addData("internal block detector", robotCfg.getBlockDetector().getDistance(DistanceUnit.CM));
+//        telemetry.addData("plusY distance sensor", robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM));
+//        telemetry.addData("minusY distance sensor", robotCfg.getMinusYDistanceSensor().getDistance(DistanceUnit.CM));
+//        telemetry.addData("minusX distance sensor", robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM));
+//        telemetry.addData("odometry Encoder", robotCfg.getOdometryWheelSensor().getValue());
 
         //left stick button toggles fast and slow mode
 
@@ -393,12 +388,12 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         }
 */
 
-        telemetry.addData("rightStickX", driver2.right_stick_x.getValue());
-        telemetry.addData("rightStickY", driver2.right_stick_y.getValue());
-        telemetry.addData("rightStickXLeft", driver2RightXLeft.getValue());
-        telemetry.addData("rightStickXRight", driver2RightXRight.getValue());
-        telemetry.addData("rightStickYUp", driver2RightYUp.getValue());
-        telemetry.addData("rightStickYDown", driver2RightYDown.getValue());
+//        telemetry.addData("rightStickX", driver2.right_stick_x.getValue());
+//        telemetry.addData("rightStickY", driver2.right_stick_y.getValue());
+//        telemetry.addData("rightStickXLeft", driver2RightXLeft.getValue());
+//        telemetry.addData("rightStickXRight", driver2RightXRight.getValue());
+//        telemetry.addData("rightStickYUp", driver2RightYUp.getValue());
+//        telemetry.addData("rightStickYDown", driver2RightYDown.getValue());
 
 
 
