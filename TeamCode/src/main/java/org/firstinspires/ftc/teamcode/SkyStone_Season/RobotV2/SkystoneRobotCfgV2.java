@@ -46,6 +46,7 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
     private final NewFoundationMover newFoundationMover;
     private final Rev2mDistanceSensor plusYDistanceSensor;
     private final Rev2mDistanceSensor minusYDistanceSensor;
+    private final Rev2mDistanceSensor minusXDistanceSensor;
     private final Rev2mDistanceSensor blockDetector;
     private final SimpleEncoderSensor odometryWheelSensor;
     List<LynxModule> allHubs;
@@ -54,6 +55,10 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
 
     public Rev2mDistanceSensor getBlockDetector() {
         return blockDetector;
+    }
+
+    public Rev2mDistanceSensor getMinusXDistanceSensor() {
+        return minusXDistanceSensor;
     }
 
     public SkystoneRobotCfgV2(HardwareMap hardwareMap, Map<ServoName, Enum> servoStartPresetMap) {
@@ -103,6 +108,8 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         plusYDistanceSensor = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "plusYSensor");
 
         blockDetector = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "internalBlockDetector");
+
+        minusXDistanceSensor = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "minusXSensor");
 
         odometryWheelSensor = new SimpleEncoderSensor(collectorMotor);
         allHubs = hardwareMap.getAll(LynxModule.class);
