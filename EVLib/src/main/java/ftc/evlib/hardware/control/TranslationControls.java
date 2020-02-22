@@ -21,9 +21,43 @@ import ftc.electronvolts.util.units.Angle;
 
 public class TranslationControls {
 
+//    public static TranslationControl sensor(final AnalogSensor sensorReading, final double gain,
+//                                            final Vector2D velocityVector, final double minVelocity,
+//                                            final double target, final double slowZone) {
+//        return new TranslationControl() {
+//            @Override
+//            public boolean act() {
+//                return true;
+//            }
+//
+//            @Override
+//            public Vector2D getTranslation() {
+//                double value = sensorReading.getValue() - target; // -10
+//
+//                double velocity = (value*gain);  // 0.02 * -10 = -0.2
+//
+//                if(Math.abs(value) <= slowZone) {
+//                    velocity  = Math.signum(velocity) *minVelocity;
+//                } else if(Math.abs(velocity) < minVelocity) {
+//                 velocity  = Math.signum(velocity) *minVelocity;
+//                } else if(Math.abs(velocity) > velocityVector.getLength()){
+//                    velocity=Math.signum(velocity)* velocityVector.getLength();
+//                }
+//                double x = velocityVector.getX()/velocityVector.getLength()*velocity;
+//                double y = velocityVector.getY()/velocityVector.getLength()*velocity;
+//                Vector2D velVectorToUse = new Vector2D(x, y);
+//                return velVectorToUse;
+//            }
+//        };
+//    }
+
     public static TranslationControl sensor(final AnalogSensor sensorReading, final double gain,
                                             final Vector2D velocityVector, final double minVelocity,
-                                            final double target, final double deadzone) {
+                                            final double target, final double slowZone) {
+        double vMax = velocityVector.getLength();
+        final double valueAtMax = vMax/gain;
+        final double slope = (vMax-minVelocity)/(valueAtMax - slowZone);
+
         return new TranslationControl() {
             @Override
             public boolean act() {
@@ -32,20 +66,23 @@ public class TranslationControls {
 
             @Override
             public Vector2D getTranslation() {
-                double value = sensorReading.getValue() - target; // -10
+                double value = target - sensorReading.getValue(); // -10
 
-                double velocity = (value*gain);  // 0.02 * -10 = -0.2
+                double velocity; //= //(value * gain);  // 0.02 * -10 = -0.2
 
-                if(Math.abs(value) <= deadzone) {
-                    velocity = 0;
+                if (Math.abs(value) <= slowZone) {
+                    velocity = Math.signum(value) * minVelocity;
+                } else if (Math.abs(value) < valueAtMax) {
+                    if(value>0) {
+                        velocity = (value - slowZone) * slope + minVelocity;
+                    }else {
+                        velocity = (value+slowZone)*slope-minVelocity;
+                    }
+                } else  {
+                    velocity = Math.signum(value) * velocityVector.getLength();
                 }
-                else if(Math.abs(velocity) < minVelocity) {
-                 velocity  = Math.signum(velocity) *minVelocity;
-                } else if(Math.abs(velocity) > velocityVector.getLength()){
-                    velocity=Math.signum(velocity)* velocityVector.getLength();
-                }
-                double x = velocityVector.getX()/velocityVector.getLength()*velocity;
-                double y = velocityVector.getY()/velocityVector.getLength()*velocity;
+                double x = velocityVector.getX() / velocityVector.getLength() * velocity;
+                double y = velocityVector.getY() / velocityVector.getLength() * velocity;
                 Vector2D velVectorToUse = new Vector2D(x, y);
                 return velVectorToUse;
             }

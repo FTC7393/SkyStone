@@ -68,8 +68,8 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
                 Motors.withEncoder(hardwareMap.get(DcMotorEx.class, "backLeft"), true, true, stoppers), // 0
                 Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"frontLeft"), false, true, stoppers), // 1
 
-                Motors.scale(Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"frontRight"), false, true, stoppers), scaleFactor), // 2
-                Motors.scale(Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"backRight"), true, true, stoppers), scaleFactor), // 3
+                Motors.scale(Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"backRight"), true, true, stoppers), scaleFactor), // 2
+                Motors.scale(Motors.withEncoder(hardwareMap.get(DcMotorEx.class,"frontRight"), false, true, stoppers), scaleFactor), // 3
                 true, MAX_ROBOT_SPEED,MAX_ROBOT_SPEED_SIDEWAYS));
 
         servos = new Servos(ServoCfg.createServoMap(hardwareMap, servoStartPresetMap));

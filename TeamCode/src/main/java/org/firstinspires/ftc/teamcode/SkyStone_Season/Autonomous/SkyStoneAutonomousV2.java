@@ -181,6 +181,10 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         telemetry.addData("current thread", Thread.currentThread().getName());
         telemetry.addData("state for detetcting skystone", skystonePosStateRR.getValue());
         telemetry.addData("ratio of both stones", pipeline.getStoneRatioII().getValue());
+        telemetry.addData("odometer Encoder", robotCfg.getOdometryWheelSensor().getValue());
+        telemetry.addData("plusY distance sensor", robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM));
+        telemetry.addData("minusY distance sensor", robotCfg.getMinusYDistanceSensor().getDistance(DistanceUnit.CM));
+        telemetry.addData("minusX distance sensor", robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM));
     }
 
 
@@ -229,16 +233,19 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
             @Override
             public StateName act() {
                 canUpdateSRR.setValue(false);
-                return S.DRIVE_WITH_ODOMETRY;
+                return S.STOP;
             }
         });
-      b.addDrive(S.DRIVE_WITH_ODOMETRY, StateMap.of(
-              S.STOP, EndConditions.timed(1000),
-              S.STOP, valueBetween(1, robotCfg.getOdometryWheelSensor(), 150, 5)
-      ), rc.gyro(90), TranslationControls.sensor(robotCfg.getOdometryWheelSensor(), 0.01,
-              new Vector2D(0.8, Angle.fromDegrees(90)), 0.01, 150, 135));
+//      b.addDrive(S.DRIVE_WITH_ODOMETRY, S.STOP, Distance.fromFeet(1), 0.8, Angle.fromDegrees(-90), Angle.fromDegrees(0));
+        double odometryDistance = 12000;
+        b.addDrive(S.DRIVE_WITH_ODOMETRY, StateMap.of(
+              S.STOP1, EndConditions.timed(5000),
+              S.STOP, valueBetween(3, robotCfg.getOdometryWheelSensor(), odometryDistance, 55)
+      ), rc.gyro(0), TranslationControls.sensor(robotCfg.getOdometryWheelSensor(), 0.000075,
+              new Vector2D(0.75, Angle.fromDegrees(-90)), 0.04, odometryDistance, 400));
         b.addStop(S.STOP);
-      return b.build();
+        b.addStop(S.STOP1);
+        return b.build();
     }
 
     private EndCondition valueBetween(final int numRequiredInARow, final InputExtractor<Double> inputExtractor,
@@ -394,6 +401,6 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         RED_SKYSTONE_RIGHT_TO_BRIDGE,
         RED_SKYSTONE_MIDDLE_TO_BRIDGE,
         DRIVE_1,
-        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP
+        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP1, STOP
     }
 }
