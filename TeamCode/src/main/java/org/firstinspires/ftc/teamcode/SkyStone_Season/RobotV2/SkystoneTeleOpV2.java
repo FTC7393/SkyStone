@@ -5,17 +5,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.AnalogInputEdgeDetector;
 
-import ftc.electronvolts.util.DigitalInputEdgeDetector;
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
 import ftc.electronvolts.util.InputExtractor;
-import ftc.electronvolts.util.Vector2D;
 import ftc.electronvolts.util.files.Logger;
-import ftc.electronvolts.util.units.Angle;
 import ftc.electronvolts.util.units.Time;
 import ftc.evlib.hardware.control.RotationControls;
 import ftc.evlib.hardware.control.TranslationControls;
-import ftc.evlib.hardware.sensors.AnalogSensor;
 import ftc.evlib.opmodes.AbstractTeleOp;
 import ftc.evlib.util.ImmutableList;
 
@@ -38,6 +34,8 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private final double extensionspeed = 200;
     private final double collectorspeed = 1;
     private boolean wristtoggle = false;
+    private boolean isLeftActive = false; //is the user actively trying to change the lift?
+    private boolean isRightActive = false; //same as above but for extension
 
     //    private  AnalogSensor cycleTime;
     private enum FoundationMoverPosition{
@@ -308,9 +306,28 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
                 throw new RuntimeException("Forgot to deal with additional state/states");
             }
         }
+         double d2_left_y = -driver2.left_stick_y.getValue();
+         double d2_right_y = -driver2.right_stick_y.getValue();
 
-        robotCfg.getLiftArmV2().controlLift(-driver2.left_stick_y.getValue()*liftspeed);
-        robotCfg.getLiftArmV2().controlExtension(-driver2.right_stick_y.getValue() * extensionspeed);
+        if(d2_left_y != 0) {
+            isLeftActive = true;
+            robotCfg.getLiftArmV2().controlLift(d2_left_y*liftspeed);
+        } else {
+            if(isLeftActive) {
+                robotCfg.getLiftArmV2().freezeLift();
+                isLeftActive = false;
+            }
+        }
+
+        if(d2_right_y != 0) {
+            isRightActive = true;
+            robotCfg.getLiftArmV2().controlExtension(d2_right_y * extensionspeed);
+        } else {
+            if(isRightActive) {
+                robotCfg.getLiftArmV2().freezeExtension();
+                isRightActive = false;
+            }
+        }
 
 
         if(driver2.y.justPressed()) {

@@ -84,6 +84,8 @@ public class LiftArmV2 {
     public DigitalSensor getLowerLimitVerticalRight() {
         return lowerLimitVerticalRight;
     }
+
+
     public void controlExtension(double extensionDelta) {
         double newCommand = horizontalSlide.getExtensionSetPoint() + extensionDelta;
 //        if (verticalSlideRight.getExtensionEncoder() < liftKeepOutUpperLimit && verticalSlideLeft.getExtensionEncoder() < liftKeepOutUpperLimit) {
@@ -93,6 +95,10 @@ public class LiftArmV2 {
 //                newCommand = liftKeepOutOuterLimit;
 //            }
 //        }
+        setExtension(newCommand);
+    }
+
+    public void setExtension(double newCommand) {
         if (isNinety) {
             if (horizontalSlide.getExtensionSetPoint() > WristKeepOutOuterLimit && newCommand < WristKeepOutOuterLimit) {
                 newCommand = WristKeepOutOuterLimit;
@@ -101,21 +107,37 @@ public class LiftArmV2 {
         horizontalSlide.setExtension(newCommand);
     }
 
-    public void controlLift(double liftDelta) {
+
+    public void freezeExtension() {
+        double horizontalEnc = horizontalSlide.getExtensionEncoder();
+        setExtension(horizontalEnc);
+    }
+
+    public void setLift(int encoder){
         double leftEnc = verticalSlideLeft.getExtensionEncoder();
 //        double newCommand = ((leftEnc + verticalSlideRight.getExtensionEncoder()) / 2) + liftDelta;
         double offset = calculator.calculateOffset(leftEnc);
-        double newCommand = liftCommand+liftDelta;
+        liftCommand = Math.min(Math.max(encoder, VerticalMinExtension), VerticalMaxExtension);
+        //if you want to contrain the lift based on the horizontal condition, here is some logic to try
 //        if (horizontalSlide.getExtensionEncoder() >= liftKeepOutInnerLimit && horizontalSlide.getExtensionEncoder() <= liftKeepOutOuterLimit) {
 //            if (liftCommand >= liftKeepOutUpperLimit && newCommand < liftKeepOutUpperLimit) {
 //                newCommand = liftKeepOutUpperLimit;
 //            }
 //        }
-        liftCommand = Math.min(Math.max(newCommand, VerticalMinExtension), VerticalMaxExtension);
-
 
         verticalSlideLeft.setExtension(Math.min(Math.max(liftCommand-offset, VerticalMinExtension), VerticalMaxExtension));
         verticalSlideRight.setExtension(liftCommand);
+    }
+
+    public void controlLift(double liftDelta) {
+        double newCommand = liftCommand+liftDelta;
+
+        setLift((int)newCommand);
+    }
+
+    public void freezeLift() {
+        double rightEnc = verticalSlideRight.getExtensionEncoder();
+        setLift((int)rightEnc);
     }
 
     public void fingersIngest() {
