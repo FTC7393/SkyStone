@@ -68,7 +68,7 @@ public class LiftArmV2 {
         this.verticalSlideRight = new LinearSlide(VerticalRightMotor, new PIDController(0.003, 0, 0, 1),
                 VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalRight);
         verticalSlideRight.setMaxCorrectionPower(0.8);
-        this.verticalSlideRight = new LinearSlide(VerticalRightMotor, new PIDController(0.003, 0, 0, 1),
+        this.verticalSlideLeft = new LinearSlide(VerticalLeftMotor, new PIDController(0.003, 0, 0, 1),
                 VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalRight);
         verticalSlideLeft.setMaxCorrectionPower(0.8);
         this.lowerLimitVerticalRight = lowerLimitVerticalRight;

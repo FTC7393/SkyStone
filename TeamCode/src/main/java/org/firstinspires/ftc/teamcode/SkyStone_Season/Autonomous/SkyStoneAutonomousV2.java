@@ -29,6 +29,7 @@ import ftc.electronvolts.util.files.OptionsFile;
 import ftc.electronvolts.util.units.Angle;
 import ftc.electronvolts.util.units.Distance;
 import ftc.evlib.hardware.control.MecanumControl;
+import ftc.evlib.hardware.control.RotationControl;
 import ftc.evlib.hardware.control.RotationControls;
 import ftc.evlib.hardware.control.TranslationControls;
 import ftc.evlib.hardware.sensors.AnalogSensor;
@@ -196,6 +197,7 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
 
 
         OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
+        RC rc = new RC(0.7, Angle.fromDegrees(2), 0.7, gyro);
         teamColor = optionsFile.get(SkyStoneOptionsOp.Opts.TEAM_COLOR.s, SkyStoneOptionsOp.teamColorDefault);
         doSkyStone = optionsFile.get(SkyStoneOptionsOp.Opts.DO_SKYSTONE.s, SkyStoneOptionsOp.doSkyStoneDefault);
         pipeline = new ProcessPipeline(skystonePosStateRR, minCycles, teamColor, canUpdateSRR);
@@ -227,10 +229,15 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
             @Override
             public StateName act() {
                 canUpdateSRR.setValue(false);
-                return S.STOP;
+                return S.DRIVE_WITH_ODOMETRY;
             }
         });
-      b.addStop(S.STOP);
+      b.addDrive(S.DRIVE_WITH_ODOMETRY, StateMap.of(
+              S.STOP, EndConditions.timed(1000),
+              S.STOP, valueBetween(1, robotCfg.getOdometryWheelSensor(), 150, 5)
+      ), rc.gyro(90), TranslationControls.sensor(robotCfg.getOdometryWheelSensor(), 0.01,
+              new Vector2D(0.8, Angle.fromDegrees(90)), 0.01, 150, 135));
+        b.addStop(S.STOP);
       return b.build();
     }
 
@@ -412,6 +419,6 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         RED_SKYSTONE_RIGHT_TO_BRIDGE,
         RED_SKYSTONE_MIDDLE_TO_BRIDGE,
         DRIVE_1,
-        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, STOP
+        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP
     }
 }
