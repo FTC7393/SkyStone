@@ -168,7 +168,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         this.driver2RightXLeft = new AnalogInputEdgeDetector(driver2.right_stick_x,0.3, 0.7,true);
         this.driver2RightTrigger = new AnalogInputEdgeDetector(driver2.right_trigger,0.3, 0.7,true);
         this.driver2LeftTrigger = new AnalogInputEdgeDetector(driver2.left_trigger,0.3, 0.7,true);
-        robotCfg.getOdometryServo().goToPreset(SkystoneRobotCfgV2.OdometryServoPresets.DOWN);
+        robotCfg.getOdometryServo().goToPreset(SkystoneRobotCfgV2.OdometryServoPresets.UP);
 //        cycleTime = new AnalogSensor() {
 //            long timeAtLastRead = 0;
 //            @Override
@@ -188,11 +188,11 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private void forwardControl() {
         double f = currentSpeedFactor.getFactor();
         // translation
-        leftX = new ScalingInputExtractor(driver1.right_stick_x, -f, f);
+        leftX = new ScalingInputExtractor(driver1.left_stick_y, f, f);
         leftY = new ScalingInputExtractor(driver1.left_stick_x, -f, f);
 
         // rotation (only uses right X)
-        rightX = new ScalingInputExtractor(driver1.left_stick_y, f, f);
+        rightX = new ScalingInputExtractor(driver1.right_stick_x, -f, f);
         robotCfg.getMecanumControl().setTranslationControl(TranslationControls.inputExtractorXY(leftY, leftX));
 //        robotCfg.getMecanumControl().setRotationControl(RotationControls.teleOpGyro(leftX, robotCfg.getGyro()));
         robotCfg.getMecanumControl().setRotationControl(RotationControls.inputExtractor(rightX));
@@ -211,10 +211,10 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         int m1 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(1);
         int m2 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(2);
         int m3 = robotCfg.getMecanumControl().getMecanumMotors().getEncoder(3);
-        telemetry.addData("motor 0 ", m);
-        telemetry.addData("motor 1 ", m1);
-        telemetry.addData("motor 2 ", m2);
-        telemetry.addData("motor 3 ", m3);
+//        telemetry.addData("motor 0 ", m);
+//        telemetry.addData("motor 1 ", m1);
+//        telemetry.addData("motor 2 ", m2);
+//        telemetry.addData("motor 3 ", m3);
 
         driver2RightYDown.update();
         driver2RightYUp.update();
@@ -229,15 +229,15 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
 //        telemetry.addData("liftCommand",robotCfg.getLiftArmV2().getLiftCommand());
 //        telemetry.addData("extensionCommand",robotCfg.getLiftArmV2().getExtensionCommand());
 //        telemetry.addData("horizontalEncoder",robotCfg.getLiftArmV2().getHorizontalEncoder());
-        telemetry.addData("verticalLeftEncoder",robotCfg.getLiftArmV2().getVerticalLeftEncoder());
-        telemetry.addData("verticalRightEncoder",robotCfg.getLiftArmV2().getVerticalRightEncoder());
+//        telemetry.addData("verticalLeftEncoder",robotCfg.getLiftArmV2().getVerticalLeftEncoder());
+//        telemetry.addData("verticalRightEncoder",robotCfg.getLiftArmV2().getVerticalRightEncoder());
 //        telemetry.addData("driver 2 left trigger", driver2.left_trigger.getValue());
 //        telemetry.addData("driver 2 right trigger", driver2.right_trigger.getValue());
-        telemetry.addData("internal block detector", robotCfg.getBlockDetector().getDistance(DistanceUnit.CM));
-        telemetry.addData("plusY distance sensor", robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM));
-        telemetry.addData("plusX distance sensor", robotCfg.getPlusXDistanceSensor().getDistance(DistanceUnit.CM));
-        telemetry.addData("minusX distance sensor", robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM));
-        telemetry.addData("odometry Encoder", robotCfg.getOdometryWheelSensor().getValue());
+//        telemetry.addData("internal block detector", robotCfg.getBlockDetector().getDistance(DistanceUnit.CM));
+//        telemetry.addData("plusY distance sensor", robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM));
+//        telemetry.addData("plusX distance sensor", robotCfg.getPlusXDistanceSensor().getDistance(DistanceUnit.CM));
+//        telemetry.addData("minusX distance sensor", robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM));
+//        telemetry.addData("odometry Encoder", robotCfg.getOdometryWheelSensor().getValue());
 
         //left stick button toggles fast and slow mode
 
