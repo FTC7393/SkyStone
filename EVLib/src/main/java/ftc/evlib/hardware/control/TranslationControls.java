@@ -20,6 +20,10 @@ import ftc.electronvolts.util.units.Angle;
 
 
 public class TranslationControls {
+    public static double staticVX;
+    public static double staticVY;
+    public static double staticV;
+
 
 //    public static TranslationControl sensor(final AnalogSensor sensorReading, final double gain,
 //                                            final Vector2D velocityVector, final double minVelocity,
@@ -84,10 +88,48 @@ public class TranslationControls {
                 double x = velocityVector.getX() / velocityVector.getLength() * velocity;
                 double y = velocityVector.getY() / velocityVector.getLength() * velocity;
                 Vector2D velVectorToUse = new Vector2D(x, y);
+                staticVX = x;
+                staticVY = y;
+                staticV = velocity;
                 return velVectorToUse;
             }
         };
     }
+
+    public static TranslationControl sensor2(final AnalogSensor sensorReading, final double gain,
+                                            final Angle angleOfSensor,final Vector2D movement, final double minVelocity,
+                                            final double target, final double deadZone) {
+
+        return new TranslationControl() {
+            @Override
+            public boolean act() {
+                return true;
+            }
+
+            @Override
+            public Vector2D getTranslation() {
+                double error = target - sensorReading.getValue(); // -10
+                Angle a =Angle.subtract(angleOfSensor, movement.getDirection());
+                double cos = Math.cos(a.radians());
+                double maxVeloicty = movement.getLength()*cos;
+                double v = gain*Math.sqrt(Math.abs(error)); //= //(value * gain);  // 0.02 * -10 = -0.2
+                double outputSpeed;
+                if (Math.abs(error) <= deadZone) {
+                     outputSpeed = 0;
+                } else if (Math.abs(v) < minVelocity) {
+                    outputSpeed = minVelocity * Math.signum(error);
+                } else if(Math.abs(v) > maxVeloicty) {
+                    outputSpeed = maxVeloicty * Math.signum(error);
+                } else {
+                    outputSpeed = v * Math.signum(error);
+                }
+                double correct = outputSpeed/cos;
+                Vector2D outputVector = new Vector2D(correct, movement.getDirection());
+                return outputVector;
+            }
+        };
+    }
+
 
     /**
      * No movement

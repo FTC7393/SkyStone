@@ -150,10 +150,11 @@ public abstract class AbstractOp<Type extends RobotCfg> extends OpMode {
         robotCfg.pre_act();
         pre_act();
 
-        if (logger != null) logger.act();
 
         act();
         post_act();
+
+        if (logger != null) logger.act();
 
         robotCfg.act();
         servos.act(); //update the servo positions

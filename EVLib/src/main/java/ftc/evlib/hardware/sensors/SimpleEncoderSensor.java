@@ -27,7 +27,7 @@ public class SimpleEncoderSensor implements AnalogSensor {
 
     @Override
     public Double getValue() {
-        return ticks;
+        return getTicksSinceLastReset();
     }
 
     public void reset() {
@@ -40,5 +40,9 @@ public class SimpleEncoderSensor implements AnalogSensor {
 
     public double ticksToFeet(int ticks) {
         return ticks/ticksPerFoot;
+    }
+
+    public double inchesToTicks(double inches) {
+        return inches/12 * ticksPerFoot;
     }
 }

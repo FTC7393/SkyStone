@@ -44,11 +44,12 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
     private final Gyro gyro0;
     private final LiftArmV2 liftArmV2;
     private final NewFoundationMover newFoundationMover;
-    private final Rev2mDistanceSensor plusYDistanceSensor;
-    private final Rev2mDistanceSensor minusYDistanceSensor;
+    private final Rev2mDistanceSensor plusXDistanceSensor;
     private final Rev2mDistanceSensor minusXDistanceSensor;
+    private final Rev2mDistanceSensor plusYDistanceSensor;
     private final Rev2mDistanceSensor blockDetector;
     private final SimpleEncoderSensor odometryWheelSensor;
+    private final double ticksPerFoot = 3610;
     List<LynxModule> allHubs;
 //    private final AveragedSensor plusYDistanceSensor;
 
@@ -57,8 +58,8 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         return blockDetector;
     }
 
-    public Rev2mDistanceSensor getMinusXDistanceSensor() {
-        return minusXDistanceSensor;
+    public Rev2mDistanceSensor getPlusYDistanceSensor() {
+        return plusYDistanceSensor;
     }
 
     public SkystoneRobotCfgV2(HardwareMap hardwareMap, Map<ServoName, Enum> servoStartPresetMap) {
@@ -104,14 +105,18 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
       //  plusXDistanceSensor = hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "plusXSensor");
 
 
-        minusYDistanceSensor = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "minusYSensor");
+        minusXDistanceSensor = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "minusXSensor");
+
+
+        plusXDistanceSensor = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "plusXSensor");
+
+
         plusYDistanceSensor = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "plusYSensor");
 
         blockDetector = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "internalBlockDetector");
 
-        minusXDistanceSensor = (Rev2mDistanceSensor)hardwareMap.get(DistanceSensor.class, "minusXSensor");
 
-        odometryWheelSensor = new SimpleEncoderSensor(collectorMotor);
+        odometryWheelSensor = new SimpleEncoderSensor(collectorMotor, ticksPerFoot);
         allHubs = hardwareMap.getAll(LynxModule.class);
         for(LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
@@ -264,18 +269,18 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         return liftArmV2;
     }
 
- public SimpleEncoderSensor getOdometryWheelSensor(){return odometryWheelSensor;}
+    public SimpleEncoderSensor getOdometryWheelSensor(){return odometryWheelSensor;}
 
         //    public ModernRoboticsI2cRangeSensor getPlusXDistanceSensor() {
 //        return plusXDistanceSensor;
 //    }
 
-    public Rev2mDistanceSensor getMinusYDistanceSensor() {
-        return minusYDistanceSensor;
+    public Rev2mDistanceSensor getMinusXDistanceSensor() {
+        return minusXDistanceSensor;
     }
 
-    public Rev2mDistanceSensor getPlusYDistanceSensor() {
-        return plusYDistanceSensor;
+    public Rev2mDistanceSensor getPlusXDistanceSensor() {
+        return plusXDistanceSensor;
     }
 
     /**

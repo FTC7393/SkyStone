@@ -71,13 +71,13 @@ public class LiftArmStatesV2 extends States {
         return new BasicAbstractState() {
             @Override
             public void init() {
-                liftArm.setLiftPosition(5);
+                liftArm.setLift((int)liftPosition);
             }
 
             @Override
             public boolean isDone() {
                 if(waitForDone){
-               return liftArm.isDone();
+               return liftArm.verticalIsDone();
                 }else{
                     return true;
                 }

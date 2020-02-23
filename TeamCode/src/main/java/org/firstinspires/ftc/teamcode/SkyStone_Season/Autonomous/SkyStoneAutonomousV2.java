@@ -35,6 +35,7 @@ import ftc.evlib.hardware.control.TranslationControls;
 import ftc.evlib.hardware.sensors.AnalogSensor;
 import ftc.evlib.hardware.sensors.AveragedSensor;
 import ftc.evlib.hardware.sensors.Gyro;
+import ftc.evlib.hardware.sensors.SimpleEncoderSensor;
 import ftc.evlib.opmodes.AbstractAutoOp;
 import ftc.evlib.statemachine.EVStateMachineBuilder;
 import ftc.evlib.util.EVConverters;
@@ -44,6 +45,7 @@ import ftc.evlib.util.ImmutableList;
 @Autonomous(name = "SkyStoneAutoV2")
 
 public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
+    private static final Angle ODANGLE = Angle.fromDegrees(270);
     private Gyro gyro;
     private MecanumControl mecanumControl;
     private OpenCvCamera camera;
@@ -68,57 +70,47 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
 
     @Override
     protected Logger createLogger() {
-//        return new Logger("log", ".csv", ImmutableList.of(
-//                new Logger.Column("state", new InputExtractor<String>() {
-//                    @Override
-//                    public String getValue() {
-//                        return stateMachine.getCurrentStateName().name();
-//                    }
-//                }),
-//                new Logger.Column("pods values", new InputExtractor<Double>() {
-//                    @Override
-//                    public Double getValue() {
-//                        return robotCfg.getPlusYDistanceSensor().getValue();
-//                    }
-//                }),
-//                new Logger.Column("mecanum control speed - max velocity", new InputExtractor<Double>() {
-//                    @Override
-//                    public Double getValue() {
-//                        return mecanumControl.getMaxRobotSpeed().centimetersPerSecond();
-//                    }
-//                }),
-//                new Logger.Column("mecanum control speed - velocity r", new InputExtractor<Double>() {
-//                    @Override
-//                    public Double getValue() {
-//                        return mecanumControl.getVelocityR();
-//                    }
-//                }),
-//                new Logger.Column("mecanum control speed - velocity x", new InputExtractor<Double>() {
-//                    @Override
-//                    public Double getValue() {
-//                        return mecanumControl.getVelocityX();
-//                    }
-//                }),
-//                new Logger.Column("mecanum control speed - velocity y", new InputExtractor<Double>() {
-//                    @Override
-//                    public Double getValue() {
-//                        return mecanumControl.getVelocityY();
-//                    }
-//                }),
-//                new Logger.Column("forwardx ", new InputExtractor<Double>() {
-//                    @Override
-//                    public Double getValue() {
-//                        return robotCfg.getPlusXDistanceSensor().cmUltrasonic();
-//                    }
-//                }),
-//                new Logger.Column("backx ", new InputExtractor<Double>() {
-//            @Override
-//            public Double getValue() {
-//                        return robotCfg.getMinusXDistanceSensor().cmUltrasonic();
-//                }
-//                 })
-//        ));
-        return null;
+        return new Logger("log", ".csv", ImmutableList.of(
+                new Logger.Column("state", new InputExtractor<String>() {
+                    @Override
+                    public String getValue() {
+                        return stateMachine.getCurrentStateName().name();
+                    }
+                }),
+                new Logger.Column("odometer wheel sensor", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return robotCfg.getOdometryWheelSensor().getValue();
+                    }
+                }),
+                new Logger.Column("velocity", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return TranslationControls.staticV;
+                    }
+                }),
+                new Logger.Column("velocityX", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return TranslationControls.staticVX;
+                    }
+                }),
+                new Logger.Column("velocityY", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return TranslationControls.staticVY;
+                    }
+                }),
+                new Logger.Column("target position", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return robotCfg.getOdometryWheelSensor().inchesToTicks(23);
+
+                    }
+                })
+
+        ));
+
     }
 
     @Override
@@ -177,15 +169,15 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
 
     @Override
     protected void act() {
-        telemetry.addData("gyro", robotCfg.getGyro().getHeading());
-        telemetry.addData("state", stateMachine.getCurrentStateName());
-        telemetry.addData("current thread", Thread.currentThread().getName());
-        telemetry.addData("state for detetcting skystone", skystonePosStateRR.getValue());
-        telemetry.addData("ratio of both stones", pipeline.getStoneRatioII().getValue());
-        telemetry.addData("odometer Encoder", robotCfg.getOdometryWheelSensor().getValue());
-        telemetry.addData("plusY distance sensor", robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM));
-        telemetry.addData("minusY distance sensor", robotCfg.getMinusYDistanceSensor().getDistance(DistanceUnit.CM));
-        telemetry.addData("minusX distance sensor", robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM));
+//        telemetry.addData("gyro", robotCfg.getGyro().getHeading());
+//        telemetry.addData("state", stateMachine.getCurrentStateName());
+//        telemetry.addData("current thread", Thread.currentThread().getName());
+//        telemetry.addData("state for detetcting skystone", skystonePosStateRR.getValue());
+//        telemetry.addData("ratio of both stones", pipeline.getStoneRatioII().getValue());
+//        telemetry.addData("odometer Encoder", robotCfg.getOdometryWheelSensor().getValue());
+//        telemetry.addData("plusY distance sensor", robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM));
+//        telemetry.addData("plusX distance sensor", robotCfg.getPlusXDistanceSensor().getDistance(DistanceUnit.CM));
+//        telemetry.addData("minusX distance sensor", robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM));
     }
 
 
@@ -203,6 +195,7 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
 
         OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
         RC rc = new RC(0.7, Angle.fromDegrees(2), 0.7, gyro);
+        final SimpleEncoderSensor odSensor = robotCfg.getOdometryWheelSensor();
         teamColor = optionsFile.get(SkyStoneOptionsOp.Opts.TEAM_COLOR.s, SkyStoneOptionsOp.teamColorDefault);
         doSkyStone = optionsFile.get(SkyStoneOptionsOp.Opts.DO_SKYSTONE.s, SkyStoneOptionsOp.doSkyStoneDefault);
         pipeline = new ProcessPipeline(skystonePosStateRR, minCycles, teamColor, canUpdateSRR);
@@ -234,16 +227,32 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
             @Override
             public StateName act() {
                 canUpdateSRR.setValue(false);
-                return S.STOP;
+                return S.DECIDE_SKYSTONE_POSITION;
             }
         });
 //      b.addDrive(S.DRIVE_WITH_ODOMETRY, S.STOP, Distance.fromFeet(1), 0.8, Angle.fromDegrees(-90), Angle.fromDegrees(0));
-        double odometryDistance = 12000;
-        b.addDrive(S.DRIVE_WITH_ODOMETRY, StateMap.of(
+        b.add(S.DECIDE_SKYSTONE_POSITION, getSkyStonePosition());
+        double odometryDistance = odSensor.inchesToTicks(24);
+        b.addDrive(S.SKYSTONE_MIDDLE, StateMap.of(
               S.STOP1, EndConditions.timed(5000),
-              S.STOP, valueBetween(3, robotCfg.getOdometryWheelSensor(), odometryDistance, 55)
-      ), rc.gyro(0), TranslationControls.sensor(robotCfg.getOdometryWheelSensor(), 0.000075,
-              new Vector2D(0.75, Angle.fromDegrees(-90)), 0.04, odometryDistance, 400));
+              S.TURN_1, valueBetween(3, odSensor, odometryDistance, 400)
+      ), rc.gyro(0), TranslationControls.sensor2(odSensor, 0.0075, ODANGLE,
+                new Vector2D(1, Angle.fromDegrees(295)), 0.04, odometryDistance, 200));
+        b.addGyroTurn(S.TURN_1, S.ODOMETRY_RESET, -10, Angle.fromDegrees(2));
+        b.add(S.ODOMETRY_RESET, new State() {
+            @Override
+            public StateName act() {
+                odSensor.reset();
+                return S.DRIVE_WITH_ODOMETRY_2;
+            }
+        });
+        double odDistance2 = odSensor.inchesToTicks(5);
+        b.addDrive(S.DRIVE_WITH_ODOMETRY_2, StateMap.of(
+                S.STOP1, EndConditions.timed(5000),
+                S.STOP, valueBetween(3, odSensor,
+                        odDistance2, 300)
+        ), rc.gyro(260), TranslationControls.sensor2(odSensor, 0.0075, ODANGLE,
+                new Vector2D(0.75, Angle.fromDegrees(260)), 0.04, odDistance2, 400));
         b.addStop(S.STOP);
         b.addStop(S.STOP1);
         return b.build();
@@ -402,6 +411,6 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         RED_SKYSTONE_RIGHT_TO_BRIDGE,
         RED_SKYSTONE_MIDDLE_TO_BRIDGE,
         DRIVE_1,
-        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP1, STOP
+        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP1, DECIDE_SKYSTONE_POSITION, TURN_1, ODOMETRY_RESET, DRIVE_WITH_ODOMETRY_2, STOP
     }
 }
