@@ -59,6 +59,7 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
     private ResultReceiver<Boolean> startRR = new BasicResultReceiver<>();
     private double servoSpeed = 1;
     private OpenCvInternalCamera phoneCam;
+    private final double encoderTicksPerFoot = 3610;
 
     @Override
     protected SkystoneRobotCfgV2 createRobotCfg() {

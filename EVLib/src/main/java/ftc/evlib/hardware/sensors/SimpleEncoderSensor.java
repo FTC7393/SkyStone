@@ -5,11 +5,13 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 public class SimpleEncoderSensor implements AnalogSensor {
 
     private final DcMotorEx motorWithEncoder;
+    private final double ticksPerFoot;
     private double ticksAtLastReset;
     private double ticks;
 
-    public SimpleEncoderSensor(DcMotorEx motorWithEncoder) {
+    public SimpleEncoderSensor(DcMotorEx motorWithEncoder, double ticksPerFoot) {
         this.motorWithEncoder = motorWithEncoder;
+        this.ticksPerFoot = ticksPerFoot;
     }
 
     /**
@@ -34,5 +36,9 @@ public class SimpleEncoderSensor implements AnalogSensor {
 
     public double getTicksSinceLastReset() {
         return  ticks - ticksAtLastReset;
+    }
+
+    public double ticksToFeet(int ticks) {
+        return ticks/ticksPerFoot;
     }
 }
