@@ -241,6 +241,8 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
               S.TURN_1, valueBetween(3, odSensor, odSensor.inchesToTicks(28), 400)
       ), rc.gyro(0), TranslationControls.sensor2(odSensor, 0.0075, ODANGLE,
                 new Vector2D(1, Angle.fromDegrees(300)), 0.04, odSensor.inchesToTicks(28), 200));
+        b.add(S.MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.COLLECT_SKYSTONE_1, robotCfg.getLiftArmV2(), 1000, false));
+        b.addMotorOn(S.START_COLLECTOR,S.TURN_1 ,-1);
         b.addGyroTurn(S.TURN_1, S.ODOMETRY_RESET, -45, Angle.fromDegrees(2));
         b.add(S.ODOMETRY_RESET, new State() {
             @Override
@@ -252,12 +254,10 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         double odDistance2 = odSensor.inchesToTicks(5);
         b.addDrive(S.DRIVE_WITH_ODOMETRY_2, StateMap.of(
                 S.STOP1, EndConditions.timed(5000),
-                S.STOP, valueBetween(3, odSensor,
+                S.MOVE_ARM_UP, valueBetween(3, odSensor,
                         odDistance2, 300)
         ), rc.gyro(-45), TranslationControls.sensor2(odSensor, 0.0075, ODANGLE,
                 new Vector2D(0.75, Angle.fromDegrees(-135)), 0.04, odDistance2, 400));
-        b.add(S.MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.STOP, robotCfg.getLiftArmV2(), 500, true));
-        b.add(S.COLLECT_SKYSTONE_1, createCollectState(S.STOP, 0.7, 2000));
         b.addStop(S.STOP);
         b.addStop(S.STOP1);
         return b.build();
@@ -372,7 +372,7 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
 
             @Override
             public void init() {
-            robotCfg.getBlockCollector().setPower(collectorSpeed);
+            robotCfg.getBlockCollector().setPower(-collectorSpeed);
             }
 
             @Override
@@ -438,6 +438,6 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         RED_SKYSTONE_RIGHT_TO_BRIDGE,
         RED_SKYSTONE_MIDDLE_TO_BRIDGE,
         DRIVE_1,
-        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP1, DECIDE_SKYSTONE_POSITION, TURN_1, ODOMETRY_RESET, DRIVE_WITH_ODOMETRY_2, COLLECT_SKYSTONE_1, MOVE_ARM_UP, STOP
+        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP1, DECIDE_SKYSTONE_POSITION, TURN_1, ODOMETRY_RESET, DRIVE_WITH_ODOMETRY_2, COLLECT_SKYSTONE_1, MOVE_ARM_UP, START_COLLECTOR, STOP
     }
 }
