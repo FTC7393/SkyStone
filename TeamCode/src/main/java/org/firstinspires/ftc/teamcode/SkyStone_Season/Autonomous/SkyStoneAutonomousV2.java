@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2.LiftArmStatesV2;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2.SkystoneRobotCfgV2;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.SkystoneRobotCfg;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -255,6 +256,8 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
                         odDistance2, 300)
         ), rc.gyro(-45), TranslationControls.sensor2(odSensor, 0.0075, ODANGLE,
                 new Vector2D(0.75, Angle.fromDegrees(-135)), 0.04, odDistance2, 400));
+        b.add(S.MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.STOP, robotCfg.getLiftArmV2(), 500, true));
+        b.add(S.COLLECT_SKYSTONE_1, createCollectState(S.STOP, 0.7, 2000));
         b.addStop(S.STOP);
         b.addStop(S.STOP1);
         return b.build();
@@ -363,7 +366,29 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
     }
 
 
+    private State createCollectState(final StateName nextState, final double collectorSpeed, final long time) {
+        return new BasicAbstractState() {
+            private long timeNow = System.currentTimeMillis();
 
+            @Override
+            public void init() {
+            robotCfg.getBlockCollector().setPower(collectorSpeed);
+            }
+
+            @Override
+            public boolean isDone() {
+                if(System.currentTimeMillis() - timeNow == time) {
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public StateName getNextStateName() {
+                return nextState;
+            }
+        };
+    }
 
 
     private State createCollectorDriveState(final StateName nextState, double direction,
@@ -413,6 +438,6 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         RED_SKYSTONE_RIGHT_TO_BRIDGE,
         RED_SKYSTONE_MIDDLE_TO_BRIDGE,
         DRIVE_1,
-        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP1, DECIDE_SKYSTONE_POSITION, TURN_1, ODOMETRY_RESET, DRIVE_WITH_ODOMETRY_2, STOP
+        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP1, DECIDE_SKYSTONE_POSITION, TURN_1, ODOMETRY_RESET, DRIVE_WITH_ODOMETRY_2, COLLECT_SKYSTONE_1, MOVE_ARM_UP, STOP
     }
 }
