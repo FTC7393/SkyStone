@@ -11,6 +11,10 @@ public class BlockCollector {
     private Rev2mDistanceSensor blockDetector;
     private State currentState;
 
+    public Motor getCollectorMotor() {
+        return collectorMotor;
+    }
+
     public BlockCollector(Motor collectorMotor, Rev2mDistanceSensor blockDetector){
         this.collectorMotor = collectorMotor;
         this.blockDetector = blockDetector;

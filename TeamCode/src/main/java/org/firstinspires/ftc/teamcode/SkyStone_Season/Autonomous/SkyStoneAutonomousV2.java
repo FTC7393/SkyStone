@@ -242,7 +242,7 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
       ), rc.gyro(0), TranslationControls.sensor2(odSensor, 0.0075, ODANGLE,
                 new Vector2D(1, Angle.fromDegrees(300)), 0.04, odSensor.inchesToTicks(28), 200));
         b.add(S.MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.COLLECT_SKYSTONE_1, robotCfg.getLiftArmV2(), 1000, false));
-        b.addMotorOn(S.START_COLLECTOR,S.TURN_1 ,-1);
+        b.addMotorOn(S.START_COLLECTOR,S.TURN_1, robotCfg.getBlockCollector().getCollectorMotor(), -1);
         b.addGyroTurn(S.TURN_1, S.ODOMETRY_RESET, -45, Angle.fromDegrees(2));
         b.add(S.ODOMETRY_RESET, new State() {
             @Override
@@ -258,6 +258,7 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
                         odDistance2, 300)
         ), rc.gyro(-45), TranslationControls.sensor2(odSensor, 0.0075, ODANGLE,
                 new Vector2D(0.75, Angle.fromDegrees(-135)), 0.04, odDistance2, 400));
+        b.add(S.MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.STOP, robotCfg.getLiftArmV2(), 500, true));
         b.addStop(S.STOP);
         b.addStop(S.STOP1);
         return b.build();
@@ -377,10 +378,7 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
 
             @Override
             public boolean isDone() {
-                if(System.currentTimeMillis() - timeNow == time) {
-                    return true;
-                }
-                return false;
+                return System.currentTimeMillis() - timeNow == time;
             }
 
             @Override
