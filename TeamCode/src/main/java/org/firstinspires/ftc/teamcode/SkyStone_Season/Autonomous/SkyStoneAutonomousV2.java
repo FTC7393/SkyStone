@@ -157,6 +157,8 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
     protected void setup_act() {
         telemetry.addData("state", stateMachine.getCurrentStateName());
         telemetry.addData("Skystone position", skystonePosStateRR.isReady() ? skystonePosStateRR.getValue() : "not ready");
+        telemetry.addData("minusXDistance",robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM));
+        telemetry.addData("plusX distance sensor", robotCfg.getPlusXDistanceSensor().getDistance(DistanceUnit.CM));
         stateMachine.act();
         servos.act();
     }
@@ -235,10 +237,10 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         double odometryDistance = odSensor.inchesToTicks(24);
         b.addDrive(S.SKYSTONE_MIDDLE, StateMap.of(
               S.STOP1, EndConditions.timed(5000),
-              S.TURN_1, valueBetween(3, odSensor, odometryDistance, 400)
+              S.TURN_1, valueBetween(3, odSensor, odSensor.inchesToTicks(28), 400)
       ), rc.gyro(0), TranslationControls.sensor2(odSensor, 0.0075, ODANGLE,
-                new Vector2D(1, Angle.fromDegrees(295)), 0.04, odometryDistance, 200));
-        b.addGyroTurn(S.TURN_1, S.ODOMETRY_RESET, -10, Angle.fromDegrees(2));
+                new Vector2D(1, Angle.fromDegrees(300)), 0.04, odSensor.inchesToTicks(28), 200));
+        b.addGyroTurn(S.TURN_1, S.ODOMETRY_RESET, -45, Angle.fromDegrees(2));
         b.add(S.ODOMETRY_RESET, new State() {
             @Override
             public StateName act() {
@@ -251,8 +253,8 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
                 S.STOP1, EndConditions.timed(5000),
                 S.STOP, valueBetween(3, odSensor,
                         odDistance2, 300)
-        ), rc.gyro(260), TranslationControls.sensor2(odSensor, 0.0075, ODANGLE,
-                new Vector2D(0.75, Angle.fromDegrees(260)), 0.04, odDistance2, 400));
+        ), rc.gyro(-45), TranslationControls.sensor2(odSensor, 0.0075, ODANGLE,
+                new Vector2D(0.75, Angle.fromDegrees(-135)), 0.04, odDistance2, 400));
         b.addStop(S.STOP);
         b.addStop(S.STOP1);
         return b.build();
