@@ -231,15 +231,15 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
 //      b.addDrive(S.DRIVE_WITH_ODOMETRY, S.STOP, Distance.fromFeet(1), 0.8, Angle.fromDegrees(-90), Angle.fromDegrees(0));
         b.add(S.DECIDE_SKYSTONE_POSITION, getSkyStonePosition());
 
-        b.addDrive(S.SKYSTONE_RIGHT, StateMap.of(
-                S.STOP1, EndConditions.timed(5000),
-                S.MOVE_ARM_UP, valueBetween(3, odSensor, odSensor.inchesToTicks(26), 400)
-        ), rc.gyro(0), TranslationControls.sensor2(odSensor, 0.0075, ODANGLE,
-                new Vector2D(1, Angle.fromDegrees(285)), 0.04, odSensor.inchesToTicks(26), 200));
+//        b.addDrive(S.SKYSTONE_RIGHT, StateMap.of(
+//                S.STOP1, EndConditions.timed(5000),
+//                S.MOVE_ARM_UP, valueBetween(3, odSensor, odSensor.inchesToTicks(26), 400)
+//        ), rc.gyro(0), TranslationControls.sensor2(odSensor, 0.0075, ODANGLE,
+//                new Vector2D(1, Angle.fromDegrees(285)), 0.04, odSensor.inchesToTicks(26), 200));
 
         addOdomDrive(null, S.SKYSTONE_RIGHT, b,rc, S.STOP1, 5000, S.MOVE_ARM_UP, 26.0,
                 Angle.fromDegrees(285), 1, 0.04, Angle.fromDegrees(0),
-                0.0075, 400, 400, 3);
+                0.0075, 200, 400, 3);
         b.add(S.MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.TURN_1, robotCfg.getLiftArmV2(), 700, false));
         b.addGyroTurn(S.TURN_1, S.START_COLLECTOR, -45, Angle.fromDegrees(2));
         b.addMotorOn(S.START_COLLECTOR,S.ODOMETRY_RESET, robotCfg.getBlockCollector().getCollectorMotor(), -1);
@@ -315,6 +315,14 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         b.addStop(S.STOP);
         b.addStop(S.STOP1);
         return b.build();
+    }
+
+
+    private void addOdometryDrive(final StateName resetState, final StateName thisState, EVStateMachineBuilder b, RC rc,
+                                  StateName timeoutState, long timeOutMillis, StateName nextState, double driveInInches, Angle driveAngle,
+                                  double driveSpeed, double deadZone, double targetDelta, int numInARow) {
+        addOdomDrive(resetState, thisState, b, rc, timeoutState, timeOutMillis, nextState, driveInInches
+        ,ODANGLE, driveSpeed, 0.04, driveAngle, 0.0075, deadZone, targetDelta, numInARow);
     }
 
      private void addOdomDrive(final StateName resetOdState, final StateName thisState, EVStateMachineBuilder b,
