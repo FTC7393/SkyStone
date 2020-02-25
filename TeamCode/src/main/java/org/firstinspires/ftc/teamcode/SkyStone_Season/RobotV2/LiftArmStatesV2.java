@@ -88,8 +88,32 @@ public class LiftArmStatesV2 extends States {
                 return nextStateName;
             }
         };
-    }}
 
 
 
+    }
 
+    public static State horizontalExtension(final StateName nextStateName, final LiftArmV2 liftArm, final double extensionPosition, final boolean waitForDone) {
+        return new BasicAbstractState() {
+            @Override
+            public void init() {
+                liftArm.setExtension(extensionPosition);
+            }
+
+            @Override
+            public boolean isDone() {
+                if(waitForDone) {
+                    return liftArm.horizontalIsDone();
+                }
+                return true;
+            }
+
+            @Override
+            public StateName getNextStateName() {
+                return nextStateName;
+            }
+        };
+
+    }
+
+}
