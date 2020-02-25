@@ -36,11 +36,13 @@ public class LiftArmV2 {
     private final int liftKeepOutOuterLimit = 1300;
     private final int WristKeepOutOuterLimit = 750;
 
-
     private final double elbowSpeed = 0.6;
     private final double wristSpeed = 0.6;
     private final double fingerSpeed = 1.15;
     private boolean isNinety = false;
+
+    public static double staticLiftLeft;
+    public static double staticLiftRight;
 
     public LinearSlide getVerticalSlideRight() {
         return verticalSlideRight;
@@ -125,8 +127,11 @@ public class LiftArmV2 {
 //            }
 //        }
 
-        verticalSlideLeft.setExtension(Math.min(Math.max(liftCommand-offset, VerticalMinExtension), VerticalMaxExtension));
+        double leftExtEnc = Math.min(Math.max(liftCommand-offset, VerticalMinExtension), VerticalMaxExtension);
+        verticalSlideLeft.setExtension(leftExtEnc);
         verticalSlideRight.setExtension(liftCommand);
+        staticLiftLeft = leftExtEnc;
+        staticLiftRight = liftCommand;
     }
 
     public void controlLift(double liftDelta) {

@@ -125,6 +125,9 @@ public class TranslationControls {
                 }
                 double correct = outputSpeed/cos;
                 Vector2D outputVector = new Vector2D(correct, movement.getDirection());
+                staticVX = outputVector.getX();
+                staticVY = outputVector.getY();
+                staticV = correct;
                 return outputVector;
             }
         };
