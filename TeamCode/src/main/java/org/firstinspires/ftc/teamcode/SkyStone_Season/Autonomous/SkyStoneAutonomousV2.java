@@ -30,6 +30,7 @@ import ftc.evlib.hardware.control.MecanumControl;
 import ftc.evlib.hardware.control.RotationControl;
 import ftc.evlib.hardware.control.TranslationControl;
 import ftc.evlib.hardware.control.TranslationControls;
+import ftc.evlib.hardware.sensors.AnalogSensor;
 import ftc.evlib.hardware.sensors.Gyro;
 import ftc.evlib.hardware.sensors.SimpleEncoderSensor;
 import ftc.evlib.opmodes.AbstractAutoOp;
@@ -303,12 +304,22 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
             }
         });
         double odDistance4 = odSensor.inchesToTicks(60);
-
+        AnalogSensor as = new AnalogSensor() {
+            @Override
+            public Double getValue() {
+                return robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM);
+            }
+        };
         b.addDrive(S.DRIVE_WITH_ODOMETRY_4, StateMap.of(
                 S.STOP1, EndConditions.timed(7000),
                 S.TURN_3, valueBetween(3, odSensor,-odDistance4, 700)
         ), rc.gyro(-90), TranslationControls.sensor2(odSensor, 0.0075, ODANGLE,
                 new Vector2D(0.75, Angle.fromDegrees(180)), 0.04, -odDistance4, 800));
+        b.addDrive(S.DRIVE_MINUS_X, StateMap.of(
+                S.STOP1, EndConditions.timed(6000),
+                S.DRIVE_PLUS_Y, valueBetween(4, as, 30, 3)),rc.gyro(-90), TranslationControls.sensor(
+                        as, 0.01, new Vector2D(0.75, Angle.fromDegrees(180)), 0.04, 30, 10)
+        );
         // add distance move here, plus y to like 30cm
         b.addGyroTurn(S.TURN_3, S.STOP, 180, Angle.fromDegrees(2));
         // add dist move here same sensor, to foundation, so 2cm, then drop block
@@ -530,6 +541,6 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         RED_SKYSTONE_RIGHT_TO_BRIDGE,
         RED_SKYSTONE_MIDDLE_TO_BRIDGE,
         DRIVE_1,
-        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP1, DECIDE_SKYSTONE_POSITION, TURN_1, ODOMETRY_RESET, DRIVE_WITH_ODOMETRY_2, COLLECT_SKYSTONE_1, MOVE_ARM_UP, START_COLLECTOR, MOVE_ARM_DOWN, DRIVE_WITH_ODOMETRY_3, START_FINGER_LEFT, START_FINGER_RIGHT, STOP_COLLECTOR, STOP_RIGHT_FINGER, STOP_FINGER_LEFT, ODOMETRY_RESET_2, TURN_2, DRIVE_WITH_ODOMETRY_4, ODOMETRY_RESET_3, TURN_3, STOP
+        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP1, DECIDE_SKYSTONE_POSITION, TURN_1, ODOMETRY_RESET, DRIVE_WITH_ODOMETRY_2, COLLECT_SKYSTONE_1, MOVE_ARM_UP, START_COLLECTOR, MOVE_ARM_DOWN, DRIVE_WITH_ODOMETRY_3, START_FINGER_LEFT, START_FINGER_RIGHT, STOP_COLLECTOR, STOP_RIGHT_FINGER, STOP_FINGER_LEFT, ODOMETRY_RESET_2, TURN_2, DRIVE_WITH_ODOMETRY_4, ODOMETRY_RESET_3, TURN_3, DRIVE_MINUS_X, DRIVE_PLUS_Y, STOP
     }
 }
