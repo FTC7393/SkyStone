@@ -322,6 +322,17 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         );
         // add distance move here, plus y to like 30cm
         b.addGyroTurn(S.TURN_3, S.STOP, 180, Angle.fromDegrees(2));
+        AnalogSensor as2 = new AnalogSensor() {
+            @Override
+            public Double getValue() {
+                return robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM);
+            }
+        };
+        b.addDrive(S.DRIVE_PLUS_Y, StateMap.of(
+                S.STOP1, EndConditions.timed(6000),
+                S.STOP, valueBetween(4, as, 30, 3)),rc.gyro(-90), TranslationControls.sensor(
+                as2, 0.01, new Vector2D(0.75, Angle.fromDegrees(180)), 0.04, 10, 3)
+        );
         // add dist move here same sensor, to foundation, so 2cm, then drop block
         b.addStop(S.STOP);
         b.addStop(S.STOP1);
