@@ -28,6 +28,7 @@ import ftc.electronvolts.util.units.Angle;
 import ftc.electronvolts.util.units.Distance;
 import ftc.evlib.hardware.control.MecanumControl;
 import ftc.evlib.hardware.control.RotationControl;
+import ftc.evlib.hardware.control.RotationControls;
 import ftc.evlib.hardware.control.TranslationControl;
 import ftc.evlib.hardware.control.TranslationControls;
 import ftc.evlib.hardware.sensors.AnalogSensor;
@@ -169,12 +170,12 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
     @Override
     protected void act() {
 //        telemetry.addData("gyro", robotCfg.getGyro().getHeading());
-//        telemetry.addData("state", stateMachine.getCurrentStateName());
+        telemetry.addData("state", stateMachine.getCurrentStateName());
 //        telemetry.addData("current thread", Thread.currentThread().getName());
 //        telemetry.addData("state for detetcting skystone", skystonePosStateRR.getValue());
 //        telemetry.addData("ratio of both stones", pipeline.getStoneRatioII().getValue());
 //        telemetry.addData("odometer Encoder", robotCfg.getOdometryWheelSensor().getValue());
-//        telemetry.addData("plusY distance sensor", robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM));
+        telemetry.addData("plusY distance sensor", robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM));
 //        telemetry.addData("plusX distance sensor", robotCfg.getPlusXDistanceSensor().getDistance(DistanceUnit.CM));
 //        telemetry.addData("minusX distance sensor", robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM));
     }
@@ -190,6 +191,21 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
 
     @Override
     public StateMachine buildStates() {
+
+        AnalogSensor distX = new AnalogSensor() {
+            @Override
+            public Double getValue() {
+                return robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM);
+            }
+        };
+
+        AnalogSensor distY = new AnalogSensor() {
+            @Override
+            public Double getValue() {
+                return robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM);
+            }
+        };
+
 
 
         OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
@@ -229,6 +245,32 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
                 return S.DECIDE_SKYSTONE_POSITION;
             }
         });
+
+        // debug
+        double rev2mdGain = 0.07;
+        // This is the direction of movement that would make a maximally positive increase
+        // in the value returned by the sensor.  It refers to the robot as oriented currently,
+        // not the static coordinate system defined when the robot is initialized.
+        Angle angleOfSensor = Angle.fromDegrees(0);
+
+        b.addGyroTurn(S.DECIDE_SKYSTONE_POSITION, S.TMP1, 90, tolerance, 0.7);
+
+        b.addDrive(S.TMP1, StateMap.of(
+                    S.STOP1, EndConditions.timed(8000),
+                    S.STOP, valueBetween(5, distY, 30, 2)),
+                    rc.gyro(90),
+                    TranslationControls.sensor2(distY, rev2mdGain, angleOfSensor,
+                            new Vector2D(1.0, Angle.fromDegrees(0)), 0.04, 30, 1));
+
+
+        b.addStop(S.STOP);
+        b.addStop(S.STOP1);
+
+        if (b != null) {
+            return b.build();
+        }
+        // debug end
+
 //      b.addDrive(S.DRIVE_WITH_ODOMETRY, S.STOP, Distance.fromFeet(1), 0.8, Angle.fromDegrees(-90), Angle.fromDegrees(0));
         b.add(S.DECIDE_SKYSTONE_POSITION, getSkyStonePosition());
 
@@ -304,12 +346,6 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
             }
         });
         double odDistance4 = odSensor.inchesToTicks(60);
-        AnalogSensor as = new AnalogSensor() {
-            @Override
-            public Double getValue() {
-                return robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM);
-            }
-        };
         b.addDrive(S.DRIVE_WITH_ODOMETRY_4, StateMap.of(
                 S.STOP1, EndConditions.timed(7000),
                 S.TURN_3, valueBetween(3, odSensor,-odDistance4, 700)
@@ -317,21 +353,16 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
                 new Vector2D(0.75, Angle.fromDegrees(180)), 0.04, -odDistance4, 800));
         b.addDrive(S.DRIVE_MINUS_X, StateMap.of(
                 S.STOP1, EndConditions.timed(6000),
-                S.DRIVE_PLUS_Y, valueBetween(4, as, 30, 3)),rc.gyro(-90), TranslationControls.sensor(
-                        as, 0.01, new Vector2D(0.75, Angle.fromDegrees(180)), 0.04, 30, 10)
+                S.DRIVE_PLUS_Y, valueBetween(4, distX, 30, 3)),rc.gyro(-90), TranslationControls.sensor(
+                distX, 0.01, new Vector2D(0.75, Angle.fromDegrees(180)), 0.04, 30, 10)
         );
         // add distance move here, plus y to like 30cm
         b.addGyroTurn(S.TURN_3, S.STOP, 180, Angle.fromDegrees(2));
-        AnalogSensor as2 = new AnalogSensor() {
-            @Override
-            public Double getValue() {
-                return robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM);
-            }
-        };
+
         b.addDrive(S.DRIVE_PLUS_Y, StateMap.of(
                 S.STOP1, EndConditions.timed(6000),
-                S.STOP, valueBetween(4, as, 30, 3)),rc.gyro(-90), TranslationControls.sensor(
-                as2, 0.01, new Vector2D(0.75, Angle.fromDegrees(180)), 0.04, 10, 3)
+                S.STOP, valueBetween(4, distX, 30, 3)),rc.gyro(-90), TranslationControls.sensor(
+                distY, 0.01, new Vector2D(0.75, Angle.fromDegrees(180)), 0.04, 10, 3)
         );
         // add dist move here same sensor, to foundation, so 2cm, then drop block
         b.addStop(S.STOP);
@@ -552,6 +583,6 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         RED_SKYSTONE_RIGHT_TO_BRIDGE,
         RED_SKYSTONE_MIDDLE_TO_BRIDGE,
         DRIVE_1,
-        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP1, DECIDE_SKYSTONE_POSITION, TURN_1, ODOMETRY_RESET, DRIVE_WITH_ODOMETRY_2, COLLECT_SKYSTONE_1, MOVE_ARM_UP, START_COLLECTOR, MOVE_ARM_DOWN, DRIVE_WITH_ODOMETRY_3, START_FINGER_LEFT, START_FINGER_RIGHT, STOP_COLLECTOR, STOP_RIGHT_FINGER, STOP_FINGER_LEFT, ODOMETRY_RESET_2, TURN_2, DRIVE_WITH_ODOMETRY_4, ODOMETRY_RESET_3, TURN_3, DRIVE_MINUS_X, DRIVE_PLUS_Y, STOP
+        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP1, DECIDE_SKYSTONE_POSITION, TURN_1, ODOMETRY_RESET, DRIVE_WITH_ODOMETRY_2, COLLECT_SKYSTONE_1, MOVE_ARM_UP, START_COLLECTOR, MOVE_ARM_DOWN, DRIVE_WITH_ODOMETRY_3, START_FINGER_LEFT, START_FINGER_RIGHT, STOP_COLLECTOR, STOP_RIGHT_FINGER, STOP_FINGER_LEFT, ODOMETRY_RESET_2, TURN_2, DRIVE_WITH_ODOMETRY_4, ODOMETRY_RESET_3, TURN_3, DRIVE_MINUS_X, DRIVE_PLUS_Y, TMP1, STOP
     }
 }
