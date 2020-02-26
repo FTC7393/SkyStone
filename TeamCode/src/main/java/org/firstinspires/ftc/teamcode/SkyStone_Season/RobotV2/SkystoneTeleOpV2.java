@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.AnalogInputEdgeDete
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
@@ -283,7 +284,17 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
         if((driver2.left_stick_button.isPressed() && driver2.right_stick_button.justPressed()) || (driver2.left_stick_button.justPressed() && driver2.right_stick_button.isPressed())) {
                 if(driver2mode == Driver2Mode.SLIDE_CAL)  {
                     driver2mode = Driver2Mode.REGULAR;
-
+                    Runnable r = new Runnable() {
+                        @Override
+                        public void run() {
+                            OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
+                            double vertOffset = robotCfg.getLiftArmV2().getVerticalOffset();
+                            optionsFile.set(SkyStoneOptionsOp.Opts.VERTICAL_SLIDE_CALIBRATION.s, vertOffset);
+                            optionsFile.writeToFile(FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
+                        }
+                    };
+                    Thread t = new Thread(r);
+                    t.start();
                 } else {
                     driver2mode = Driver2Mode.SLIDE_CAL;
                     robotCfg.getLiftArmV2().freezeExtension();
