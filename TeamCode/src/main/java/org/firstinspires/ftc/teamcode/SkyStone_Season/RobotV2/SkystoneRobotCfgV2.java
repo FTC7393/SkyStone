@@ -273,7 +273,7 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
     public Rev2mDistanceSensor getMinusYDistanceSensor() {
         return minusYDistanceSensor;
     }
-
++
     public Rev2mDistanceSensor getPlusYDistanceSensor() {
         return plusYDistanceSensor;
     }
