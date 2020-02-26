@@ -23,7 +23,6 @@ public class LiftArmV2 {
     private LinearSlide verticalSlideRight;
     private LinearSlide verticalSlideLeft;
     private StateMachine stateMachine;
-    private ProportionalOffsetCalculator calculator = new ProportionalOffsetCalculator(50, 400, 150);
     private double liftCommand;
     private double WristCommand;
     private final int VerticalMaxExtension = 3600;
@@ -35,6 +34,9 @@ public class LiftArmV2 {
     private final int liftKeepOutInnerLimit = 20;
     private final int liftKeepOutOuterLimit = 1300;
     private final int WristKeepOutOuterLimit = 750;
+    private double VerticalOffset = 150;
+    private final double verticalOffSetStartValue = 50;//the min first value below which correction is not needed
+    private final double verticalOffSetEndValue =400;//the max second value above which correction becomes constant
 
     private final double elbowSpeed = 0.6;
     private final double wristSpeed = 0.6;
@@ -66,13 +68,13 @@ public class LiftArmV2 {
 //                HorizontalMaxExtension, LiftToleranceHorizontal, lowerLimitHorizontal);
         this.horizontalSlide = new LinearSlide(HorizontalMotor, null,
                 HorizontalMaxExtension, LiftToleranceHorizontal, lowerLimitHorizontal);
-        horizontalSlide.setMaxCorrectionPower(0.6);
+        horizontalSlide.setMaxCorrectionPower(0.8);
         this.verticalSlideRight = new LinearSlide(VerticalRightMotor, null,
                 VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalRight);
-        verticalSlideRight.setMaxCorrectionPower(0.8);
+        verticalSlideRight.setMaxCorrectionPower(1.0);
         this.verticalSlideLeft = new LinearSlide(VerticalLeftMotor, null,
                 VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalLeft);
-        verticalSlideLeft.setMaxCorrectionPower(0.8);
+        verticalSlideLeft.setMaxCorrectionPower(1.0);
         this.lowerLimitVerticalRight = lowerLimitVerticalRight;
         this.lowerLimitVerticalLeft = lowerLimitVerticalLeft;
         this.lowerLimitHorizontal = lowerLimitHorizontal;
@@ -118,7 +120,7 @@ public class LiftArmV2 {
     public void setLift(int encoder){
         double leftEnc = verticalSlideLeft.getExtensionEncoder();
 //        double newCommand = ((leftEnc + verticalSlideRight.getExtensionEncoder()) / 2) + liftDelta;
-        double offset = calculator.calculateOffset(leftEnc);
+        double offset = calculateOffset(leftEnc);
         liftCommand = Math.min(Math.max(encoder, VerticalMinExtension), VerticalMaxExtension);
         //if you want to contrain the lift based on the horizontal condition, here is some logic to try
 //        if (horizontalSlide.getExtensionEncoder() >= liftKeepOutInnerLimit && horizontalSlide.getExtensionEncoder() <= liftKeepOutOuterLimit) {
@@ -143,6 +145,14 @@ public class LiftArmV2 {
     public void freezeLift() {
         double rightEnc = verticalSlideRight.getExtensionEncoder();
         setLift((int)rightEnc);
+    }
+
+    public double getVerticalOffset() {
+        return VerticalOffset;
+    }
+
+    public void setVerticalOffset(double verticalOffSet) {
+        VerticalOffset = verticalOffSet;
     }
 
     public void fingersIngest() {
@@ -223,6 +233,18 @@ public class LiftArmV2 {
         verticalSlideRight.setExtension(liftPosition);
     }
 
+    private double calculateOffset(double firstValue) {
+        if(firstValue < verticalOffSetStartValue) {
+            return  0;
+        }else if(firstValue<verticalOffSetEndValue) {
+            //correction is now proportional to how far we are from the start value
+            double m = (VerticalOffset /(verticalOffSetEndValue - verticalOffSetStartValue));
+            return m*(firstValue- verticalOffSetStartValue);
+        } else {
+            //above this value, correction is constant
+            return VerticalOffset;
+        }
+    }
 
     public boolean isDone() {
         return horizontalSlide.isDone() && verticalSlideRight.isDone() && verticalSlideLeft.isDone() && wrist.isDone() && gripper.isDone();

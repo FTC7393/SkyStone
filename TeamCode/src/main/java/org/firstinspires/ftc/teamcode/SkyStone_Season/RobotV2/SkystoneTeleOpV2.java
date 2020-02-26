@@ -3,16 +3,23 @@ package org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous.SkyStoneOptionsOp;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.AnalogInputEdgeDetector;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
 import ftc.electronvolts.util.InputExtractor;
 import ftc.electronvolts.util.files.Logger;
+import ftc.electronvolts.util.files.OptionsFile;
 import ftc.electronvolts.util.units.Time;
 import ftc.evlib.hardware.control.RotationControls;
 import ftc.evlib.hardware.control.TranslationControls;
 import ftc.evlib.opmodes.AbstractTeleOp;
+import ftc.evlib.util.EVConverters;
+import ftc.evlib.util.FileUtil;
 import ftc.evlib.util.ImmutableList;
 
 
@@ -24,18 +31,14 @@ import ftc.evlib.util.ImmutableList;
 public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private boolean skystoneServoPresetDown = true;
     private boolean manualGrabberClosed = true;
-    private AnalogInputEdgeDetector driver2RightYUp;
-    private AnalogInputEdgeDetector driver2RightYDown;
-    private AnalogInputEdgeDetector driver2RightXLeft;
-    private AnalogInputEdgeDetector driver2RightXRight;
-    private AnalogInputEdgeDetector driver2RightTrigger;
-    private AnalogInputEdgeDetector driver2LeftTrigger;
     private final double liftspeed = 100;
     private final double extensionspeed = 200;
     private final double collectorspeed = 1;
     private boolean wristtoggle = false;
     private boolean isLeftActive = false; //is the user actively trying to change the lift?
     private boolean isRightActive = false; //same as above but for extension
+    private Driver2Mode driver2mode = Driver2Mode.REGULAR;
+    private ArrayList<Point2D> callibrationPoints;
 
     //    private  AnalogSensor cycleTime;
     private enum FoundationMoverPosition{
@@ -162,12 +165,6 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
 
     @Override
     protected void setup() {
-        this.driver2RightYDown = new AnalogInputEdgeDetector(driver2.right_stick_y, 0.3, 0.7,false);
-        this.driver2RightYUp = new AnalogInputEdgeDetector(driver2.right_stick_y,0.3, 0.7,true);
-        this.driver2RightXRight = new AnalogInputEdgeDetector(driver2.right_stick_x,0.3, 0.7,false);
-        this.driver2RightXLeft = new AnalogInputEdgeDetector(driver2.right_stick_x,0.3, 0.7,true);
-        this.driver2RightTrigger = new AnalogInputEdgeDetector(driver2.right_trigger,0.3, 0.7,true);
-        this.driver2LeftTrigger = new AnalogInputEdgeDetector(driver2.left_trigger,0.3, 0.7,true);
         robotCfg.getOdometryServo().goToPreset(SkystoneRobotCfgV2.OdometryServoPresets.UP);
 //        cycleTime = new AnalogSensor() {
 //            long timeAtLastRead = 0;
@@ -216,12 +213,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
 //        telemetry.addData("motor 2 ", m2);
 //        telemetry.addData("motor 3 ", m3);
 
-        driver2RightYDown.update();
-        driver2RightYUp.update();
-        driver2RightXRight.update();
-        driver2RightXLeft.update();
-        driver2RightTrigger.update();
-        driver2LeftTrigger.update();
+
 
 //        telemetry.addData("horizontalLimit",robotCfg.getLiftArmV2().getLowerLimitHorizontal().getValue());
 //        telemetry.addData("rightLimit",robotCfg.getLiftArmV2().getLowerLimitVerticalRight().getValue());
@@ -247,33 +239,6 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
 
         if(driver1.right_stick_button.justPressed()) {
             currentSpeedFactor = MotorSpeedFactor.FAST;
-        }
-        boolean up = driver2.dpad_up.isPressed();
-        boolean down = driver2.dpad_down.isPressed();
-        boolean right = driver2.dpad_right.isPressed();
-        boolean left = driver2.dpad_left.isPressed();
-        //There are two ways to control the fingers, the priority way is to
-        //control using the left and right tirggers as well as the a and b buttons,
-        //the alternate way of controlling the fingers is through the dpad.
-
-        if(driver2.right_trigger.getValue()>0.5){
-            robotCfg.getLiftArmV2().fingersIngest();
-        } else if(driver2.left_trigger.getValue()>0.5) {
-            robotCfg.getLiftArmV2().fingerEject();
-        }else if(driver2.a.isPressed()){
-            robotCfg.getLiftArmV2().fingersRight();
-        } else if(driver2.b.isPressed()){
-            robotCfg.getLiftArmV2().fingersLeft();
-        } else if(up) {
-            robotCfg.getLiftArmV2().fingersIngest();
-        } else if(down) {
-            robotCfg.getLiftArmV2().fingerEject();
-        } else if(right) {
-            robotCfg.getLiftArmV2().fingersRight();
-        } else if(left) {
-            robotCfg.getLiftArmV2().fingersLeft();
-        } else {
-            robotCfg.getLiftArmV2().fingersStop();
         }
 
         forwardControl(); // driver 1 mechanum control for motors
@@ -314,104 +279,127 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
                 throw new RuntimeException("Forgot to deal with additional state/states");
             }
         }
-         double d2_left_y = -driver2.left_stick_y.getValue();
-         double d2_right_y = -driver2.right_stick_y.getValue();
 
-        if(d2_left_y != 0) {
-            isLeftActive = true;
-            robotCfg.getLiftArmV2().controlLift(d2_left_y*liftspeed);
-        } else {
-            if(isLeftActive) {
-                robotCfg.getLiftArmV2().freezeLift();
-                isLeftActive = false;
-            }
+        if((driver2.left_stick_button.isPressed() && driver2.right_stick_button.justPressed()) || (driver2.left_stick_button.justPressed() && driver2.right_stick_button.isPressed())) {
+                if(driver2mode == Driver2Mode.SLIDE_CAL)  {
+                    driver2mode = Driver2Mode.REGULAR;
+
+                } else {
+                    driver2mode = Driver2Mode.SLIDE_CAL;
+                    robotCfg.getLiftArmV2().freezeExtension();
+                    isRightActive = false;
+                    robotCfg.getLiftArmV2().freezeLift();
+                    isLeftActive = false;
+                    robotCfg.getLiftArmV2().fingersStop();
+                }
+
         }
 
-        if(d2_right_y != 0) {
-            isRightActive = true;
-            robotCfg.getLiftArmV2().controlExtension(d2_right_y * extensionspeed);
+        if(driver2mode == Driver2Mode.SLIDE_CAL) {
+            double d2_left_y = -driver2.left_stick_y.getValue();
+            double d2_right_y = -driver2.right_stick_y.getValue();
+
+
+            robotCfg.getLiftArmV2().controlLift(d2_left_y * liftspeed * 0.3);
+            robotCfg.getLiftArmV2().setVerticalOffset(robotCfg.getLiftArmV2().getVerticalOffset() + (d2_right_y * -2));
         } else {
-            if(isRightActive) {
-                robotCfg.getLiftArmV2().freezeExtension();
-                isRightActive = false;
-            }
-        }
 
+            boolean up = driver2.dpad_up.isPressed();
+            boolean down = driver2.dpad_down.isPressed();
+            boolean right = driver2.dpad_right.isPressed();
+            boolean left = driver2.dpad_left.isPressed();
+            //There are two ways to control the fingers, the priority way is to
+            //control using the left and right tirggers as well as the a and b buttons,
+            //the alternate way of controlling the fingers is through the dpad.
 
-        if(driver2.y.justPressed()) {
-            if(wristtoggle == false) {
-                wristtoggle = robotCfg.getLiftArmV2().wrist90();
+            if (driver2.right_trigger.getValue() > 0.5) {
+                robotCfg.getLiftArmV2().fingersIngest();
+            } else if (driver2.left_trigger.getValue() > 0.5) {
+                robotCfg.getLiftArmV2().fingerEject();
+            } else if (driver2.a.isPressed()) {
+                robotCfg.getLiftArmV2().fingersRight();
+            } else if (driver2.b.isPressed()) {
+                robotCfg.getLiftArmV2().fingersLeft();
+            } else if (up) {
+                robotCfg.getLiftArmV2().fingersIngest();
+            } else if (down) {
+                robotCfg.getLiftArmV2().fingerEject();
+            } else if (right) {
+                robotCfg.getLiftArmV2().fingersRight();
+            } else if (left) {
+                robotCfg.getLiftArmV2().fingersLeft();
             } else {
-                robotCfg.getLiftArmV2().wrist0();
-                wristtoggle = false;
+                robotCfg.getLiftArmV2().fingersStop();
             }
-        }
 
-        if(driver2.x.justPressed()){
+            double d2_left_y = -driver2.left_stick_y.getValue();
+            double d2_right_y = -driver2.right_stick_y.getValue();
+
+            if (d2_left_y != 0) {
+                isLeftActive = true;
+                robotCfg.getLiftArmV2().controlLift(d2_left_y * liftspeed);
+            } else {
+                if (isLeftActive) {
+                    robotCfg.getLiftArmV2().freezeLift();
+                    isLeftActive = false;
+                }
+            }
+
+            if (d2_right_y != 0) {
+                isRightActive = true;
+                robotCfg.getLiftArmV2().controlExtension(d2_right_y * extensionspeed);
+            } else {
+                if (isRightActive) {
+                    robotCfg.getLiftArmV2().freezeExtension();
+                    isRightActive = false;
+                }
+            }
+
+
+            if (driver2.y.justPressed()) {
+                if (wristtoggle == false) {
+                    wristtoggle = robotCfg.getLiftArmV2().wrist90();
+                } else {
+                    robotCfg.getLiftArmV2().wrist0();
+                    wristtoggle = false;
+                }
+            }
+
+            if (driver2.x.justPressed()) {
 //            extend horizontal slide to its outmost position
 //            robotCfg.getLiftArm().armPlacingLeft();
-        }
-
-
-
-        if(driver2.right_bumper.isPressed()){
-            robotCfg.getLiftArmV2().gripperRelease();
-        }else {
-            robotCfg.getLiftArmV2().gripperGrab();
-        }
-// LiftArm auto commands ///////////////////////////////////////////////////////////////////
-//        if(driver2RightYDown.justPressed()){
-//            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.STOW);
-//        }
-
-//        if(driver2RightYUp.justPressed()){
-//            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.PLACE);
-//        }
-//
-//        if(driver2RightXLeft.justPressed()){
-//            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.DROP);
-//        }
-//
-//        if(driver2RightXLeft.justReleased()){
-//            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.UNDROP);
-//        }
-
-//        if(driver2RightXRight.justPressed()){
-//            robotCfg.getLiftArm().sendCommand(LiftArm.COMMANDS.GRAB);
-//        }
-//
-//        if (driver2.dpad_up.justPressed()){
-//            robotCfg.getLiftArm().incrementPlacingLevel();
-//        }
-//
-//        if (driver2.dpad_down.justPressed()){
-//            robotCfg.getLiftArm().decrementPlacingLevel();
-//        }
-
-////////////////////////////////////////////////////////////////////////////////////////////
-      /**  if (driver1.dpad_left.justPressed()) {
-            skystoneServoPresetDown = !skystoneServoPresetDown;
-            if(skystoneServoPresetDown) {
-                robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.DOWN);
-            } else {
-                robotCfg.getStoneScraperServo().goToPreset(SkystoneRobotCfg.StoneScraperServoPresets.UP);
             }
+
+
+            if (driver2.right_bumper.isPressed()) {
+                robotCfg.getLiftArmV2().gripperRelease();
+            } else {
+                robotCfg.getLiftArmV2().gripperGrab();
+            }
+
+
         }
-*/
-
-//        telemetry.addData("rightStickX", driver2.right_stick_x.getValue());
-//        telemetry.addData("rightStickY", driver2.right_stick_y.getValue());
-//        telemetry.addData("rightStickXLeft", driver2RightXLeft.getValue());
-//        telemetry.addData("rightStickXRight", driver2RightXRight.getValue());
-//        telemetry.addData("rightStickYUp", driver2RightYUp.getValue());
-//        telemetry.addData("rightStickYDown", driver2RightYDown.getValue());
-
-
 
     }
 
     @Override
     protected void end() {
 
+    }
+
+    public enum Driver2Mode {
+        REGULAR,
+        SLIDE_CAL
+    }
+
+}
+
+
+class Point2D {
+    public int x, y;
+
+    Point2D(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
 }

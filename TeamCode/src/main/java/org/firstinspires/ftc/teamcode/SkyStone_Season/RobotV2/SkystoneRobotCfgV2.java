@@ -10,11 +10,13 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.SensorREV2mDistance;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous.SkyStoneOptionsOp;
 
 import java.util.List;
 import java.util.Map;
 
 import ftc.electronvolts.util.Function;
+import ftc.electronvolts.util.files.OptionsFile;
 import ftc.electronvolts.util.units.Distance;
 import ftc.electronvolts.util.units.Time;
 import ftc.electronvolts.util.units.Velocity;
@@ -32,6 +34,8 @@ import ftc.evlib.hardware.servos.ServoCfg;
 import ftc.evlib.hardware.servos.ServoControl;
 import ftc.evlib.hardware.servos.ServoName;
 import ftc.evlib.hardware.servos.Servos;
+import ftc.evlib.util.EVConverters;
+import ftc.evlib.util.FileUtil;
 //comment
 
 /**
@@ -58,8 +62,9 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         return blockDetector;
     }
 
-    public Rev2mDistanceSensor getPlusYDistanceSensor() {
-        return plusYDistanceSensor;
+
+    public Rev2mDistanceSensor getPlusXDistanceSensor() {
+        return plusXDistanceSensor;
     }
 
     public SkystoneRobotCfgV2(HardwareMap hardwareMap, Map<ServoName, Enum> servoStartPresetMap) {
@@ -96,6 +101,10 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
                 Sensors.inv(Sensors.digital(hardwareMap,"lowerLimitVerticalLeft")),
                 Sensors.inv(Sensors.digital(hardwareMap,"lowerLimitHorizontal"))
         );
+
+        OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
+        double verticalSlideOffset = optionsFile.get(SkyStoneOptionsOp.Opts.VERTICAL_SLIDE_CALIBRATION.s, 0);
+        liftArmV2.setVerticalOffset(verticalSlideOffset);
 
         newFoundationMover = new NewFoundationMover(
                 getRightFoundationMover(),
@@ -279,8 +288,8 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         return minusXDistanceSensor;
     }
 
-    public Rev2mDistanceSensor getPlusXDistanceSensor() {
-        return plusXDistanceSensor;
+    public Rev2mDistanceSensor getPlusYDistanceSensor() {
+        return plusYDistanceSensor;
     }
 
     /**

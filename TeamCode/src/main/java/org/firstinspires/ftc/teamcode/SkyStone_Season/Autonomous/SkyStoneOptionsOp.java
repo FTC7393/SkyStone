@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import ftc.electronvolts.util.Function;
 import ftc.electronvolts.util.Functions;
 import ftc.electronvolts.util.TeamColor;
+import ftc.electronvolts.util.Utility;
 import ftc.evlib.opmodes.AbstractOptionsOp;
 
 
@@ -18,9 +19,12 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
     public static final String teamColorTag = "teamColor";
     public static final TeamColor teamColorDefault = TeamColor.BLUE;
     public static final String doSkyStoneTag = "doSkyStone";
+    private static String verticalSlideCalTag = "verticalSlideCal";
+    public static double offsetDefault = 0;
     private int index = 0;
     private Opts[] values;
     public static boolean doSkyStoneDefault = true;
+    double offset;
 
     /**
      * The filename will be set by the subclasses
@@ -41,7 +45,7 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
     @Override
     protected void go() {
         super.go();
-
+        offset = optionsFile.get(Opts.VERTICAL_SLIDE_CALIBRATION.s, offsetDefault);
     }
 
     @Override
@@ -60,8 +64,8 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
             }
         }
 
-        if (driver1.right_bumper.justPressed()) {
-            if (values[index] == Opts.TEAM_COLOR) {
+        if (values[index] == Opts.TEAM_COLOR) {
+            if (driver1.right_bumper.justPressed()) {
                 TeamColor teamColor = optionsFile.get(Opts.TEAM_COLOR.s, teamColorDefault);
                 if (teamColor == TeamColor.BLUE) {
                     teamColor = TeamColor.RED;
@@ -73,8 +77,9 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
             }
         }
 
-        if(driver1.right_bumper.justPressed()) {
-            if(values[index] == Opts.DO_SKYSTONE) {
+
+        if (values[index] == Opts.DO_SKYSTONE) {
+            if (driver1.right_bumper.justPressed()) {
                 boolean doSkyStone = optionsFile.get(Opts.DO_SKYSTONE.s, doSkyStoneDefault);
                 if (doSkyStone) {
                     doSkyStone = false;
@@ -82,6 +87,16 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
                     doSkyStone = true;
                 }
                 optionsFile.set(Opts.DO_SKYSTONE.s, doSkyStone);
+                saveOptionsFile();
+            }
+        }
+
+
+        if (values[index] == Opts.VERTICAL_SLIDE_CALIBRATION) {
+            offset += driver1.left_stick_y.getValue();
+            offset = Utility.limit(offset, -7000, 7000);
+            if (driver1.right_bumper.justPressed()) {
+                optionsFile.set(Opts.VERTICAL_SLIDE_CALIBRATION.s, offset);
                 saveOptionsFile();
             }
         }
@@ -102,12 +117,14 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
 //                telemetry.addData("currentValue", optionsFile.get(values[index].s,false));
 //            }
 
-            telemetry.addData(teamColorTag, optionsFile.get(Opts.TEAM_COLOR.s, teamColorDefault));
+        telemetry.addData(teamColorTag, optionsFile.get(Opts.TEAM_COLOR.s, teamColorDefault));
 
 
+        telemetry.addData(doSkyStoneTag, optionsFile.get(Opts.DO_SKYSTONE.s, doSkyStoneDefault));
 
-            telemetry.addData(doSkyStoneTag, optionsFile.get(Opts.DO_SKYSTONE.s, doSkyStoneDefault));
+        telemetry.addData(verticalSlideCalTag, optionsFile.get(Opts.VERTICAL_SLIDE_CALIBRATION.s, offsetDefault));
 
+        telemetry.addData("NEW " + verticalSlideCalTag, offset);
 
 
     }
@@ -122,7 +139,8 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
     }
 
     public enum Opts {
-        TEAM_COLOR(teamColorTag), DO_SKYSTONE(doSkyStoneTag);
+        TEAM_COLOR(teamColorTag), DO_SKYSTONE(doSkyStoneTag), VERTICAL_SLIDE_CALIBRATION(verticalSlideCalTag);
+
 
         //        public boolean b;
 //        public double f;
