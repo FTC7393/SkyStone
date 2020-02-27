@@ -54,7 +54,7 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
     private final Rev2mDistanceSensor blockDetector;
     private final SimpleEncoderSensor odometryWheelSensor;
     private final double ticksPerFoot = 3610;
-    List<LynxModule> allHubs;
+    private List<LynxModule> allHubs;
 //    private final AveragedSensor plusYDistanceSensor;
 
 

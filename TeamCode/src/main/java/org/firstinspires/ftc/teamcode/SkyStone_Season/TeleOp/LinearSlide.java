@@ -14,8 +14,8 @@ public class LinearSlide {
 
 
     private MotorEnc extension;
-    double a=1.5;
-    Function expo= Functions.eBased(a);
+    double a = 1.5;
+    Function expo = Functions.eBased(a);
     boolean lowerLimitResetComplete = false;
 
 
@@ -23,17 +23,16 @@ public class LinearSlide {
     private final DigitalInputEdgeDetector upperLimit;
     private PIDController extensionPID;
 
-    private double extensionEncoder=0;
+    private double extensionEncoder = 0;
 
     private final int tolerance;
 
     int maxExtensionPosition;
-    
 
 
     double minExtensionPosition;   // !!! Change this to -10000 when limit switch is reinstalled !!!
-    double extensionSetPoint=0;
-    double extensionPower=0;
+    double extensionSetPoint = 0;
+    double extensionPower = 0;
 
     public double getMaxCorrectionPower() {
         return maxCorrectionPower;
@@ -47,16 +46,16 @@ public class LinearSlide {
 
 
     private LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, int tolerance,
-                       DigitalSensor lowerLimit, DigitalSensor upperLimit, double minExtensionPosition) {
+                        DigitalSensor lowerLimit, DigitalSensor upperLimit, double minExtensionPosition) {
         this.extension = extension;
-        if(lowerLimit == null) {
+        if (lowerLimit == null) {
             this.lowerLimit = null;
         } else {
             this.lowerLimit = new DigitalInputEdgeDetector(lowerLimit);
         }
-        this.extensionPID= extensionPID;
+        this.extensionPID = extensionPID;
         this.maxExtensionPosition = maxExtensionPosition;
-        if(upperLimit == null) {
+        if (upperLimit == null) {
             this.upperLimit = null;
         } else {
             this.upperLimit = new DigitalInputEdgeDetector(upperLimit);
@@ -78,7 +77,7 @@ public class LinearSlide {
     public LinearSlide(MotorEnc extension, PIDController extensionPID, int maxExtensionPosition, int tolerance) {
         this(extension, extensionPID, maxExtensionPosition, tolerance, null, null, -10000);
     }
-    
+
 
     //StepTimer t = new StepTimer("Arm", Log.VERBOSE);
 
@@ -100,7 +99,7 @@ public class LinearSlide {
     public void act() {
 //            t.start();
 //            t.step("update limit switches");
-        
+
 
 //            t.step("update potentiometer");
 //
@@ -109,38 +108,32 @@ public class LinearSlide {
 
 
         if (lowerLimit != null) {
-            if (lowerLimit.justPressed()) {
-
-                lowerLimitResetComplete = true;
-                extension.resetEncoder();
-                minExtensionPosition = -50;
-                extensionSetPoint = 0;
-            } else if(lowerLimit.isPressed() && extensionSetPoint <= extensionEncoder) {
+            if (lowerLimit.isPressed() && extensionSetPoint <= extensionEncoder) {
                 extensionSetPoint = extensionEncoder;
             }
         }
 
         if (upperLimit != null) {
-            if (upperLimit.isPressed() && extensionSetPoint >= extensionEncoder){
+            if (upperLimit.isPressed() && extensionSetPoint >= extensionEncoder) {
                 extensionSetPoint = extensionEncoder;
             }
         }
 
-        if(extensionSetPoint>maxExtensionPosition){
-            extensionSetPoint=maxExtensionPosition;
+        if (extensionSetPoint > maxExtensionPosition) {
+            extensionSetPoint = maxExtensionPosition;
         }
-        if(extensionSetPoint<minExtensionPosition){
-            extensionSetPoint=minExtensionPosition;
+        if (extensionSetPoint < minExtensionPosition) {
+            extensionSetPoint = minExtensionPosition;
         }
 
-        if(extensionPID != null) {
+        if (extensionPID != null) {
             extensionPower = extensionPID.computeCorrection(extensionSetPoint, extensionEncoder);
 
 //        t.step("extension set power");
 
             extension.setSpeed(extensionPower);
         } else {
-            extension.setPosition((int)extensionSetPoint, maxCorrectionPower);
+            extension.setPosition((int) extensionSetPoint, maxCorrectionPower);
         }
 
 
@@ -151,60 +144,80 @@ public class LinearSlide {
     }
 
 
-
-
     public void controlExtension(double x) {
-        extensionSetPoint=extensionSetPoint + 50*(expo.f(-x));
+        extensionSetPoint = extensionSetPoint + 50 * (expo.f(-x));
     }
-    public void setExtension( double x) {
-        extensionSetPoint=x;
+
+    public void setExtension(double x) {
+        extensionSetPoint = x;
     }
+
     public void stopExtension() {
         extensionSetPoint = extensionEncoder;
     }
 
     // special function which returns to tell autonomous when the slide has done moving, specifically returns a boolean
-    public boolean autoUse(double extension){
-        extensionSetPoint=extension;
+    public boolean autoUse(double extension) {
+        extensionSetPoint = extension;
         return isDone();
     }
 
-    public boolean isDone(){
-        if((extensionSetPoint - extensionEncoder <= tolerance) && (extensionSetPoint - extensionEncoder >= -tolerance)){
+    public boolean isDone() {
+        if ((extensionSetPoint - extensionEncoder <= tolerance) && (extensionSetPoint - extensionEncoder >= -tolerance)) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    public double getExtensionEncoder(){return extensionEncoder;}
-    public int getMinExtensionValue(){return (int)minExtensionPosition;}
+    public double getExtensionEncoder() {
+        return extensionEncoder;
+    }
+
+    public int getMinExtensionValue() {
+        return (int) minExtensionPosition;
+    }
 
 
-    public double getExtensionPower(){return extensionPower;}
+    public double getExtensionPower() {
+        return extensionPower;
+    }
 
-    public double getExtensionSetPoint(){return extensionSetPoint;}
-    public double getExponential(){return a;}
+    public double getExtensionSetPoint() {
+        return extensionSetPoint;
+    }
+
+    public double getExponential() {
+        return a;
+    }
 
     //    public boolean getExtensionLimitSwitch(){return extensionLimit.isPressed();}
 
-    boolean getLowerLimitResetComplete(){ return lowerLimitResetComplete; }
+    boolean getLowerLimitResetComplete() {
+        return lowerLimitResetComplete;
+    }
 
-    public boolean getUpperLimit(){
+    public boolean getUpperLimit() {
         if (upperLimit != null) {
             return upperLimit.isPressed();
         }
         return false;
     }
 
-    public boolean getLowerLimit(){
+    public boolean getLowerLimit() {
         if (lowerLimit != null) {
             return lowerLimit.isPressed();
         }
         return false;
     }
+    //only call when lower limit is pressed
+    public void resetZeroPosition() {
+//        if (lowerLimit.justPressed()) {
+
+            lowerLimitResetComplete = true;
+            extension.resetEncoder();
+            minExtensionPosition = -50;
+            extensionSetPoint = 0;
+    }
+
 }
-
-
-
-

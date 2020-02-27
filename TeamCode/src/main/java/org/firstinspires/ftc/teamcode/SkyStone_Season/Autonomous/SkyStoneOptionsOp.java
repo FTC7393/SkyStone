@@ -20,7 +20,7 @@ public class SkyStoneOptionsOp extends AbstractOptionsOp {
     public static final TeamColor teamColorDefault = TeamColor.BLUE;
     public static final String doSkyStoneTag = "doSkyStone";
     private static String verticalSlideCalTag = "verticalSlideCal";
-    public static double offsetDefault = 0;
+    public static double offsetDefault = 50;
     private int index = 0;
     private Opts[] values;
     public static boolean doSkyStoneDefault = true;

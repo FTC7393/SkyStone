@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2;
 
-import org.firstinspires.ftc.teamcode.SkyStone_Season.Autonomous.ProportionalOffsetCalculator;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.LinearSlide;
 
 import ftc.electronvolts.statemachine.StateMachine;
-import ftc.electronvolts.util.PIDController;
 import ftc.evlib.hardware.motors.MotorEnc;
 import ftc.evlib.hardware.sensors.DigitalSensor;
 import ftc.evlib.hardware.servos.ServoControl;
@@ -268,6 +266,12 @@ public class LiftArmV2 {
         verticalSlideRight.pre_act();
         if(verticalSlideLeft.getLowerLimit() && verticalSlideRight.getLowerLimit()) {
             VerticalMinExtension = -50;
+            verticalSlideLeft.resetZeroPosition();
+            verticalSlideRight.resetZeroPosition();
+            liftCommand = 0;
+        }
+        if(horizontalSlide.getLowerLimit()) {
+            horizontalSlide.resetZeroPosition();
         }
     }
 
