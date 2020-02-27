@@ -40,6 +40,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private boolean isRightActive = false; //same as above but for extension
     private Driver2Mode driver2mode = Driver2Mode.REGULAR;
     private ArrayList<Point2D> callibrationPoints;
+    private boolean capstoneToggle = false;
 
     //    private  AnalogSensor cycleTime;
     private enum FoundationMoverPosition{
@@ -197,8 +198,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     }
     @Override
     protected void go() {
-
-
+        robotCfg.getCapstoneServo().goToPreset(SkystoneRobotCfgV2.CapstonePlacementPresets.CLOSE);
     }
 
     @Override
@@ -386,6 +386,16 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
                 robotCfg.getLiftArmV2().gripperRelease();
             } else {
                 robotCfg.getLiftArmV2().gripperGrab();
+            }
+
+            if(driver2.left_bumper.justPressed()) {
+                if(capstoneToggle == false) {
+                    robotCfg.getCapstoneServo().goToPreset(SkystoneRobotCfgV2.CapstonePlacementPresets.OPEN);
+                    capstoneToggle = true;
+                } else {
+                    capstoneToggle = false;
+                    robotCfg.getCapstoneServo().goToPreset(SkystoneRobotCfgV2.CapstonePlacementPresets.CLOSE);
+                }
             }
 
 

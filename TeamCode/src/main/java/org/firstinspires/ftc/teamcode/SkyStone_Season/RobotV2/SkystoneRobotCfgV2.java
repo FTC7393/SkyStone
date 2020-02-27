@@ -189,8 +189,8 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
     }
 
     public enum CapstonePlacementPresets {
-        DOWN,
-        UP
+        CLOSE,
+        OPEN
     }
 
     public ServoControl getGripper() {
@@ -220,6 +220,10 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
 
     public ServoControl getRightFoundationMover() {
         return getServo(SkystoneServoName.RIGHT_FOUNDATION_MOVER_SERVO);
+    }
+
+    public ServoControl getCapstoneServo() {
+        return getServo(SkystoneServoName.CAPSTONE_DROPPER_SERVO);
     }
 
     @Override
@@ -307,8 +311,8 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         FINGER_RIGHT_SERVO("fingerRightServo", FingerRightServoPresets.values()),
         RIGHT_FOUNDATION_MOVER_SERVO("rightFoundationMoverServo", RightFoundationMoverServoPresets.values()),
         LEFT_FOUNDATION_MOVER_SERVO("leftFoundationMoverServo", LeftFoundationMoverServoPresets.values()),
-        ODOMETRY_SERVO("odometryServo", OdometryServoPresets.values());
-       // CAPSTONE_DROPPER_SERVO("capstoneDropper", CapstonePlacementPresets.values());
+        ODOMETRY_SERVO("odometryServo", OdometryServoPresets.values()),
+        CAPSTONE_DROPPER_SERVO("capstoneDropper", CapstonePlacementPresets.values());
 
 //        PUSH_SERVO("pushServo", RotateServoPresets.values());
 

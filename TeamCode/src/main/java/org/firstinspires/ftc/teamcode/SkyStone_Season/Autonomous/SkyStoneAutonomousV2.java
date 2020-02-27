@@ -137,6 +137,7 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         cameraInit = new Thread(r);
 
         robotCfg.getOdometryServo().goToPreset(SkystoneRobotCfgV2.OdometryServoPresets.DOWN);
+        robotCfg.getCapstoneServo().goToPreset(SkystoneRobotCfgV2.CapstonePlacementPresets.CLOSE);
 
     }
 
