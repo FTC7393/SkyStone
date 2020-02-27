@@ -26,8 +26,8 @@ public class LiftArmV2 {
     private final int VerticalMaxExtension = 3600;
     private int VerticalMinExtension = -10000;
     private final int HorizontalMaxExtension = 1850;
-    private final int LiftToleranceHorizontal = 5;
-    private final int LiftToleranceVertical = 5;
+    private final int LiftToleranceHorizontal = 20;//DEFAULT: 5
+    private final int LiftToleranceVertical = 20;//DEFAULT: 5
     private final int liftKeepOutUpperLimit = 500;
     private final int liftKeepOutInnerLimit = 20;
     private final int liftKeepOutOuterLimit = 1300;
