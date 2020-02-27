@@ -444,7 +444,7 @@ public class Motors {
 
                 t.step("motor_setMode");
                 if (mode == Mode.POSITION) {
-                    dcMotor.setTargetPosition(encoderTarget);
+                    dcMotor.setTargetPosition(encoderTarget + encoderZero);
                 }
                 if (mode != lastMode) {
 
