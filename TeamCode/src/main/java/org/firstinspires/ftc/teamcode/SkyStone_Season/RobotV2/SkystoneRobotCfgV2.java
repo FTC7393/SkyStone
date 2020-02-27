@@ -103,7 +103,7 @@ public class SkystoneRobotCfgV2 extends RobotCfg {
         );
 
         OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
-        double verticalSlideOffset = optionsFile.get(SkyStoneOptionsOp.Opts.VERTICAL_SLIDE_CALIBRATION.s, 0);
+        double verticalSlideOffset = optionsFile.get(SkyStoneOptionsOp.Opts.VERTICAL_SLIDE_CALIBRATION.s, 50);
         liftArmV2.setVerticalOffset(verticalSlideOffset);
 
         newFoundationMover = new NewFoundationMover(
