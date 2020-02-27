@@ -312,7 +312,7 @@ public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
 
 
             robotCfg.getLiftArmV2().controlLift(d2_left_y * liftspeed * 0.3);
-            robotCfg.getLiftArmV2().setVerticalOffset(robotCfg.getLiftArmV2().getVerticalOffset() + (d2_right_y * -2));
+            robotCfg.getLiftArmV2().setVerticalOffset(robotCfg.getLiftArmV2().getVerticalOffset() + (d2_right_y * -10));
         } else {
 
             boolean up = driver2.dpad_up.isPressed();
