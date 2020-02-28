@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2;
 
-import org.firstinspires.ftc.teamcode.SkyStone_Season.TeleOp.LiftArm;
 
 import ftc.electronvolts.statemachine.BasicAbstractState;
 import ftc.electronvolts.statemachine.State;
 import ftc.electronvolts.statemachine.StateName;
 import ftc.electronvolts.statemachine.States;
-import ftc.electronvolts.util.InputExtractor;
 
 public class LiftArmStatesV2 extends States {
 
@@ -88,9 +86,6 @@ public class LiftArmStatesV2 extends States {
                 return nextStateName;
             }
         };
-
-
-
     }
 
     public static State horizontalExtension(final StateName nextStateName, final LiftArmV2 liftArm, final double extensionPosition, final boolean waitForDone) {

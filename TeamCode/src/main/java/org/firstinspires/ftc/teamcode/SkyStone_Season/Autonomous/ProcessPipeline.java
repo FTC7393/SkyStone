@@ -31,7 +31,7 @@ class ProcessPipeline extends OpenCvPipeline {
     private final BasicResultReceiver<SkyStonePos> StateRR;
     private final TeamColor tc;
     private final BasicResultReceiver<Boolean> canUpdateSRR;
-    private final int x1 = 90, y1 = 246, w1 = 30, h1 = 27;
+    private final int x1 = 120, y1 = 246, w1 = 30, h1 = 27;
     private int x2 = x1, y2 = 356, w2 = w1, h2 = h1;
     private Mat m1;
     private Mat m2;

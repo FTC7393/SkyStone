@@ -127,7 +127,7 @@ public class LiftArmV2 {
 //            }
 //        }
 
-        double leftExtEnc = Math.min(Math.max(encoder-offset, VerticalMinExtension), VerticalMaxExtension);
+        double leftExtEnc = Math.min(Math.max(liftCommand-offset, VerticalMinExtension), VerticalMaxExtension);
         verticalSlideLeft.setExtension(leftExtEnc);
         verticalSlideRight.setExtension(liftCommand);
         staticLiftLeft = leftExtEnc;
@@ -226,10 +226,6 @@ public class LiftArmV2 {
         return horizontalSlide.getExtensionSetPoint();
     }
 
-    public void setLiftPosition(double liftPosition) {
-        verticalSlideLeft.setExtension(liftPosition);
-        verticalSlideRight.setExtension(liftPosition);
-    }
 
     private double calculateOffset(double firstValue) {
         if(firstValue < verticalOffSetStartValue) {
