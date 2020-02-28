@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2.LiftArmStatesV2;
+import org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2.LiftArmV2;
 import org.firstinspires.ftc.teamcode.SkyStone_Season.RobotV2.SkystoneRobotCfgV2;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvInternalCamera;
@@ -96,11 +97,29 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
                         return TranslationControls.staticVY;
                     }
                 }),
-                new Logger.Column("target position", new InputExtractor<Double>() {
+                new Logger.Column("lift arm position - left", new InputExtractor<Double>() {
                     @Override
                     public Double getValue() {
-                        return robotCfg.getOdometryWheelSensor().inchesToTicks(23);
+                        return LiftArmV2.staticLiftLeft;
 
+                    }
+                }),
+                new Logger.Column("lift arm position - right", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return LiftArmV2.staticLiftRight;
+                    }
+                }),
+                new Logger.Column("lift command linear slide - left", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return robotCfg.getLiftArmV2().getVerticalSlideLeft().getExtensionSetPoint();
+                    }
+                }),
+                new Logger.Column("lift command linear slide - right", new InputExtractor<Double>() {
+                    @Override
+                    public Double getValue() {
+                        return robotCfg.getLiftArmV2().getVerticalSlideRight().getExtensionSetPoint();
                     }
                 })
 
@@ -254,21 +273,20 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
                 0.0075, 200, 400, 3);
         b.addDrive(S.SKYSTONE_LEFT, StateMap.of(
                 S.STOP1, EndConditions.timed(5000),
-                S.MOVE_ARM_UP, valueBetween(3, odSensor, odSensor.inchesToTicks(29), 400)
-        ), rc.gyro(0), TranslationControls.sensor2(odSensor, 0.0075, SENSOR_ANGLE,
+                S.MOVE_ARM_UP, valueBetween(3, odSensor, odSensor.inchesToTicks(29), 400)),
+                rc.gyro(0), TranslationControls.sensor2(odSensor, 0.0075, SENSOR_ANGLE,
                 new Vector2D(1, Angle.fromDegrees(305)), 0.04, odSensor.inchesToTicks(29), 200));
         b.add(S.INIT_LIFT_ARM, LiftArmStatesV2.liftMove(S.INIT_EXT_ARM, robotCfg.getLiftArmV2(), -10, false));
         b.add(S.INIT_EXT_ARM, LiftArmStatesV2.horizontalExtension(S.MOVE_ARM_UP, robotCfg.getLiftArmV2(), -20, false));
-        b.add(S.MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.TURN_1, robotCfg.getLiftArmV2(), 700, false));
+        b.add(S.MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.TURN_1, robotCfg.getLiftArmV2(), 800, true));
         b.addGyroTurn(S.TURN_1, S.START_COLLECTOR, -45, Angle.fromDegrees(2));
         b.addMotorOn(S.START_COLLECTOR,S.ODOMETRY_RESET, robotCfg.getBlockCollector().getCollectorMotor(), -1);
 
         b.addDrive(S.SKYSTONE_MIDDLE, StateMap.of(
               S.STOP1, EndConditions.timed(5000),
-              S.MOVE_ARM_UP, valueBetween(3, odSensor, odSensor.inchesToTicks(28), 400)
-      ), rc.gyro(0), TranslationControls.sensor2(odSensor, 0.0075, SENSOR_ANGLE,
+              S.MOVE_ARM_UP, valueBetween(3, odSensor, odSensor.inchesToTicks(28), 400)),
+                rc.gyro(0), TranslationControls.sensor2(odSensor, 0.0075, SENSOR_ANGLE,
                 new Vector2D(1, Angle.fromDegrees(300)), 0.04, odSensor.inchesToTicks(28), 200));
-        b.add(S.MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.TURN_1, robotCfg.getLiftArmV2(), 700, false));
         b.addGyroTurn(S.TURN_1, S.START_COLLECTOR, -45, Angle.fromDegrees(2));
         b.addMotorOn(S.START_COLLECTOR,S.ODOMETRY_RESET, robotCfg.getBlockCollector().getCollectorMotor(), -1);
         b.add(S.ODOMETRY_RESET, new State() {
@@ -281,10 +299,9 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         double odDistance2 = odSensor.inchesToTicks(10);
         b.addDrive(S.DRIVE_WITH_ODOMETRY_2, StateMap.of(
                 S.STOP1, EndConditions.timed(5000),
-                S.ODOMETRY_RESET_2, valueBetween(3, odSensor,
-                        odDistance2, 300)
-        ), rc.gyro(-45), TranslationControls.sensor2(odSensor, 0.0075, SENSOR_ANGLE,
-                new Vector2D(0.75, Angle.fromDegrees(-135)), 0.04, odDistance2, 150));
+                S.ODOMETRY_RESET_2, valueBetween(3, odSensor, odDistance2, 300)),
+                rc.gyro(-45), TranslationControls.sensor2(odSensor, 0.0075, SENSOR_ANGLE,
+                new Vector2D(0.75, Angle.fromDegrees(270)), 0.04, odDistance2, 150));
         b.add(S.ODOMETRY_RESET_2, new State() {
             @Override
             public StateName act() {
