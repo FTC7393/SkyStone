@@ -32,7 +32,7 @@ import ftc.evlib.util.ImmutableList;
 public class SkystoneTeleOpV2 extends AbstractTeleOp<SkystoneRobotCfgV2> {
     private boolean skystoneServoPresetDown = true;
     private boolean manualGrabberClosed = true;
-    private final double liftspeed = 75;
+    private final double liftspeed = 100;
     private final double extensionspeed = 200;
     private final double collectorspeed = 1;
     private boolean wristtoggle = false;

@@ -127,7 +127,7 @@ public class LiftArmV2 {
 //            }
 //        }
 
-        double leftExtEnc = Math.min(Math.max(liftCommand-offset, VerticalMinExtension), VerticalMaxExtension);
+        double leftExtEnc = Math.min(Math.max(verticalSlideRight.getExtensionEncoder()-offset, VerticalMinExtension), VerticalMaxExtension);
         verticalSlideLeft.setExtension(leftExtEnc);
         verticalSlideRight.setExtension(liftCommand);
         staticLiftLeft = leftExtEnc;
