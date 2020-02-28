@@ -46,6 +46,25 @@ public class LiftArmStatesV2 extends States {
         };
     }
 
+    public static State waitForLiftArm(final StateName nextState, final LiftArmV2 liftArm) {
+        return new BasicAbstractState() {
+            @Override
+            public void init() {
+
+            }
+
+            @Override
+            public boolean isDone() {
+                return liftArm.verticalIsDone() && liftArm.horizontalIsDone();
+            }
+
+            @Override
+            public StateName getNextStateName() {
+                return null;
+            }
+        };
+    }
+
     public static State waitForHand(final StateName nextStateName, final LiftArmV2 liftArm){
         return new BasicAbstractState() {
             @Override

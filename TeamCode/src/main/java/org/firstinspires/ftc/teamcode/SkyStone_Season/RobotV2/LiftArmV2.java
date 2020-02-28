@@ -116,9 +116,7 @@ public class LiftArmV2 {
     }
 
     public void setLift(int encoder){
-        double rightEnc = verticalSlideRight.getExtensionEncoder();
 //        double newCommand = ((leftEnc + verticalSlideRight.getExtensionEncoder()) / 2) + liftDelta;
-        double offset = calculateOffset(rightEnc);
         liftCommand = Math.min(Math.max(encoder, VerticalMinExtension), VerticalMaxExtension);
         //if you want to contrain the lift based on the horizontal condition, here is some logic to try
 //        if (horizontalSlide.getExtensionEncoder() >= liftKeepOutInnerLimit && horizontalSlide.getExtensionEncoder() <= liftKeepOutOuterLimit) {
@@ -127,10 +125,15 @@ public class LiftArmV2 {
 //            }
 //        }
         verticalSlideRight.setExtension(liftCommand);
-        double leftExtEnc = Math.min(Math.max(verticalSlideRight.getExtensionSetPoint()-offset, VerticalMinExtension), VerticalMaxExtension);
+        staticLiftRight = liftCommand;
+    }
+
+    public void synchronizeLeftSlide() {
+        double rightEnc = verticalSlideRight.getExtensionEncoder();
+        double offset = calculateOffset(rightEnc);
+        double leftExtEnc = Math.min(Math.max(rightEnc-offset, VerticalMinExtension), VerticalMaxExtension);
         verticalSlideLeft.setExtension(leftExtEnc);
         staticLiftLeft = leftExtEnc;
-        staticLiftRight = liftCommand;
     }
 
     public void controlLift(double liftDelta) {
@@ -273,6 +276,7 @@ public class LiftArmV2 {
     public void act() {
 //        stateMachine.act();
         verticalSlideRight.act();
+        synchronizeLeftSlide();
         verticalSlideLeft.act();
         horizontalSlide.act();
         wrist.act();
