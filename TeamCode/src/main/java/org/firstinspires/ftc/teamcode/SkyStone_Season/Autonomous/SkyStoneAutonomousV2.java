@@ -58,6 +58,20 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
     private ResultReceiver<Boolean> startRR = new BasicResultReceiver<>();
     private double servoSpeed = 1;
     private OpenCvInternalCamera phoneCam;
+    AnalogSensor plusYRaw = new AnalogSensor() {
+        @Override
+        public Double getValue() {
+            return robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM);
+        }
+    };
+    AveragingAnalogSensor plusY = new AveragingAnalogSensor(plusYRaw);
+    AnalogSensor minusXRaw = new AnalogSensor() {
+        @Override
+        public Double getValue() {
+            return robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM);
+        }
+    };
+    AveragingAnalogSensor minusX = new AveragingAnalogSensor(minusXRaw);
 
     @Override
     protected SkystoneRobotCfgV2 createRobotCfg() {
@@ -66,25 +80,25 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
 
     @Override
     protected Logger createLogger() {
-        return new Logger("log", ".csv", ImmutableList.of(
+       /** return new Logger("log", ".csv", ImmutableList.of(
                 new Logger.Column("state", new InputExtractor<String>() {
                     @Override
                     public String getValue() {
                         return stateMachine.getCurrentStateName().name();
                     }
                 }),
-                new Logger.Column("odometer wheel sensor", new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return robotCfg.getOdometryWheelSensor().getValue();
-                    }
-                }),
-                new Logger.Column("velocity", new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return TranslationControls.staticV;
-                    }
-                }),
+//                new Logger.Column("odometer wheel sensor", new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return robotCfg.getOdometryWheelSensor().getValue();
+//                    }
+//                }),
+//                new Logger.Column("velocity", new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return TranslationControls.staticV;
+//                    }
+//                }),
                 new Logger.Column("velocityX", new InputExtractor<Double>() {
                     @Override
                     public Double getValue() {
@@ -97,34 +111,61 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
                         return TranslationControls.staticVY;
                     }
                 }),
-                new Logger.Column("lift arm position - left", new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return LiftArmV2.staticLiftLeft;
-
-                    }
-                }),
-                new Logger.Column("lift arm position - right", new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return LiftArmV2.staticLiftRight;
-                    }
-                }),
-                new Logger.Column("lift command linear slide - left", new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return robotCfg.getLiftArmV2().getVerticalSlideLeft().getExtensionSetPoint();
-                    }
-                }),
-                new Logger.Column("lift command linear slide - right", new InputExtractor<Double>() {
-                    @Override
-                    public Double getValue() {
-                        return robotCfg.getLiftArmV2().getVerticalSlideRight().getExtensionSetPoint();
-                    }
-                })
+//                new Logger.Column("lift arm position - left", new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return LiftArmV2.staticLiftLeft;
+//
+//                    }
+//                }),
+//                new Logger.Column("lift arm position - right", new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return LiftArmV2.staticLiftRight;
+//                    }
+//                }),
+//                new Logger.Column("lift command linear slide - left", new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return robotCfg.getLiftArmV2().getVerticalSlideLeft().getExtensionSetPoint();
+//                    }
+//                }),
+//                new Logger.Column("lift command linear slide - right", new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return robotCfg.getLiftArmV2().getVerticalSlideRight().getExtensionSetPoint();
+//                    }
+//                }),
+//                new Logger.Column("horizontal limit switch", new InputExtractor<Boolean>() {
+//                    @Override
+//                    public Boolean getValue() {
+//                        return robotCfg.getLiftArmV2().getLowerLimitHorizontal().getValue();
+//                    }
+//                }),
+//                new Logger.Column("extension command", new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return robotCfg.getLiftArmV2().getExtensionCommand();
+//                    }
+//                }),
+//                new Logger.Column("horizontal slide encoder", new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return robotCfg.getLiftArmV2().getHorizontalEncoder();
+//                    }
+//                }),
+                new Logger.Column("plusY", plusY),
+                new Logger.Column("minusX", minusX)
+//                new Logger.Column("gyro", new InputExtractor<Double>() {
+//                    @Override
+//                    public Double getValue() {
+//                        return robotCfg.getGyro().getHeading();
+//                    }
+//                })
 
         ));
-
+*/
+       return null;
     }
 
     @Override
@@ -174,6 +215,8 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         telemetry.addData("Skystone position", skystonePosStateRR.isReady() ? skystonePosStateRR.getValue() : "not ready");
         telemetry.addData("minusXDistance",robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM));
         telemetry.addData("plusX distance sensor", robotCfg.getPlusXDistanceSensor().getDistance(DistanceUnit.CM));
+        telemetry.addData("left limit switch", robotCfg.getLiftArmV2().getLowerLimitVerticalLeft().getValue());
+        telemetry.addData("right limit switch", robotCfg.getLiftArmV2().getLowerLimitVerticalRight().getValue());
         stateMachine.act();
         servos.act();
     }
@@ -213,18 +256,6 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         OptionsFile optionsFile = new OptionsFile(EVConverters.getInstance(), FileUtil.getOptionsFile(SkyStoneOptionsOp.FILENAME));
         RC rc = new RC(0.7, Angle.fromDegrees(2), 0.7, gyro);
         final SimpleEncoderSensor odSensor = robotCfg.getOdometryWheelSensor();
-        AnalogSensor plusY = new AnalogSensor() {
-            @Override
-            public Double getValue() {
-                return robotCfg.getPlusYDistanceSensor().getDistance(DistanceUnit.CM);
-            }
-        };
-        AnalogSensor minusX = new AnalogSensor() {
-            @Override
-            public Double getValue() {
-                return robotCfg.getMinusXDistanceSensor().getDistance(DistanceUnit.CM);
-            }
-        };
         teamColor = optionsFile.get(SkyStoneOptionsOp.Opts.TEAM_COLOR.s, SkyStoneOptionsOp.teamColorDefault);
         doSkyStone = optionsFile.get(SkyStoneOptionsOp.Opts.DO_SKYSTONE.s, SkyStoneOptionsOp.doSkyStoneDefault);
         pipeline = new ProcessPipeline(skystonePosStateRR, minCycles, teamColor, canUpdateSRR);
@@ -232,7 +263,7 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         EVStateMachineBuilder b = new EVStateMachineBuilder(S.INIT_GYRO, teamColor, tolerance,
                 gyro, 0.6, 0.7, robotCfg.getServos(), mecanumControl);
         b.addCalibrateGyro(S.INIT_GYRO,S.POST_GYRO_WAIT);
-        b.addWait(S.POST_GYRO_WAIT, S.INIT_CAMERA, 100);
+        b.addWait(S.POST_GYRO_WAIT, S.INIT_CAMERA, 2100);
         b.add(S.INIT_CAMERA, new BasicAbstractState() {
             @Override
             public void init() {
@@ -265,69 +296,37 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
 //      b.addDrive(S.DRIVE_WITH_ODOMETRY, S.STOP, Distance.fromFeet(1), 0.8, Angle.fromDegrees(-90), Angle.fromDegrees(0));
         b.add(S.DECIDE_SKYSTONE_POSITION, getSkyStonePosition());
 
-//        b.addDrive(S.SKYSTONE_RIGHT, StateMap.of(
-//                S.STOP1, EndConditions.timed(5000),
-//                S.MOVE_ARM_UP, valueBetween(3, odSensor, odSensor.inchesToTicks(26), 400)
-//        ), rc.gyro(0), TranslationControls.sensor2(odSensor, 0.0075, SENSOR_ANGLE,
-//                new Vector2D(1, Angle.fromDegrees(285)), 0.04, odSensor.inchesToTicks(26), 200));
 
-        addOdomDrive(null, S.SKYSTONE_RIGHT, b,rc, S.STOP1, 5000, S.INIT_LIFT_ARM, 26.0,
-                Angle.fromDegrees(292), 1, 0.04, Angle.fromDegrees(0),
-                0.0075, 200, 400, 3);
-        b.addDrive(S.SKYSTONE_LEFT, StateMap.of(
-                S.STOP1, EndConditions.timed(5000),
-                S.MOVE_ARM_UP, valueBetween(3, odSensor, odSensor.inchesToTicks(29), 400)),
-                rc.gyro(0), TranslationControls.sensor2(odSensor, 0.0075, SENSOR_ANGLE,
-                new Vector2D(1, Angle.fromDegrees(305)), 0.04, odSensor.inchesToTicks(29), 200));
-        b.add(S.MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.TURN_1, robotCfg.getLiftArmV2(), 400, false));
+
+        addOdomDrive(null, S.SKYSTONE_RIGHT, b,rc, S.STOP1, 5000, S.MOVE_ARM_UP, 26.0,
+                Angle.fromDegrees(292), 1, Angle.fromDegrees(0),
+                200, 400, 3);
+        addOdomDrive(null, S.SKYSTONE_LEFT, b, rc, S.STOP1, 5000, S.MOVE_ARM_UP, 29, Angle.fromDegrees(305),
+                1, Angle.fromDegrees(0), 200, 400, 3);
+        addOdomDrive(null, S.SKYSTONE_MIDDLE, b, rc, S.STOP1, 5000, S.MOVE_ARM_UP, 28, Angle.fromDegrees(300),
+                1, Angle.fromDegrees(0), 200, 400, 3);
+
+        b.add(S.MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.TURN_1, robotCfg.getLiftArmV2(), 600, false));
         b.addGyroTurn(S.TURN_1, S.START_COLLECTOR, -45, Angle.fromDegrees(2));
         b.addMotorOn(S.START_COLLECTOR,S.ODOMETRY_RESET, robotCfg.getBlockCollector().getCollectorMotor(), -1);
-
-        b.addDrive(S.SKYSTONE_MIDDLE, StateMap.of(
-              S.STOP1, EndConditions.timed(5000),
-              S.MOVE_ARM_UP, valueBetween(3, odSensor, odSensor.inchesToTicks(28), 400)),
-                rc.gyro(0), TranslationControls.sensor2(odSensor, 0.0075, SENSOR_ANGLE,
-                new Vector2D(1, Angle.fromDegrees(300)), 0.04, odSensor.inchesToTicks(28), 200));
-        b.addGyroTurn(S.TURN_1, S.START_COLLECTOR, -45, Angle.fromDegrees(2));
-        b.addMotorOn(S.START_COLLECTOR,S.ODOMETRY_RESET, robotCfg.getBlockCollector().getCollectorMotor(), -1);
-        b.add(S.ODOMETRY_RESET, new State() {
-            @Override
-            public StateName act() {
-                odSensor.reset();
-                return S.DRIVE_WITH_ODOMETRY_2;
-            }
-        });
-        double odDistance2 = odSensor.inchesToTicks(10);
-        b.addDrive(S.DRIVE_WITH_ODOMETRY_2, StateMap.of(
-                S.STOP1, EndConditions.timed(5000),
-                S.ODOMETRY_RESET_2, valueBetween(3, odSensor, odDistance2, 300)),
-                rc.gyro(-45), TranslationControls.sensor2(odSensor, 0.0075, SENSOR_ANGLE,
-                new Vector2D(0.75, Angle.fromDegrees(-135)), 0.04, odDistance2, 150));
-        b.add(S.ODOMETRY_RESET_2, new State() {
-            @Override
-            public StateName act() {
-                odSensor.reset();
-                return S.DRIVE_WITH_ODOMETRY_3;
-            }
-        });
-        double odDistance3 = odSensor.inchesToTicks(15);
-
-        b.addDrive(S.DRIVE_WITH_ODOMETRY_3, StateMap.of(
-                S.STOP1, EndConditions.timed(5000),
-                S.START_FINGER_RIGHT, valueBetween(3, odSensor,-odDistance3, 300)
-        ), rc.gyro(-45), TranslationControls.sensor2(odSensor, 0.0075, SENSOR_ANGLE,
-                new Vector2D(0.75, Angle.fromDegrees(-135)), 0.04, -odDistance3, 150));
+        addOdomDrive(S.ODOMETRY_RESET, S.DRIVE_WITH_ODOMETRY_2,b,rc, S.STOP1, 5000, S.ODOMETRY_RESET_2,
+                10, Angle.fromDegrees(-135), 0.75, Angle.fromDegrees(-45), 150, 300, 3);
+        addOdomDrive(S.ODOMETRY_RESET_2, S.DRIVE_WITH_ODOMETRY_3, b,rc,S.STOP1, 5000, S.START_FINGER_RIGHT, -15,
+                Angle.fromDegrees(-135), 0.75, Angle.fromDegrees(-45), 150, 300, 3);
         b.addServo(S.START_FINGER_RIGHT, S.START_FINGER_LEFT, robotCfg.getFingerRight().getName(), SkystoneRobotCfgV2.FingerRightServoPresets.FORWARD, false);
         b.addServo(S.START_FINGER_LEFT, S.MOVE_ARM_DOWN, robotCfg.getFingerLeft().getName(), SkystoneRobotCfgV2.FingerLeftServoPresets.FORWARD, false);
         b.add(S.MOVE_ARM_DOWN, LiftArmStatesV2.liftMove(S.STOP_COLLECTOR, robotCfg.getLiftArmV2(), 0, false));
         b.addMotorOff(S.STOP_COLLECTOR,S.TURN_2, robotCfg.getBlockCollector().getCollectorMotor());
-        b.addGyroTurn(S.TURN_2, S.STOP_RIGHT_FINGER, -90, Angle.fromDegrees(2));
+        b.addGyroTurn(S.TURN_2, S.STOP_RIGHT_FINGER, -90, Angle.fromDegrees(1));
         b.addServo(S.STOP_RIGHT_FINGER, S.STOP_FINGER_LEFT, robotCfg.getFingerRight().getName(), SkystoneRobotCfgV2.FingerRightServoPresets.STOP, false);
-        b.addServo(S.STOP_FINGER_LEFT, S.DRIVE_TIMED_1, robotCfg.getFingerLeft().getName(), SkystoneRobotCfgV2.FingerLeftServoPresets.STOP, false);
-        b.addDrive(S.DRIVE_TIMED_1, StateMap.of(
-                S.DRIVE_DISTANCE_1, EndConditions.timed(1200)
-        ), rc.gyro(-90), TranslationControls.constant(1,Angle.fromDegrees(0)));
-
+        b.addServo(S.STOP_FINGER_LEFT, S.CHOOSE_DRIVE_DISTANCE, robotCfg.getFingerLeft().getName(), SkystoneRobotCfgV2.FingerLeftServoPresets.STOP, false);
+        b.add(S.CHOOSE_DRIVE_DISTANCE, getDriveState());
+        addOdomDrive(S.SKYSTONE_LEFT_DRIVE_TO_BRIDGE, S.DRIVE_WITH_ODOMETRY_8, b,rc,S.STOP1, 5000, S.TURN_3, -54,
+                Angle.fromDegrees(0), 1, Angle.fromDegrees(-90), 200, 400, 3);
+        addOdomDrive(S.SKYSTONE_MIDDLE_TO_BRIDGE, S.DRIVE_WITH_ODOMETRY_8, b,rc,S.STOP1, 5000, S.TURN_3, -62,
+                Angle.fromDegrees(0), 1, Angle.fromDegrees(-90), 200, 400, 3);
+        addOdomDrive(S.SKYSTONE_RIGHT_TO_BRIDGE, S.DRIVE_WITH_ODOMETRY_8, b,rc,S.STOP1, 5000, S.TURN_3, -70,
+                Angle.fromDegrees(0), 1, Angle.fromDegrees(-90), 200, 400, 3);
         b.addDrive(S.DRIVE_DISTANCE_1, StateMap.of(
                 S.STOP1, EndConditions.timed(6000),
                 S.TURN_3, valueBetween(4, plusY, 30, 5)),rc.gyro(-90),
@@ -338,35 +337,120 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         b.addServo(S.FOUNDATION_MOVER_READY_LEFT, S.DRIVE_DISTANCE_2, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.READY, false);
 
         b.addDrive(S.DRIVE_DISTANCE_2, StateMap.of(
-                S.STOP1, EndConditions.timed(6000),
-            S.FOUNDATION_MOVER_DOWN_RIGHT, valueBetween(4, plusY, 7, 2)),rc.gyro(180),
-                TranslationControls.sensor2(plusY, 0.07, Angle.fromDegrees(90), new Vector2D(0.75, Angle.fromDegrees(90)), 0.014, 7, 1)
+                S.MOVE_ARM_UP_FOUNDATION, EndConditions.timed(6000),
+            S.MOVE_ARM_UP_FOUNDATION, valueBetween(4, plusY, 3, 2)),rc.gyro(180),
+                TranslationControls.sensor2(plusY, 0.07, Angle.fromDegrees(90), new Vector2D(0.75, Angle.fromDegrees(90)), 0.014, 3, 1)
         );
-//        b.add(S.MOVE_ARM_UP_FOUNDATION, LiftArmStatesV2.liftMove(S.EXTEND_SKYSTONE, robotCfg.getLiftArmV2(), 1500, true));
-//        b.add(S.EXTEND_SKYSTONE, LiftArmStatesV2.horizontalExtension(S.DROP_SKYSTONE, robotCfg.getLiftArmV2(), 300, true));
-//        b.addServo(S.DROP_SKYSTONE, S.GRIPPER_READY_RETRACT, robotCfg.getGripper().getName(), SkystoneRobotCfgV2.GripperServoPresets.RELEASE, 200, true);
-//        b.addServo(S.GRIPPER_READY_RETRACT, S.STOP, robotCfg.getGripper().getName(), SkystoneRobotCfgV2.GripperServoPresets.GRAB, false);
+        b.add(S.MOVE_ARM_UP_FOUNDATION, LiftArmStatesV2.liftMove(S.EXTEND_SKYSTONE, robotCfg.getLiftArmV2(), 800, true));
+        b.add(S.EXTEND_SKYSTONE, LiftArmStatesV2.horizontalExtension(S.DROP_SKYSTONE, robotCfg.getLiftArmV2(), 1800, true));
+        b.addServo(S.DROP_SKYSTONE, S.DROP_SKYSTONE_WAIT, robotCfg.getGripper().getName(), SkystoneRobotCfgV2.GripperServoPresets.RELEASE,  true);
+        b.addWait(S.DROP_SKYSTONE_WAIT, S.GRIPPER_READY_RETRACT, 700 );
+        b.addServo(S.GRIPPER_READY_RETRACT, S.RETRACT_ARM, robotCfg.getGripper().getName(), SkystoneRobotCfgV2.GripperServoPresets.GRAB, false);
+        b.add(S.RETRACT_ARM, LiftArmStatesV2.horizontalExtension(S.MOVE_ARM_DOWN_2, robotCfg.getLiftArmV2(), 0, false));
+        b.add(S.MOVE_ARM_DOWN_2, LiftArmStatesV2.liftMove(S.DRIVE_DISTANCE_3, robotCfg.getLiftArmV2(), 0, false));
+        b.addDrive(S.DRIVE_DISTANCE_3, StateMap.of(
+                S.STOP1, EndConditions.timed(6000),
+                S.FOUNDATION_MOVER_DOWN_RIGHT, valueBetween(4, plusY, 8, 2)),rc.gyro(180),
+                TranslationControls.sensor2(plusY, 0.07, Angle.fromDegrees(90), new Vector2D(0.75, Angle.fromDegrees(90)), 0.014, 8, 1)
+        );
+
         b.addServo(S.FOUNDATION_MOVER_DOWN_RIGHT, S.FOUNDATION_MOVER_DOWN_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.DOWN, false);
         b.addServo(S.FOUNDATION_MOVER_DOWN_LEFT, S.ODOMETRY_RESET_3, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.DOWN, false);
-        b.add(S.ODOMETRY_RESET_3, new State() {
-            @Override
-            public StateName act() {
-                odSensor.reset();
-                return S.DRIVE_WITH_ODOMETRY_4;
-            }
-        });
-        double odDistance4 = odSensor.inchesToTicks(5);
-
-        b.addDrive(S.DRIVE_WITH_ODOMETRY_4, StateMap.of(
-                S.STOP1, EndConditions.timed(5000),
-                S.FOUNDATION_MOVER_UP_RIGHT, valueBetween(3, odSensor,odDistance4, 300)
-        ), rc.gyro(180), TranslationControls.sensor2(odSensor, 0.0075, SENSOR_ANGLE,
-                new Vector2D(0.75, Angle.fromDegrees(90)), 0.04, odDistance4, 200));
+        addOdomDrive(S.ODOMETRY_RESET_3, S.DRIVE_WITH_ODOMETRY_4, b, rc, S.STOP1, 5000, S.ODOMETRY_RESET_4, 12,
+                Angle.fromDegrees(90), 0.75, Angle.fromDegrees(180), 200, 300, 3);
+        addOdomDrive(S.ODOMETRY_RESET_4, S.DRIVE_WITH_ODOMETRY_5, b, rc, S.STOP1, 5000, S.FOUNDATION_MOVER_UP_RIGHT, 8,
+                Angle.fromDegrees(135), 0.75, Angle.fromDegrees(270), 200, 300, 3);
         b.addServo(S.FOUNDATION_MOVER_UP_RIGHT, S.FOUNDATION_MOVER_UP_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.UP, false);
-        b.addServo(S.FOUNDATION_MOVER_UP_LEFT, S.STOP, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.UP, false);
+        b.addServo(S.FOUNDATION_MOVER_UP_LEFT, S.TURN_4, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.UP, false);
+        b.addGyroTurn(S.TURN_4, S.ODOMETRY_RESET_5, Angle.fromDegrees(270));
+        addOdomDrive(S.ODOMETRY_RESET_5, S.DRIVE_WITH_ODOMETRY_6, b, rc, S.ODOMETRY_RESET_6, 1000, S.ODOMETRY_RESET_6, -12,
+                Angle.fromDegrees(0), 0.75, Angle.fromDegrees(270), 200, 300, 3);
+//        b.addDrive(S.LINE_WITH_WALL, StateMap.of(
+//                S.MOVE_ARM_DOWN_2, EndConditions.timed(5000),
+//                S.MOVE_ARM_DOWN_2, valueBetween(4, minusX, 70, 2)),rc.gyro(270),
+//                TranslationControls.sensor2(minusX, 0.07, Angle.fromDegrees(270), new Vector2D(0.75, Angle.fromDegrees(270)), 0.014, 70, 1)
+//        );
+        addOdomDrive(S.ODOMETRY_RESET_6, S.DRIVE_WITH_ODOMETRY_7, b, rc, S.STOP, 2000, S.STOP, 36,
+                Angle.fromDegrees(0), 1, Angle.fromDegrees(270), 200, 300, 3);
 
+//RED auto
+///*
 
+        addOdomDrive(null, S.SKYSTONE_RIGHT, b,rc, S.STOP1, 5000, S.MOVE_ARM_UP, 26.0,
+                Angle.fromDegrees(292), 1, Angle.fromDegrees(0),
+                200, 400, 3);
+        addOdomDrive(null, S.SKYSTONE_LEFT, b, rc, S.STOP1, 5000, S.MOVE_ARM_UP, 29, Angle.fromDegrees(305),
+                1, Angle.fromDegrees(0), 200, 400, 3);
+        addOdomDrive(null, S.SKYSTONE_MIDDLE, b, rc, S.STOP1, 5000, S.MOVE_ARM_UP, 28, Angle.fromDegrees(300),
+                1, Angle.fromDegrees(0), 200, 400, 3);
 
+        b.add(S.RED_MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.RED_TURN_1, robotCfg.getLiftArmV2(), 600, false));
+        b.addGyroTurn(S.RED_TURN_1, S.RED_START_COLLECTOR, -45, Angle.fromDegrees(2));
+        b.addMotorOn(S.RED_START_COLLECTOR,S.RED_ODOMETRY_RESET, robotCfg.getBlockCollector().getCollectorMotor(), -1);
+        addOdomDrive(S.RED_ODOMETRY_RESET, S.RED_DRIVE_WITH_ODOMETRY_2,b,rc, S.STOP1, 5000, S.ODOMETRY_RESET_2,
+                10, Angle.fromDegrees(-135), 0.75, Angle.fromDegrees(-45), 150, 300, 3);
+        addOdomDrive(S.RED_ODOMETRY_RESET_2, S.RED_DRIVE_WITH_ODOMETRY_3, b,rc,S.STOP1, 5000, S.START_FINGER_RIGHT, -15,
+                Angle.fromDegrees(-135), 0.75, Angle.fromDegrees(-45), 150, 300, 3);
+        b.addServo(S.RED_START_FINGER_RIGHT, S.RED_START_FINGER_LEFT, robotCfg.getFingerRight().getName(), SkystoneRobotCfgV2.FingerRightServoPresets.FORWARD, false);
+        b.addServo(S.RED_START_FINGER_LEFT, S.RED_MOVE_ARM_DOWN, robotCfg.getFingerLeft().getName(), SkystoneRobotCfgV2.FingerLeftServoPresets.FORWARD, false);
+        b.add(S.RED_MOVE_ARM_DOWN, LiftArmStatesV2.liftMove(S.STOP_COLLECTOR, robotCfg.getLiftArmV2(), 0, false));
+        b.addMotorOff(S.RED_STOP_COLLECTOR,S.RED_TURN_2, robotCfg.getBlockCollector().getCollectorMotor());
+        b.addGyroTurn(S.RED_TURN_2, S.RED_STOP_RIGHT_FINGER, -90, Angle.fromDegrees(1));
+        b.addServo(S.RED_STOP_RIGHT_FINGER, S.RED_STOP_FINGER_LEFT, robotCfg.getFingerRight().getName(), SkystoneRobotCfgV2.FingerRightServoPresets.STOP, false);
+        b.addServo(S.RED_STOP_FINGER_LEFT, S.RED_CHOOSE_DRIVE_DISTANCE, robotCfg.getFingerLeft().getName(), SkystoneRobotCfgV2.FingerLeftServoPresets.STOP, false);
+        b.add(S.RED_CHOOSE_DRIVE_DISTANCE, getDriveState());
+        addOdomDrive(S.RED_SKYSTONE_LEFT_DRIVE_TO_BRIDGE, S.STOP1, b,rc,S.RED_DRIVE_WITH_ODOMETRY_8, 5000, S.TURN_3, 60,
+                Angle.fromDegrees(0), 1, Angle.fromDegrees(-90), 200, 400, 3);
+        addOdomDrive(S.RED_SKYSTONE_MIDDLE_TO_BRIDGE, S.STOP1, b,rc,S.RED_DRIVE_WITH_ODOMETRY_8, 5000, S.TURN_3, 60,
+                Angle.fromDegrees(0), 1, Angle.fromDegrees(-90), 200, 400, 3);
+        addOdomDrive(S.RED_SKYSTONE_RIGHT_TO_BRIDGE, S.STOP1, b,rc,S.RED_DRIVE_WITH_ODOMETRY_8, 5000, S.TURN_3, 60,
+                Angle.fromDegrees(0), 1, Angle.fromDegrees(-90), 200, 400, 3);
+        b.addDrive(S.RED_DRIVE_DISTANCE_1, StateMap.of(
+                S.STOP1, EndConditions.timed(6000),
+                S.RED_TURN_3, valueBetween(4, plusY, 30, 5)),rc.gyro(-90),
+                TranslationControls.sensor2(plusY, 0.07, Angle.fromDegrees(180), new Vector2D(0.75, Angle.fromDegrees(180)), 0.014, 30, 3)
+        );
+        b.addGyroTurn(S.RED_TURN_3, S.RED_FOUNDATION_MOVER_READY_RIGHT, 180, Angle.fromDegrees(2));
+        b.addServo(S.RED_FOUNDATION_MOVER_READY_RIGHT, S.RED_FOUNDATION_MOVER_READY_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.READY, false);
+        b.addServo(S.RED_FOUNDATION_MOVER_READY_LEFT, S.RED_DRIVE_DISTANCE_2, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.READY, false);
+
+        b.addDrive(S.RED_DRIVE_DISTANCE_2, StateMap.of(
+                S.RED_MOVE_ARM_UP_FOUNDATION, EndConditions.timed(6000),
+                S.RED_MOVE_ARM_UP_FOUNDATION, valueBetween(4, plusY, 3, 2)),rc.gyro(180),
+                TranslationControls.sensor2(plusY, 0.07, Angle.fromDegrees(90), new Vector2D(0.75, Angle.fromDegrees(90)), 0.014, 3, 1)
+        );
+        b.add(S.RED_MOVE_ARM_UP_FOUNDATION, LiftArmStatesV2.liftMove(S.RED_EXTEND_SKYSTONE, robotCfg.getLiftArmV2(), 700, true));
+        b.add(S.RED_EXTEND_SKYSTONE, LiftArmStatesV2.horizontalExtension(S.RED_DROP_SKYSTONE, robotCfg.getLiftArmV2(), 1850, true));
+        b.addServo(S.RED_DROP_SKYSTONE, S.RED_DROP_SKYSTONE_WAIT, robotCfg.getGripper().getName(), SkystoneRobotCfgV2.GripperServoPresets.RELEASE,  true);
+        b.addWait(S.RED_DROP_SKYSTONE_WAIT, S.RED_GRIPPER_READY_RETRACT, 700 );
+        b.addServo(S.RED_GRIPPER_READY_RETRACT, S.RED_DRIVE_DISTANCE_3, robotCfg.getGripper().getName(), SkystoneRobotCfgV2.GripperServoPresets.GRAB, false);
+        b.addDrive(S.RED_DRIVE_DISTANCE_3, StateMap.of(
+                S.STOP1, EndConditions.timed(6000),
+                S.RED_FOUNDATION_MOVER_DOWN_RIGHT, valueBetween(4, plusY, 8, 2)),rc.gyro(180),
+                TranslationControls.sensor2(plusY, 0.07, Angle.fromDegrees(90), new Vector2D(0.75, Angle.fromDegrees(90)), 0.014, 8, 1)
+        );
+
+        b.addServo(S.RED_FOUNDATION_MOVER_DOWN_RIGHT, S.RED_FOUNDATION_MOVER_DOWN_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.DOWN, false);
+        b.addServo(S.RED_FOUNDATION_MOVER_DOWN_LEFT, S.RED_ODOMETRY_RESET_3, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.DOWN, false);
+        addOdomDrive(S.RED_ODOMETRY_RESET_3, S.RED_DRIVE_WITH_ODOMETRY_4, b, rc, S.STOP1, 5000, S.RED_ODOMETRY_RESET_4, 12,
+                Angle.fromDegrees(90), 0.75, Angle.fromDegrees(180), 200, 300, 3);
+        addOdomDrive(S.RED_ODOMETRY_RESET_4, S.RED_DRIVE_WITH_ODOMETRY_5, b, rc, S.STOP1, 5000, S.RED_FOUNDATION_MOVER_UP_RIGHT, 8,
+                Angle.fromDegrees(135), 0.75, Angle.fromDegrees(270), 200, 300, 3);
+        b.addServo(S.RED_FOUNDATION_MOVER_UP_RIGHT, S.RED_FOUNDATION_MOVER_UP_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.UP, false);
+        b.addServo(S.RED_FOUNDATION_MOVER_UP_LEFT, S.RED_TURN_4, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.UP, false);
+        b.addGyroTurn(S.RED_TURN_4, S.RED_ODOMETRY_RESET_5, Angle.fromDegrees(270));
+        addOdomDrive(S.RED_ODOMETRY_RESET_5, S.RED_DRIVE_WITH_ODOMETRY_6, b, rc, S.RED_RETRACT_ARM, 1000, S.RED_RETRACT_ARM, -12,
+                Angle.fromDegrees(0), 0.75, Angle.fromDegrees(270), 200, 300, 3);
+        b.add(S.RED_RETRACT_ARM, LiftArmStatesV2.horizontalExtension(S.RED_LINE_WITH_WALL, robotCfg.getLiftArmV2(), 0, true));
+        b.addDrive(S.RED_LINE_WITH_WALL, StateMap.of(
+                S.RED_MOVE_ARM_DOWN_2, EndConditions.timed(5000),
+                S.RED_MOVE_ARM_DOWN_2, valueBetween(4, minusX, 70, 2)),rc.gyro(270),
+                TranslationControls.sensor2(minusX, 0.07, Angle.fromDegrees(270), new Vector2D(0.75, Angle.fromDegrees(270)), 0.014, 70, 1)
+        );
+        b.add(S.RED_MOVE_ARM_DOWN_2, LiftArmStatesV2.liftMove(S.RED_ODOMETRY_RESET_6, robotCfg.getLiftArmV2(), 0, false));
+        addOdomDrive(S.RED_ODOMETRY_RESET_6, S.RED_DRIVE_WITH_ODOMETRY_7, b, rc, S.STOP, 2000, S.STOP, 18,
+                Angle.fromDegrees(0), 1, Angle.fromDegrees(270), 200, 300, 3);
+//*/
         // add dist move here same sensor, to foundation, so 2cm, then drop block
         b.addStop(S.STOP);
         b.addStop(S.STOP1);
@@ -374,19 +458,32 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
     }
 
 
-    private void addOdometryDrive(final StateName resetState, final StateName thisState, EVStateMachineBuilder b, RC rc,
-                                  StateName timeoutState, long timeOutMillis, StateName nextState, double driveInInches, Angle driveAngle,
-                                  double driveSpeed, double deadZone, double targetDelta, int numInARow) {
-        addOdomDrive(resetState, thisState, b, rc, timeoutState, timeOutMillis, nextState, driveInInches,
-        SENSOR_ANGLE, driveSpeed, 0.04, driveAngle, 0.0075, deadZone, targetDelta, numInARow);
+//    private void addOdometryDrive(final StateName resetState, final StateName thisState, EVStateMachineBuilder b, RC rc,
+//                                  StateName timeoutState, long timeOutMillis, StateName nextState, double driveInInches, Angle driveAngle,
+//                                  double driveSpeed, double deadZone, double targetDelta, int numInARow) {
+//        addOdomDrive(resetState, thisState, b, rc, timeoutState, timeOutMillis, nextState, driveInInches,
+//        SENSOR_ANGLE, driveSpeed, 0.04, driveAngle, 0.0075, deadZone, targetDelta, numInARow);
+//    }
+
+
+    private void addOdomDrive(final StateName resetState, final StateName thisState, EVStateMachineBuilder b, RC rc,
+                              StateName timeoutState, long timeoutMillis, StateName nextState,
+                              double driveDistInches, Angle driveDirn, double driveSpeed,
+                              Angle orientationGyroAngle,
+                              double deadZone, double targetDelta, int numInARow) {
+        double odomMinSpeed = 0.04;
+        double odomGain = 0.0075;
+        addOdomDrive(resetState, thisState, b, rc, timeoutState, timeoutMillis, nextState, driveDistInches, driveDirn, driveSpeed, odomMinSpeed, orientationGyroAngle, odomGain, deadZone, targetDelta, numInARow);
     }
 
-     private void addOdomDrive(final StateName resetOdState, final StateName thisState, EVStateMachineBuilder b,
+
+    private void addOdomDrive(final StateName resetOdState, final StateName thisState, EVStateMachineBuilder b,
                               RC rc, StateName timeoutState, long timeoutMillis, StateName nextState,
                               double driveDistInches, Angle driveDirn, double driveSpeed,
                               double minSpeed, Angle orientationGyroAngle,
                               double gain,
                               double deadZone, double targetDelta, int numInARow) {
+
         final SimpleEncoderSensor odSensor = robotCfg.getOdometryWheelSensor();
         // gain 0.0075
         // minVel 0.04
@@ -396,8 +493,9 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
                 nextState, valueBetween(numInARow, odSensor,
                         odSensor.inchesToTicks(driveDistInches), targetDelta));
 
+        Angle sensorPositiveDirection = Angle.fromDegrees(orientationGyroAngle.degrees() + SENSOR_ANGLE.degrees());
         RotationControl rotnCtrl = rc.gyro(orientationGyroAngle.degrees());
-        TranslationControl transCtrl = TranslationControls.sensor2(odSensor, gain, SENSOR_ANGLE,
+        TranslationControl transCtrl = TranslationControls.sensor2(odSensor, gain, sensorPositiveDirection,
                 new Vector2D(driveSpeed, driveDirn), minSpeed, odSensor.inchesToTicks(driveDistInches),
                 deadZone);
 
@@ -413,6 +511,40 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
 
         b.addDrive(thisState, sm,rotnCtrl, transCtrl);
     }
+
+
+//    private void addOdomDrive(final StateName resetOdState, final StateName thisState, EVStateMachineBuilder b,
+//                              RC rc, StateName timeoutState, long timeoutMillis, StateName nextState,
+//                              double driveDistInches, Angle driveDirn, double driveSpeed,
+//                              double minSpeed, Angle orientationGyroAngle,
+//                              double gain,
+//                              double deadZone, double targetDelta, int numInARow) {
+//        final SimpleEncoderSensor odSensor = robotCfg.getOdometryWheelSensor();
+//        // gain 0.0075
+//        // minVel 0.04
+//        // 1 Angle.fromDegrees(285)
+//        StateMap sm = StateMap.of(
+//                timeoutState, EndConditions.timed(timeoutMillis),
+//                nextState, valueBetween(numInARow, odSensor,
+//                        odSensor.inchesToTicks(driveDistInches), targetDelta));
+//
+//        RotationControl rotnCtrl = rc.gyro(orientationGyroAngle.degrees());
+//        TranslationControl transCtrl = TranslationControls.sensor2(odSensor, gain, SENSOR_ANGLE,
+//                new Vector2D(driveSpeed, driveDirn), minSpeed, odSensor.inchesToTicks(driveDistInches),
+//                deadZone);
+//
+//        if (resetOdState != null) {
+//            b.add(resetOdState, new State() {
+//                @Override
+//                public StateName act() {
+//                    odSensor.reset();
+//                    return thisState;
+//                }
+//            });
+//        }
+//
+//        b.addDrive(thisState, sm,rotnCtrl, transCtrl);
+//    }
 
     private EndCondition valueBetween(final int numRequiredInARow, final InputExtractor<Double> inputExtractor,
                                       double center, double delta) {
@@ -586,6 +718,6 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         RED_SKYSTONE_RIGHT_TO_BRIDGE,
         RED_SKYSTONE_MIDDLE_TO_BRIDGE,
         DRIVE_1,
-        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP1, DECIDE_SKYSTONE_POSITION, TURN_1, ODOMETRY_RESET, DRIVE_WITH_ODOMETRY_2, COLLECT_SKYSTONE_1, MOVE_ARM_UP, START_COLLECTOR, MOVE_ARM_DOWN, DRIVE_WITH_ODOMETRY_3, START_FINGER_LEFT, START_FINGER_RIGHT, STOP_COLLECTOR, STOP_RIGHT_FINGER, STOP_FINGER_LEFT, ODOMETRY_RESET_2, TURN_2, DRIVE_WITH_ODOMETRY_4, ODOMETRY_RESET_3, TURN_3, DRIVE_MINUS_X, DRIVE_PLUS_Y, DRIVE_DISTANCE_1, EXTEND_SKYSTONE, DRIVE_DISTANCE_2, DRIVE_TIMED_1, GRIPPER_READY_RETRACT, DROP_SKYSTONE, MOVE_ARM_UP_FOUNDATION, INIT_LIFT_ARM, INIT_EXT_ARM, FOUNDATION_MOVER_READY_RIGHT, FOUNDATION_MOVER_READY_LEFT, FOUNDATION_MOVER_DOWN_RIGHT, FOUNDATION_MOVER_DOWN_LEFT, MOVE_FOUNDATION_1, FOUNDATION_MOVER_UP_RIGHT, FOUNDATION_MOVER_UP_LEFT, WAIT_FOR_ARM, STOP
+        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP1, DECIDE_SKYSTONE_POSITION, TURN_1, ODOMETRY_RESET, DRIVE_WITH_ODOMETRY_2, COLLECT_SKYSTONE_1, MOVE_ARM_UP, START_COLLECTOR, MOVE_ARM_DOWN, DRIVE_WITH_ODOMETRY_3, START_FINGER_LEFT, START_FINGER_RIGHT, STOP_COLLECTOR, STOP_RIGHT_FINGER, STOP_FINGER_LEFT, ODOMETRY_RESET_2, TURN_2, DRIVE_WITH_ODOMETRY_4, ODOMETRY_RESET_3, TURN_3, DRIVE_MINUS_X, DRIVE_PLUS_Y, DRIVE_DISTANCE_1, EXTEND_SKYSTONE, DRIVE_DISTANCE_2, DRIVE_TIMED_1, GRIPPER_READY_RETRACT, DROP_SKYSTONE, MOVE_ARM_UP_FOUNDATION, INIT_LIFT_ARM, INIT_EXT_ARM, FOUNDATION_MOVER_READY_RIGHT, FOUNDATION_MOVER_READY_LEFT, FOUNDATION_MOVER_DOWN_RIGHT, FOUNDATION_MOVER_DOWN_LEFT, MOVE_FOUNDATION_1, FOUNDATION_MOVER_UP_RIGHT, FOUNDATION_MOVER_UP_LEFT, WAIT_FOR_ARM, DRIVE_DISTANCE_3, ODOMETRY_RESET_4, DRIVE_WITH_ODOMETRY_5, TURN_4, ODOMETRY_RESET_5, DRIVE_WITH_ODOMETRY_6, DROP_SKYSTONE_WAIT, RETRACT_ARM, LINE_WITH_WALL, MOVE_ARM_DOWN_2, ODOMETRY_RESET_6, DRIVE_WITH_ODOMETRY_7, CHOOSE_DRIVE_DISTANCE, DRIVE_WITH_ODOMETRY_8, STOP
     }
 }

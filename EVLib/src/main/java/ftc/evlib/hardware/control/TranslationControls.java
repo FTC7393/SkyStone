@@ -96,9 +96,9 @@ public class TranslationControls {
         };
     }
 
-    public static TranslationControl sensor2(final AnalogSensor sensorReading, final double gain,
-                                            final Angle angleOfSensor,final Vector2D movement, final double minVelocity,
-                                            final double target, final double deadZone) {
+    public static TranslationControl sensor2(final AnalogSensor sensorObject, final double decelFactor,
+                                            final Angle angleOfSensor, final Vector2D movementCommand, final double minSpeed,
+                                            final double sensorTarget, final double sensorDeadZone) {
 
         return new TranslationControl() {
             @Override
@@ -108,27 +108,27 @@ public class TranslationControls {
 
             @Override
             public Vector2D getTranslation() {
-                double error = target - sensorReading.getValue(); // -10
-                Angle a =Angle.subtract(angleOfSensor, movement.getDirection());
-                double cos = Math.cos(a.radians());
-                double maxVeloicty = movement.getLength()*cos;
-                double v = gain*Math.sqrt(Math.abs(error)); //= //(value * gain);  // 0.02 * -10 = -0.2
-                double outputSpeed;
-                if (Math.abs(error) <= deadZone) {
-                     outputSpeed = 0;
-                } else if (Math.abs(v) < minVelocity) {
-                    outputSpeed = minVelocity * Math.signum(error);
-                } else if(Math.abs(v) > maxVeloicty) {
-                    outputSpeed = maxVeloicty * Math.signum(error);
+                double sensorError = sensorTarget - sensorObject.getValue(); // -10
+                Angle movementToSensorAngle = Angle.subtract(angleOfSensor, movementCommand.getDirection());
+                double sensorComponentOfMovement = Math.cos(movementToSensorAngle.radians());
+                double movementCommandSpeedInSensorDirection = movementCommand.getLength()*Math.abs(sensorComponentOfMovement);
+                double decelerationProfileSpeedInSensorDirection = decelFactor*Math.sqrt(Math.abs(sensorError)); //= //(value * gain);  // 0.02 * -10 = -0.2
+                double sensorOutputSpeed;
+                if (Math.abs(sensorError) <= sensorDeadZone) {
+                     sensorOutputSpeed = 0;
+                } else if (decelerationProfileSpeedInSensorDirection < minSpeed) {
+                    sensorOutputSpeed = minSpeed * Math.signum(sensorError);
+                } else if(decelerationProfileSpeedInSensorDirection > movementCommandSpeedInSensorDirection) {
+                    sensorOutputSpeed = movementCommandSpeedInSensorDirection * Math.signum(sensorError);
                 } else {
-                    outputSpeed = v * Math.signum(error);
+                    sensorOutputSpeed = decelerationProfileSpeedInSensorDirection * Math.signum(sensorError);
                 }
-                double correct = outputSpeed/cos;
-                Vector2D outputVector = new Vector2D(correct, movement.getDirection());
-                staticVX = outputVector.getX();
-                staticVY = outputVector.getY();
-                staticV = correct;
-                return outputVector;
+                double movementOutputSpeed = sensorOutputSpeed/sensorComponentOfMovement;
+                Vector2D movementOutputVelocity = new Vector2D(movementOutputSpeed, movementCommand.getDirection());
+                staticVX = movementOutputVelocity.getX();
+                staticVY = movementOutputVelocity.getY();
+                staticV = movementOutputSpeed;
+                return movementOutputVelocity;
             }
         };
     }

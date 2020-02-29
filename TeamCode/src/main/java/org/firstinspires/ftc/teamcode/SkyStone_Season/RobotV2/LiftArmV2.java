@@ -262,13 +262,16 @@ public class LiftArmV2 {
         horizontalSlide.pre_act();
         verticalSlideLeft.pre_act();
         verticalSlideRight.pre_act();
-        if(verticalSlideLeft.getLowerLimit() && verticalSlideRight.getLowerLimit()) {
+//        if(verticalSlideLeft.getLowerLimit().isPressed() && verticalSlideRight.getLowerLimit().isPressed()) {
+
+        if((verticalSlideLeft.getLowerLimit().justPressed() && verticalSlideRight.getLowerLimit().isPressed()) ||
+                (verticalSlideLeft.getLowerLimit().isPressed() && verticalSlideRight.getLowerLimit().justPressed())) {
             VerticalMinExtension = -50;
             verticalSlideLeft.resetZeroPosition();
             verticalSlideRight.resetZeroPosition();
             liftCommand = 0;
         }
-        if(horizontalSlide.getLowerLimit()) {
+        if(horizontalSlide.getLowerLimit().justPressed()) {
             horizontalSlide.resetZeroPosition();
         }
     }

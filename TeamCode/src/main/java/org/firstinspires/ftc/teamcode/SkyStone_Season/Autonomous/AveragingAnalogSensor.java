@@ -13,7 +13,7 @@ public class AveragingAnalogSensor implements AnalogSensor {
     @Override
     public Double getValue() {
         double x = sensor.getValue();
-        if(x >= 255) {
+        if(x >= 815) {
             return lastValue;
         }
         lastValue = x;

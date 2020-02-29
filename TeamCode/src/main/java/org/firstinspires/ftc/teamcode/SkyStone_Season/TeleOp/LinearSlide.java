@@ -204,11 +204,8 @@ public class LinearSlide {
         return false;
     }
 
-    public boolean getLowerLimit() {
-        if (lowerLimit != null) {
-            return lowerLimit.isPressed();
-        }
-        return false;
+    public DigitalInputEdgeDetector getLowerLimit() {
+        return lowerLimit;
     }
     //only call when lower limit is pressed
     public void resetZeroPosition() {
