@@ -297,150 +297,193 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         b.add(S.INIT_LIFT_ARM, LiftArmStatesV2.liftMove(S.INIT_EXT_ARM, robotCfg.getLiftArmV2(), -10, false));
         b.add(S.INIT_EXT_ARM, LiftArmStatesV2.horizontalExtension(S.DECIDE_SKYSTONE_POSITION, robotCfg.getLiftArmV2(), -20, false));
 //      b.addDrive(S.DRIVE_WITH_ODOMETRY, S.STOP, Distance.fromFeet(1), 0.8, Angle.fromDegrees(-90), Angle.fromDegrees(0));
-        b.add(S.DECIDE_SKYSTONE_POSITION, getSkyStonePosition());
+
+        if(doSkyStone) {
+            b.add(S.DECIDE_SKYSTONE_POSITION, getSkyStonePosition());
 
 
+            addOdomDrive(null, S.SKYSTONE_RIGHT, b, rc, S.STOP1, 5000, S.MOVE_ARM_UP, 26.0,
+                    Angle.fromDegrees(292), 1, Angle.fromDegrees(0),
+                    200, 400, 3);
+            addOdomDrive(null, S.SKYSTONE_LEFT, b, rc, S.STOP1, 5000, S.MOVE_ARM_UP, 29, Angle.fromDegrees(305),
+                    1, Angle.fromDegrees(0), 200, 400, 3);
+            addOdomDrive(null, S.SKYSTONE_MIDDLE, b, rc, S.STOP1, 5000, S.MOVE_ARM_UP, 28, Angle.fromDegrees(300),
+                    1, Angle.fromDegrees(0), 200, 400, 3);
 
-        addOdomDrive(null, S.SKYSTONE_RIGHT, b,rc, S.STOP1, 5000, S.MOVE_ARM_UP, 26.0,
-                Angle.fromDegrees(292), 1, Angle.fromDegrees(0),
-                200, 400, 3);
-        addOdomDrive(null, S.SKYSTONE_LEFT, b, rc, S.STOP1, 5000, S.MOVE_ARM_UP, 29, Angle.fromDegrees(305),
-                1, Angle.fromDegrees(0), 200, 400, 3);
-        addOdomDrive(null, S.SKYSTONE_MIDDLE, b, rc, S.STOP1, 5000, S.MOVE_ARM_UP, 28, Angle.fromDegrees(300),
-                1, Angle.fromDegrees(0), 200, 400, 3);
+            b.add(S.MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.TURN_1, robotCfg.getLiftArmV2(), 600, false));
+            b.addGyroTurn(S.TURN_1, S.START_COLLECTOR, -45, Angle.fromDegrees(2));
+            b.addMotorOn(S.START_COLLECTOR, S.ODOMETRY_RESET, robotCfg.getBlockCollector().getCollectorMotor(), -1);
+            addOdomDrive(S.ODOMETRY_RESET, S.DRIVE_WITH_ODOMETRY_2, b, rc, S.STOP1, 5000, S.ODOMETRY_RESET_2,
+                    10, Angle.fromDegrees(-135), 0.75, Angle.fromDegrees(-45), 150, 300, 3);
+            addOdomDrive(S.ODOMETRY_RESET_2, S.DRIVE_WITH_ODOMETRY_3, b, rc, S.STOP1, 5000, S.START_FINGER_RIGHT, -15,
+                    Angle.fromDegrees(-135), 0.75, Angle.fromDegrees(-45), 150, 300, 3);
+            b.addServo(S.START_FINGER_RIGHT, S.START_FINGER_LEFT, robotCfg.getFingerRight().getName(), SkystoneRobotCfgV2.FingerRightServoPresets.FORWARD, false);
+            b.addServo(S.START_FINGER_LEFT, S.MOVE_ARM_DOWN, robotCfg.getFingerLeft().getName(), SkystoneRobotCfgV2.FingerLeftServoPresets.FORWARD, false);
+            b.add(S.MOVE_ARM_DOWN, LiftArmStatesV2.liftMove(S.STOP_COLLECTOR, robotCfg.getLiftArmV2(), 0, false));
+            b.addMotorOff(S.STOP_COLLECTOR, S.TURN_2, robotCfg.getBlockCollector().getCollectorMotor());
+            b.addGyroTurn(S.TURN_2, S.STOP_RIGHT_FINGER, -90, Angle.fromDegrees(1));
+            b.addServo(S.STOP_RIGHT_FINGER, S.STOP_FINGER_LEFT, robotCfg.getFingerRight().getName(), SkystoneRobotCfgV2.FingerRightServoPresets.STOP, false);
+            b.addServo(S.STOP_FINGER_LEFT, S.CHOOSE_DRIVE_DISTANCE, robotCfg.getFingerLeft().getName(), SkystoneRobotCfgV2.FingerLeftServoPresets.STOP, false);
+            b.add(S.CHOOSE_DRIVE_DISTANCE, getDriveState());
+            addOdomDrive(S.SKYSTONE_LEFT_DRIVE_TO_BRIDGE, S.DRIVE_WITH_ODOMETRY_8, b, rc, S.STOP1, 5000, S.TURN_3, -63,
+                    Angle.fromDegrees(0), 1, Angle.fromDegrees(-90), 200, 400, 3);
+            addOdomDrive(S.SKYSTONE_MIDDLE_TO_BRIDGE, S.DRIVE_WITH_ODOMETRY_9, b, rc, S.STOP1, 5000, S.TURN_3, -67,
+                    Angle.fromDegrees(0), 1, Angle.fromDegrees(-90), 200, 400, 3);
+            addOdomDrive(S.SKYSTONE_RIGHT_TO_BRIDGE, S.DRIVE_WITH_ODOMETRY_10, b, rc, S.STOP1, 5000, S.TURN_3, -75,
+                    Angle.fromDegrees(0), 1, Angle.fromDegrees(-90), 200, 400, 3);
+            b.addDrive(S.DRIVE_DISTANCE_1, StateMap.of(
+                    S.STOP1, EndConditions.timed(6000),
+                    S.TURN_3, valueBetween(4, plusY, 30, 5)), rc.gyro(-90),
+                    TranslationControls.sensor2(plusY, 0.07, Angle.fromDegrees(180), new Vector2D(0.75, Angle.fromDegrees(180)), 0.014, 30, 3)
+            );
+            b.addGyroTurn(S.TURN_3, S.FOUNDATION_MOVER_READY_RIGHT, 180, Angle.fromDegrees(2));
+            b.addServo(S.FOUNDATION_MOVER_READY_RIGHT, S.FOUNDATION_MOVER_READY_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.READY, false);
+            b.addServo(S.FOUNDATION_MOVER_READY_LEFT, S.DRIVE_DISTANCE_2, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.READY, false);
 
-        b.add(S.MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.TURN_1, robotCfg.getLiftArmV2(), 600, false));
-        b.addGyroTurn(S.TURN_1, S.START_COLLECTOR, -45, Angle.fromDegrees(2));
-        b.addMotorOn(S.START_COLLECTOR,S.ODOMETRY_RESET, robotCfg.getBlockCollector().getCollectorMotor(), -1);
-        addOdomDrive(S.ODOMETRY_RESET, S.DRIVE_WITH_ODOMETRY_2,b,rc, S.STOP1, 5000, S.ODOMETRY_RESET_2,
-                10, Angle.fromDegrees(-135), 0.75, Angle.fromDegrees(-45), 150, 300, 3);
-        addOdomDrive(S.ODOMETRY_RESET_2, S.DRIVE_WITH_ODOMETRY_3, b,rc,S.STOP1, 5000, S.START_FINGER_RIGHT, -15,
-                Angle.fromDegrees(-135), 0.75, Angle.fromDegrees(-45), 150, 300, 3);
-        b.addServo(S.START_FINGER_RIGHT, S.START_FINGER_LEFT, robotCfg.getFingerRight().getName(), SkystoneRobotCfgV2.FingerRightServoPresets.FORWARD, false);
-        b.addServo(S.START_FINGER_LEFT, S.MOVE_ARM_DOWN, robotCfg.getFingerLeft().getName(), SkystoneRobotCfgV2.FingerLeftServoPresets.FORWARD, false);
-        b.add(S.MOVE_ARM_DOWN, LiftArmStatesV2.liftMove(S.STOP_COLLECTOR, robotCfg.getLiftArmV2(), 0, false));
-        b.addMotorOff(S.STOP_COLLECTOR,S.TURN_2, robotCfg.getBlockCollector().getCollectorMotor());
-        b.addGyroTurn(S.TURN_2, S.STOP_RIGHT_FINGER, -90, Angle.fromDegrees(1));
-        b.addServo(S.STOP_RIGHT_FINGER, S.STOP_FINGER_LEFT, robotCfg.getFingerRight().getName(), SkystoneRobotCfgV2.FingerRightServoPresets.STOP, false);
-        b.addServo(S.STOP_FINGER_LEFT, S.CHOOSE_DRIVE_DISTANCE, robotCfg.getFingerLeft().getName(), SkystoneRobotCfgV2.FingerLeftServoPresets.STOP, false);
-        b.add(S.CHOOSE_DRIVE_DISTANCE, getDriveState());
-        addOdomDrive(S.SKYSTONE_LEFT_DRIVE_TO_BRIDGE, S.DRIVE_WITH_ODOMETRY_8, b,rc,S.STOP1, 5000, S.TURN_3, -63,
-                Angle.fromDegrees(0), 1, Angle.fromDegrees(-90), 200, 400, 3);
-        addOdomDrive(S.SKYSTONE_MIDDLE_TO_BRIDGE, S.DRIVE_WITH_ODOMETRY_9, b,rc,S.STOP1, 5000, S.TURN_3, -67,
-                Angle.fromDegrees(0), 1, Angle.fromDegrees(-90), 200, 400, 3);
-        addOdomDrive(S.SKYSTONE_RIGHT_TO_BRIDGE, S.DRIVE_WITH_ODOMETRY_10, b,rc,S.STOP1, 5000, S.TURN_3, -75,
-                Angle.fromDegrees(0), 1, Angle.fromDegrees(-90), 200, 400, 3);
-        b.addDrive(S.DRIVE_DISTANCE_1, StateMap.of(
-                S.STOP1, EndConditions.timed(6000),
-                S.TURN_3, valueBetween(4, plusY, 30, 5)),rc.gyro(-90),
-                TranslationControls.sensor2(plusY, 0.07, Angle.fromDegrees(180), new Vector2D(0.75, Angle.fromDegrees(180)), 0.014, 30, 3)
-        );
-        b.addGyroTurn(S.TURN_3, S.FOUNDATION_MOVER_READY_RIGHT, 180, Angle.fromDegrees(2));
-        b.addServo(S.FOUNDATION_MOVER_READY_RIGHT, S.FOUNDATION_MOVER_READY_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.READY, false);
-        b.addServo(S.FOUNDATION_MOVER_READY_LEFT, S.DRIVE_DISTANCE_2, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.READY, false);
+            b.addDrive(S.DRIVE_DISTANCE_2, StateMap.of(
+                    S.MOVE_ARM_UP_FOUNDATION, EndConditions.timed(6000),
+                    S.MOVE_ARM_UP_FOUNDATION, valueBetween(4, plusY, 3, 2)), rc.gyro(180),
+                    TranslationControls.sensor2(plusY, 0.07, Angle.fromDegrees(90), new Vector2D(0.75, Angle.fromDegrees(90)), 0.014, 3, 1)
+            );
+            b.add(S.MOVE_ARM_UP_FOUNDATION, LiftArmStatesV2.liftMove(S.EXTEND_SKYSTONE, robotCfg.getLiftArmV2(), 800, true));
+            b.add(S.EXTEND_SKYSTONE, LiftArmStatesV2.horizontalExtension(S.DROP_SKYSTONE, robotCfg.getLiftArmV2(), 1800, true));
+            b.addServo(S.DROP_SKYSTONE, S.DROP_SKYSTONE_WAIT, robotCfg.getGripper().getName(), SkystoneRobotCfgV2.GripperServoPresets.RELEASE, true);
+            b.addWait(S.DROP_SKYSTONE_WAIT, S.GRIPPER_READY_RETRACT, 700);
+            b.addServo(S.GRIPPER_READY_RETRACT, S.RETRACT_ARM, robotCfg.getGripper().getName(), SkystoneRobotCfgV2.GripperServoPresets.GRAB, false);
+            b.add(S.RETRACT_ARM, LiftArmStatesV2.horizontalExtension(S.DRIVE_DISTANCE_3, robotCfg.getLiftArmV2(), 0, false));
+            b.addDrive(S.DRIVE_DISTANCE_3, StateMap.of(
+                    S.STOP1, EndConditions.timed(6000),
+                    S.FOUNDATION_MOVER_DOWN_RIGHT, valueBetween(4, plusY, 6, 2)), rc.gyro(180),
+                    TranslationControls.sensor2(plusY, 0.07, Angle.fromDegrees(90), new Vector2D(0.75, Angle.fromDegrees(90)), 0.014, 6, 1)
+            );
 
-        b.addDrive(S.DRIVE_DISTANCE_2, StateMap.of(
-                S.MOVE_ARM_UP_FOUNDATION, EndConditions.timed(6000),
-            S.MOVE_ARM_UP_FOUNDATION, valueBetween(4, plusY, 3, 2)),rc.gyro(180),
-                TranslationControls.sensor2(plusY, 0.07, Angle.fromDegrees(90), new Vector2D(0.75, Angle.fromDegrees(90)), 0.014, 3, 1)
-        );
-        b.add(S.MOVE_ARM_UP_FOUNDATION, LiftArmStatesV2.liftMove(S.EXTEND_SKYSTONE, robotCfg.getLiftArmV2(), 800, true));
-        b.add(S.EXTEND_SKYSTONE, LiftArmStatesV2.horizontalExtension(S.DROP_SKYSTONE, robotCfg.getLiftArmV2(), 1800, true));
-        b.addServo(S.DROP_SKYSTONE, S.DROP_SKYSTONE_WAIT, robotCfg.getGripper().getName(), SkystoneRobotCfgV2.GripperServoPresets.RELEASE,  true);
-        b.addWait(S.DROP_SKYSTONE_WAIT, S.GRIPPER_READY_RETRACT, 700 );
-        b.addServo(S.GRIPPER_READY_RETRACT, S.RETRACT_ARM, robotCfg.getGripper().getName(), SkystoneRobotCfgV2.GripperServoPresets.GRAB, false);
-        b.add(S.RETRACT_ARM, LiftArmStatesV2.horizontalExtension(S.DRIVE_DISTANCE_3, robotCfg.getLiftArmV2(), 0, false));
-        b.addDrive(S.DRIVE_DISTANCE_3, StateMap.of(
-                S.STOP1, EndConditions.timed(6000),
-                S.FOUNDATION_MOVER_DOWN_RIGHT, valueBetween(4, plusY, 6, 2)),rc.gyro(180),
-                TranslationControls.sensor2(plusY, 0.07, Angle.fromDegrees(90), new Vector2D(0.75, Angle.fromDegrees(90)), 0.014, 6, 1)
-        );
-
-        b.addServo(S.FOUNDATION_MOVER_DOWN_RIGHT, S.FOUNDATION_MOVER_DOWN_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.DOWN, false);
-        b.addServo(S.FOUNDATION_MOVER_DOWN_LEFT, S.MOVE_ARM_DOWN_2, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.DOWN, false);
-        b.add(S.MOVE_ARM_DOWN_2, LiftArmStatesV2.liftMove(S.ODOMETRY_RESET_3, robotCfg.getLiftArmV2(), 0, false));
-        addOdomDrive(S.ODOMETRY_RESET_3, S.DRIVE_WITH_ODOMETRY_4, b, rc, S.STOP1, 5000, S.ODOMETRY_RESET_4, 12,
-                Angle.fromDegrees(90), 0.75, Angle.fromDegrees(180), 200, 300, 3);
-        addOdomDrive(S.ODOMETRY_RESET_4, S.DRIVE_WITH_ODOMETRY_5, b, rc, S.STOP1, 5000, S.FOUNDATION_MOVER_UP_RIGHT, 8,
-                Angle.fromDegrees(135), 0.75, Angle.fromDegrees(270), 200, 300, 3);
-        b.addServo(S.FOUNDATION_MOVER_UP_RIGHT, S.FOUNDATION_MOVER_UP_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.UP, false);
-        b.addServo(S.FOUNDATION_MOVER_UP_LEFT, S.TURN_4, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.UP, false);
-        b.addGyroTurn(S.TURN_4, S.ODOMETRY_RESET_5, Angle.fromDegrees(270));
-        addOdomDrive(S.ODOMETRY_RESET_5, S.DRIVE_WITH_ODOMETRY_6, b, rc, S.ODOMETRY_RESET_6, 1000, S.ODOMETRY_RESET_6, -12,
-                Angle.fromDegrees(0), 0.75, Angle.fromDegrees(270), 200, 300, 3);
+            b.addServo(S.FOUNDATION_MOVER_DOWN_RIGHT, S.FOUNDATION_MOVER_DOWN_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.DOWN, false);
+            b.addServo(S.FOUNDATION_MOVER_DOWN_LEFT, S.MOVE_ARM_DOWN_2, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.DOWN, false);
+            b.add(S.MOVE_ARM_DOWN_2, LiftArmStatesV2.liftMove(S.ODOMETRY_RESET_3, robotCfg.getLiftArmV2(), 0, false));
+            addOdomDrive(S.ODOMETRY_RESET_3, S.DRIVE_WITH_ODOMETRY_4, b, rc, S.STOP1, 5000, S.ODOMETRY_RESET_4, 12,
+                    Angle.fromDegrees(90), 0.75, Angle.fromDegrees(180), 200, 300, 3);
+            addOdomDrive(S.ODOMETRY_RESET_4, S.DRIVE_WITH_ODOMETRY_5, b, rc, S.STOP1, 5000, S.FOUNDATION_MOVER_UP_RIGHT, 8,
+                    Angle.fromDegrees(135), 0.75, Angle.fromDegrees(270), 200, 300, 3);
+            b.addServo(S.FOUNDATION_MOVER_UP_RIGHT, S.FOUNDATION_MOVER_UP_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.UP, false);
+            b.addServo(S.FOUNDATION_MOVER_UP_LEFT, S.TURN_4, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.UP, false);
+            b.addGyroTurn(S.TURN_4, S.ODOMETRY_RESET_5, Angle.fromDegrees(270));
+            addOdomDrive(S.ODOMETRY_RESET_5, S.DRIVE_WITH_ODOMETRY_6, b, rc, S.ODOMETRY_RESET_6, 1000, S.ODOMETRY_RESET_6, -12,
+                    Angle.fromDegrees(0), 0.75, Angle.fromDegrees(270), 200, 300, 3);
 //        b.addDrive(S.LINE_WITH_WALL, StateMap.of(
 //                S.MOVE_ARM_DOWN_2, EndConditions.timed(5000),
 //                S.MOVE_ARM_DOWN_2, valueBetween(4, minusX, 70, 2)),rc.gyro(270),
 //                TranslationControls.sensor2(minusX, 0.07, Angle.fromDegrees(270), new Vector2D(0.75, Angle.fromDegrees(270)), 0.014, 70, 1)
 //        );
-        addOdomDrive(S.ODOMETRY_RESET_6, S.DRIVE_WITH_ODOMETRY_7, b, rc, S.STOP, 2000, S.STOP, 36,
-                Angle.fromDegrees(0), 1, Angle.fromDegrees(270), 200, 300, 3);
+            addOdomDrive(S.ODOMETRY_RESET_6, S.DRIVE_WITH_ODOMETRY_7, b, rc, S.STOP, 2000, S.STOP, 36,
+                    Angle.fromDegrees(0), 1, Angle.fromDegrees(270), 200, 300, 3);
 
 //RED auto
 
 
-        addOdomDrive(null, S.RED_SKYSTONE_RIGHT, b,rc, S.STOP1, 5000, S.RED_MOVE_ARM_UP, 26.5,
-                Angle.fromDegrees(229), 1, Angle.fromDegrees(0),
-                200, 400, 3);
-        addOdomDrive(null, S.RED_SKYSTONE_LEFT, b, rc, S.STOP1, 5000, S.RED_MOVE_ARM_UP, 28, Angle.fromDegrees(253),
-                1, Angle.fromDegrees(0), 200, 400, 3);
-        addOdomDrive(null, S.RED_SKYSTONE_MIDDLE, b, rc, S.STOP1, 5000, S.RED_MOVE_ARM_UP, 28, Angle.fromDegrees(240),
-                1, Angle.fromDegrees(0), 200, 400, 3);
+            addOdomDrive(null, S.RED_SKYSTONE_RIGHT, b, rc, S.STOP1, 5000, S.RED_MOVE_ARM_UP, 26.5,
+                    Angle.fromDegrees(229), 1, Angle.fromDegrees(0),
+                    200, 400, 3);
+            addOdomDrive(null, S.RED_SKYSTONE_LEFT, b, rc, S.STOP1, 5000, S.RED_MOVE_ARM_UP, 28, Angle.fromDegrees(253),
+                    1, Angle.fromDegrees(0), 200, 400, 3);
+            addOdomDrive(null, S.RED_SKYSTONE_MIDDLE, b, rc, S.STOP1, 5000, S.RED_MOVE_ARM_UP, 28, Angle.fromDegrees(240),
+                    1, Angle.fromDegrees(0), 200, 400, 3);
 
-        b.add(S.RED_MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.RED_TURN_1, robotCfg.getLiftArmV2(), 600, false));
-        b.addGyroTurn(S.RED_TURN_1, S.RED_START_COLLECTOR, 45, Angle.fromDegrees(2));
-        b.addMotorOn(S.RED_START_COLLECTOR,S.RED_ODOMETRY_RESET, robotCfg.getBlockCollector().getCollectorMotor(), -1);
-        addOdomDrive(S.RED_ODOMETRY_RESET, S.RED_DRIVE_WITH_ODOMETRY_2,b,rc, S.STOP1, 5000, S.RED_ODOMETRY_RESET_2,
-                10, Angle.fromDegrees(135), 0.75, Angle.fromDegrees(45), 150, 300, 3);
-        addOdomDrive(S.RED_ODOMETRY_RESET_2, S.RED_DRIVE_WITH_ODOMETRY_3, b,rc,S.STOP1, 5000, S.RED_START_FINGER_RIGHT, -15,
-                Angle.fromDegrees(135), 0.75, Angle.fromDegrees(45), 150, 300, 3);
-        b.addServo(S.RED_START_FINGER_RIGHT, S.RED_START_FINGER_LEFT, robotCfg.getFingerRight().getName(), SkystoneRobotCfgV2.FingerRightServoPresets.FORWARD, false);
-        b.addServo(S.RED_START_FINGER_LEFT, S.RED_MOVE_ARM_DOWN, robotCfg.getFingerLeft().getName(), SkystoneRobotCfgV2.FingerLeftServoPresets.FORWARD, false);
-        b.add(S.RED_MOVE_ARM_DOWN, LiftArmStatesV2.liftMove(S.RED_STOP_COLLECTOR, robotCfg.getLiftArmV2(), 0, false));
-        b.addMotorOff(S.RED_STOP_COLLECTOR,S.RED_TURN_2, robotCfg.getBlockCollector().getCollectorMotor());
-        b.addGyroTurn(S.RED_TURN_2, S.RED_STOP_RIGHT_FINGER, 90, Angle.fromDegrees(1));
-        b.addServo(S.RED_STOP_RIGHT_FINGER, S.RED_STOP_FINGER_LEFT, robotCfg.getFingerRight().getName(), SkystoneRobotCfgV2.FingerRightServoPresets.STOP, false);
-        b.addServo(S.RED_STOP_FINGER_LEFT, S.RED_CHOOSE_DRIVE_DISTANCE, robotCfg.getFingerLeft().getName(), SkystoneRobotCfgV2.FingerLeftServoPresets.STOP, false);
-        b.add(S.RED_CHOOSE_DRIVE_DISTANCE, getDriveState());
-        addOdomDrive(S.RED_SKYSTONE_LEFT_DRIVE_TO_BRIDGE, S.RED_DRIVE_WITH_ODOMETRY_8, b,rc,S.STOP1, 5000, S.RED_TURN_3, -70,
-                Angle.fromDegrees(180), 1, Angle.fromDegrees(90), 200, 400, 3);
-        addOdomDrive(S.RED_SKYSTONE_MIDDLE_TO_BRIDGE, S.RED_DRIVE_WITH_ODOMETRY_9, b,rc,S.STOP1, 5000, S.RED_TURN_3, -64,
-                Angle.fromDegrees(180), 1, Angle.fromDegrees(90), 200, 400, 3);
-        addOdomDrive(S.RED_SKYSTONE_RIGHT_TO_BRIDGE, S.RED_DRIVE_WITH_ODOMETRY_10, b,rc,S.STOP1, 5000, S.RED_TURN_3, -59,
-                Angle.fromDegrees(180), 1, Angle.fromDegrees(90), 200, 400, 3);
-        b.addGyroTurn(S.RED_TURN_3, S.RED_FOUNDATION_MOVER_READY_RIGHT, 180, Angle.fromDegrees(2));
-        b.addServo(S.RED_FOUNDATION_MOVER_READY_RIGHT, S.RED_FOUNDATION_MOVER_READY_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.READY, false);
-        b.addServo(S.RED_FOUNDATION_MOVER_READY_LEFT, S.RED_DRIVE_DISTANCE_2, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.READY, false);
-        b.addDrive(S.RED_DRIVE_DISTANCE_2, StateMap.of(
-           S.RED_MOVE_ARM_UP_FOUNDATION, EndConditions.timed(1000),
-           S.RED_MOVE_ARM_UP_FOUNDATION, valueBetween(3, plusY, 3, 2)
-        ), rc.gyro(180), TranslationControls.sensor2(plusY, 0.075, Angle.fromDegrees(90), new Vector2D(0.75, Angle.fromDegrees(270)),
-                0.014, 3, 1));
-        b.add(S.RED_MOVE_ARM_UP_FOUNDATION, LiftArmStatesV2.liftMove(S.RED_EXTEND_SKYSTONE, robotCfg.getLiftArmV2(), 650, true));
-        b.add(S.RED_EXTEND_SKYSTONE, LiftArmStatesV2.horizontalExtension(S.RED_DROP_SKYSTONE, robotCfg.getLiftArmV2(), 1800, true));
-        b.addServo(S.RED_DROP_SKYSTONE, S.RED_DROP_SKYSTONE_WAIT, robotCfg.getGripper().getName(), SkystoneRobotCfgV2.GripperServoPresets.RELEASE,  true);
-        b.addWait(S.RED_DROP_SKYSTONE_WAIT, S.RED_GRIPPER_READY_RETRACT, 700 );
-        b.addServo(S.RED_GRIPPER_READY_RETRACT, S.RED_RETRACT_ARM, robotCfg.getGripper().getName(), SkystoneRobotCfgV2.GripperServoPresets.GRAB, false);
-        b.add(S.RED_RETRACT_ARM, LiftArmStatesV2.horizontalExtension(S.RED_FOUNDATION_MOVER_DOWN_RIGHT, robotCfg.getLiftArmV2(), 0, false));
-        b.addServo(S.RED_FOUNDATION_MOVER_DOWN_RIGHT, S.RED_FOUNDATION_MOVER_DOWN_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.DOWN, false);
-        b.addServo(S.RED_FOUNDATION_MOVER_DOWN_LEFT, S.RED_ODOMETRY_RESET_3, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.DOWN, false);
-        addOdomDrive(S.RED_ODOMETRY_RESET_3, S.RED_DRIVE_WITH_ODOMETRY_4, b, rc, S.STOP1, 5000, S.RED_MOVE_ARM_DOWN_2, 17,
-                Angle.fromDegrees(90), 0.75, Angle.fromDegrees(180), 200, 300, 3);
-        b.add(S.RED_MOVE_ARM_DOWN_2, LiftArmStatesV2.liftMove(S.RED_ODOMETRY_RESET_4, robotCfg.getLiftArmV2(), 0, false));
-        addOdomDrive(S.RED_ODOMETRY_RESET_4, S.RED_DRIVE_WITH_ODOMETRY_5, b, rc, S.STOP1, 5000, S.RED_FOUNDATION_MOVER_UP_RIGHT, 8,
-                Angle.fromDegrees(45), 0.75, Angle.fromDegrees(90), 200, 300, 3);
-        b.addServo(S.RED_FOUNDATION_MOVER_UP_RIGHT, S.RED_FOUNDATION_MOVER_UP_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.UP, false);
-        b.addServo(S.RED_FOUNDATION_MOVER_UP_LEFT, S.RED_TURN_4, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.UP, false);
-        b.addGyroTurn(S.RED_TURN_4, S.RED_ODOMETRY_RESET_5, Angle.fromDegrees(90));
-        addOdomDrive(S.RED_ODOMETRY_RESET_5, S.RED_DRIVE_WITH_ODOMETRY_6, b, rc, S.RED_ODOMETRY_RESET_6, 1000, S.RED_ODOMETRY_RESET_6, -12,
-                Angle.fromDegrees(180), 0.75, Angle.fromDegrees(90), 200, 300, 3);
-        addOdomDrive(S.RED_ODOMETRY_RESET_6, S.RED_DRIVE_WITH_ODOMETRY_7, b, rc, S.STOP, 2000, S.STOP, 36,
-                Angle.fromDegrees(340), 1, Angle.fromDegrees(90), 200, 300, 3);
+            b.add(S.RED_MOVE_ARM_UP, LiftArmStatesV2.liftMove(S.RED_TURN_1, robotCfg.getLiftArmV2(), 600, false));
+            b.addGyroTurn(S.RED_TURN_1, S.RED_START_COLLECTOR, 45, Angle.fromDegrees(2));
+            b.addMotorOn(S.RED_START_COLLECTOR, S.RED_ODOMETRY_RESET, robotCfg.getBlockCollector().getCollectorMotor(), -1);
+            addOdomDrive(S.RED_ODOMETRY_RESET, S.RED_DRIVE_WITH_ODOMETRY_2, b, rc, S.STOP1, 5000, S.RED_ODOMETRY_RESET_2,
+                    10, Angle.fromDegrees(135), 0.75, Angle.fromDegrees(45), 150, 300, 3);
+            addOdomDrive(S.RED_ODOMETRY_RESET_2, S.RED_DRIVE_WITH_ODOMETRY_3, b, rc, S.STOP1, 5000, S.RED_START_FINGER_RIGHT, -15,
+                    Angle.fromDegrees(135), 0.75, Angle.fromDegrees(45), 150, 300, 3);
+            b.addServo(S.RED_START_FINGER_RIGHT, S.RED_START_FINGER_LEFT, robotCfg.getFingerRight().getName(), SkystoneRobotCfgV2.FingerRightServoPresets.FORWARD, false);
+            b.addServo(S.RED_START_FINGER_LEFT, S.RED_MOVE_ARM_DOWN, robotCfg.getFingerLeft().getName(), SkystoneRobotCfgV2.FingerLeftServoPresets.FORWARD, false);
+            b.add(S.RED_MOVE_ARM_DOWN, LiftArmStatesV2.liftMove(S.RED_STOP_COLLECTOR, robotCfg.getLiftArmV2(), 0, false));
+            b.addMotorOff(S.RED_STOP_COLLECTOR, S.RED_TURN_2, robotCfg.getBlockCollector().getCollectorMotor());
+            b.addGyroTurn(S.RED_TURN_2, S.RED_STOP_RIGHT_FINGER, 90, Angle.fromDegrees(1));
+            b.addServo(S.RED_STOP_RIGHT_FINGER, S.RED_STOP_FINGER_LEFT, robotCfg.getFingerRight().getName(), SkystoneRobotCfgV2.FingerRightServoPresets.STOP, false);
+            b.addServo(S.RED_STOP_FINGER_LEFT, S.RED_CHOOSE_DRIVE_DISTANCE, robotCfg.getFingerLeft().getName(), SkystoneRobotCfgV2.FingerLeftServoPresets.STOP, false);
+            b.add(S.RED_CHOOSE_DRIVE_DISTANCE, getDriveState());
+            addOdomDrive(S.RED_SKYSTONE_LEFT_DRIVE_TO_BRIDGE, S.RED_DRIVE_WITH_ODOMETRY_8, b, rc, S.STOP1, 5000, S.RED_TURN_3, -70,
+                    Angle.fromDegrees(180), 1, Angle.fromDegrees(90), 200, 400, 3);
+            addOdomDrive(S.RED_SKYSTONE_MIDDLE_TO_BRIDGE, S.RED_DRIVE_WITH_ODOMETRY_9, b, rc, S.STOP1, 5000, S.RED_TURN_3, -64,
+                    Angle.fromDegrees(180), 1, Angle.fromDegrees(90), 200, 400, 3);
+            addOdomDrive(S.RED_SKYSTONE_RIGHT_TO_BRIDGE, S.RED_DRIVE_WITH_ODOMETRY_10, b, rc, S.STOP1, 5000, S.RED_TURN_3, -59,
+                    Angle.fromDegrees(180), 1, Angle.fromDegrees(90), 200, 400, 3);
+            b.addGyroTurn(S.RED_TURN_3, S.RED_FOUNDATION_MOVER_READY_RIGHT, 180, Angle.fromDegrees(2));
+            b.addServo(S.RED_FOUNDATION_MOVER_READY_RIGHT, S.RED_FOUNDATION_MOVER_READY_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.READY, false);
+            b.addServo(S.RED_FOUNDATION_MOVER_READY_LEFT, S.RED_DRIVE_DISTANCE_2, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.READY, false);
+            b.addDrive(S.RED_DRIVE_DISTANCE_2, StateMap.of(
+                    S.RED_MOVE_ARM_UP_FOUNDATION, EndConditions.timed(1000),
+                    S.RED_MOVE_ARM_UP_FOUNDATION, valueBetween(3, plusY, 3, 2)
+            ), rc.gyro(180), TranslationControls.sensor2(plusY, 0.075, Angle.fromDegrees(90), new Vector2D(0.75, Angle.fromDegrees(270)),
+                    0.014, 3, 1));
+            b.add(S.RED_MOVE_ARM_UP_FOUNDATION, LiftArmStatesV2.liftMove(S.RED_EXTEND_SKYSTONE, robotCfg.getLiftArmV2(), 650, true));
+            b.add(S.RED_EXTEND_SKYSTONE, LiftArmStatesV2.horizontalExtension(S.RED_DROP_SKYSTONE, robotCfg.getLiftArmV2(), 1800, true));
+            b.addServo(S.RED_DROP_SKYSTONE, S.RED_DROP_SKYSTONE_WAIT, robotCfg.getGripper().getName(), SkystoneRobotCfgV2.GripperServoPresets.RELEASE, true);
+            b.addWait(S.RED_DROP_SKYSTONE_WAIT, S.RED_GRIPPER_READY_RETRACT, 700);
+            b.addServo(S.RED_GRIPPER_READY_RETRACT, S.RED_RETRACT_ARM, robotCfg.getGripper().getName(), SkystoneRobotCfgV2.GripperServoPresets.GRAB, false);
+            b.add(S.RED_RETRACT_ARM, LiftArmStatesV2.horizontalExtension(S.RED_FOUNDATION_MOVER_DOWN_RIGHT, robotCfg.getLiftArmV2(), 0, false));
+            b.addServo(S.RED_FOUNDATION_MOVER_DOWN_RIGHT, S.RED_FOUNDATION_MOVER_DOWN_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.DOWN, false);
+            b.addServo(S.RED_FOUNDATION_MOVER_DOWN_LEFT, S.RED_ODOMETRY_RESET_3, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.DOWN, false);
+            addOdomDrive(S.RED_ODOMETRY_RESET_3, S.RED_DRIVE_WITH_ODOMETRY_4, b, rc, S.STOP1, 5000, S.RED_MOVE_ARM_DOWN_2, 17,
+                    Angle.fromDegrees(90), 0.75, Angle.fromDegrees(180), 200, 300, 3);
+            b.add(S.RED_MOVE_ARM_DOWN_2, LiftArmStatesV2.liftMove(S.RED_ODOMETRY_RESET_4, robotCfg.getLiftArmV2(), 0, false));
+            addOdomDrive(S.RED_ODOMETRY_RESET_4, S.RED_DRIVE_WITH_ODOMETRY_5, b, rc, S.STOP1, 5000, S.RED_FOUNDATION_MOVER_UP_RIGHT, 8,
+                    Angle.fromDegrees(45), 0.75, Angle.fromDegrees(90), 200, 300, 3);
+            b.addServo(S.RED_FOUNDATION_MOVER_UP_RIGHT, S.RED_FOUNDATION_MOVER_UP_LEFT, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.UP, false);
+            b.addServo(S.RED_FOUNDATION_MOVER_UP_LEFT, S.RED_TURN_4, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.UP, false);
+            b.addGyroTurn(S.RED_TURN_4, S.RED_ODOMETRY_RESET_5, Angle.fromDegrees(90));
+            addOdomDrive(S.RED_ODOMETRY_RESET_5, S.RED_DRIVE_WITH_ODOMETRY_6, b, rc, S.RED_ODOMETRY_RESET_6, 1000, S.RED_ODOMETRY_RESET_6, -12,
+                    Angle.fromDegrees(180), 0.75, Angle.fromDegrees(90), 200, 300, 3);
+            addOdomDrive(S.RED_ODOMETRY_RESET_6, S.RED_DRIVE_WITH_ODOMETRY_7, b, rc, S.STOP, 3000, S.STOP, 36,
+                    Angle.fromDegrees(340), 1, Angle.fromDegrees(90), 200, 300, 3);
+            b.add(S.ChOOSE_DRIVE_2, getDriveState2());
+            addOdomDrive(S.RED_SKYSTONE_LEFT_2, S.RED_DRIVE_WITH_ODOMETRY_11, b, rc, S.STOP1, 3000, S.RED_TURN_5, 60,
+                    Angle.fromDegrees(10), 1, Angle.fromDegrees(90), 200, 300, 3);
+            addOdomDrive(S.RED_SKYSTONE_MIDDLE_2, S.RED_DRIVE_WITH_ODOMETRY_11, b, rc, S.STOP1, 2000, S.RED_TURN_5, 60,
+                    Angle.fromDegrees(10), 1, Angle.fromDegrees(90), 200, 300, 3);
+            addOdomDrive(S.RED_SKYSTONE_RIGHT_2
+                    , S.RED_DRIVE_WITH_ODOMETRY_11, b, rc, S.STOP1, 3000, S.RED_TURN_5, 60,
+                    Angle.fromDegrees(10), 1, Angle.fromDegrees(90), 200, 300, 3);
+            b.addGyroTurn(S.RED_TURN_5, S.RED_START_COLLECTOR_2, Angle.fromDegrees(135));
+            b.addMotorOn(S.RED_START_COLLECTOR_2, S.RED_ODOMETRY_RESET_11, robotCfg.getBlockCollector().getCollectorMotor(), -1);
+            addOdomDrive(S.RED_ODOMETRY_RESET_11
+                    , S.RED_DRIVE_WITH_ODOMETRY_12, b, rc, S.RED_ODOMETRY_RESET_12, 2000, S.RED_ODOMETRY_RESET_12, 10,
+                    Angle.fromDegrees(135), 1, Angle.fromDegrees(135), 200, 300, 3);
+            addOdomDrive(S.RED_ODOMETRY_RESET_12
+                    , S.RED_DRIVE_WITH_ODOMETRY_13, b, rc, S.RED_STOP_COLLECTOR_2, 2000, S.RED_STOP_COLLECTOR_2, 10,
+                    Angle.fromDegrees(135), 1, Angle.fromDegrees(135), 200, 300, 3);
+            b.addMotorOff(S.RED_STOP_COLLECTOR_2, S.RED_TURN_2, robotCfg.getBlockCollector().getCollectorMotor());
 
+        }else if(teamColor==TeamColor.BLUE) {
+            b.addWait(S.DECIDE_SKYSTONE_POSITION, S.RED_FOUNDATION_MOVER_DOWN_RIGHT, 700);
+            b.addServo(S.RED_FOUNDATION_MOVER_DOWN_RIGHT, S.STOP, robotCfg.getRightFoundationMover().getName(), SkystoneRobotCfgV2.RightFoundationMoverServoPresets.DOWN, false);
+
+        }else{
+            b.addWait(S.DECIDE_SKYSTONE_POSITION, S.RED_FOUNDATION_MOVER_DOWN_LEFT, 700);
+            b.addServo(S.RED_FOUNDATION_MOVER_DOWN_LEFT, S.STOP, robotCfg.getLeftFoundationMover().getName(), SkystoneRobotCfgV2.LeftFoundationMoverServoPresets.DOWN, false);
+
+        }
         // add dist move here same sensor, to foundation, so 2cm, then drop block
         b.addStop(S.STOP);
         b.addStop(S.STOP1);
         return b.build();
+    }
+
+    private State getDriveState2() {
+        return new State() {
+            @Override
+            public StateName act() {
+                SkyStonePos pos = skystonePosStateRR.getValue();
+                if(pos == SkyStonePos.RED_SKYSTONE_LEFT) {
+                    return S.RED_SKYSTONE_LEFT_2;
+                } else if(pos == SkyStonePos.RED_SKYSTONE_MIDDLE) {
+                    return S.RED_SKYSTONE_MIDDLE_2;
+                } else {
+                    return S.RED_SKYSTONE_RIGHT_2;
+                }
+            }
+        };
     }
 
 
@@ -704,6 +747,6 @@ public class SkyStoneAutonomousV2 extends AbstractAutoOp<SkystoneRobotCfgV2> {
         RED_SKYSTONE_RIGHT_TO_BRIDGE,
         RED_SKYSTONE_MIDDLE_TO_BRIDGE,
         DRIVE_1,
-        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP1, DECIDE_SKYSTONE_POSITION, TURN_1, ODOMETRY_RESET, DRIVE_WITH_ODOMETRY_2, COLLECT_SKYSTONE_1, MOVE_ARM_UP, START_COLLECTOR, MOVE_ARM_DOWN, DRIVE_WITH_ODOMETRY_3, START_FINGER_LEFT, START_FINGER_RIGHT, STOP_COLLECTOR, STOP_RIGHT_FINGER, STOP_FINGER_LEFT, ODOMETRY_RESET_2, TURN_2, DRIVE_WITH_ODOMETRY_4, ODOMETRY_RESET_3, TURN_3, DRIVE_MINUS_X, DRIVE_PLUS_Y, DRIVE_DISTANCE_1, EXTEND_SKYSTONE, DRIVE_DISTANCE_2, DRIVE_TIMED_1, GRIPPER_READY_RETRACT, DROP_SKYSTONE, MOVE_ARM_UP_FOUNDATION, INIT_LIFT_ARM, INIT_EXT_ARM, FOUNDATION_MOVER_READY_RIGHT, FOUNDATION_MOVER_READY_LEFT, FOUNDATION_MOVER_DOWN_RIGHT, FOUNDATION_MOVER_DOWN_LEFT, MOVE_FOUNDATION_1, FOUNDATION_MOVER_UP_RIGHT, FOUNDATION_MOVER_UP_LEFT, WAIT_FOR_ARM, DRIVE_DISTANCE_3, ODOMETRY_RESET_4, DRIVE_WITH_ODOMETRY_5, TURN_4, ODOMETRY_RESET_5, DRIVE_WITH_ODOMETRY_6, DROP_SKYSTONE_WAIT, RETRACT_ARM, LINE_WITH_WALL, MOVE_ARM_DOWN_2, ODOMETRY_RESET_6, DRIVE_WITH_ODOMETRY_7, CHOOSE_DRIVE_DISTANCE, DRIVE_WITH_ODOMETRY_8, RED_ODOMETRY_RESET_6, RED_DRIVE_WITH_ODOMETRY_7, RED_MOVE_ARM_UP, RED_TURN_1, RED_START_COLLECTOR, RED_ODOMETRY_RESET, RED_DRIVE_WITH_ODOMETRY_2, RED_ODOMETRY_RESET_2, RED_DRIVE_WITH_ODOMETRY_3, RED_START_FINGER_RIGHT, RED_START_FINGER_LEFT, RED_MOVE_ARM_DOWN, RED_STOP_COLLECTOR, RED_TURN_2, RED_STOP_RIGHT_FINGER, RED_STOP_FINGER_LEFT, RED_CHOOSE_DRIVE_DISTANCE, RED_DRIVE_WITH_ODOMETRY_8, RED_TURN_3, RED_DRIVE_DISTANCE_1, RED_FOUNDATION_MOVER_READY_RIGHT, RED_FOUNDATION_MOVER_READY_LEFT, RED_DRIVE_DISTANCE_2, RED_MOVE_ARM_UP_FOUNDATION, RED_EXTEND_SKYSTONE, RED_DROP_SKYSTONE, RED_DROP_SKYSTONE_WAIT, RED_GRIPPER_READY_RETRACT, RED_DRIVE_DISTANCE_3, RED_FOUNDATION_MOVER_DOWN_RIGHT, RED_DRIVE_WITH_ODOMETRY_9, RED_DRIVE_WITH_ODOMETRY_10, DRIVE_WITH_ODOMETRY_9, DRIVE_WITH_ODOMETRY_10, RED_FOUNDATION_MOVER_DOWN_LEFT, RED_ODOMETRY_RESET_3, RED_ODOMETRY_RESET_4, RED_FOUNDATION_MOVER_UP_RIGHT, RED_FOUNDATION_MOVER_UP_LEFT, RED_TURN_4, RED_DRIVE_WITH_ODOMETRY_4, RED_DRIVE_WITH_ODOMETRY_5, RED_ODOMETRY_RESET_5, RED_DRIVE_WITH_ODOMETRY_6, RED_RETRACT_ARM, RED_LINE_WITH_WALL, RED_MOVE_ARM_DOWN_2, ODOMETRY_RESET_NAN, ODOMETRY_DRIVE_NAN, STOP
+        INIT_GYRO, POST_GYRO_WAIT, INIT_CAMERA, POST_CAMERA_PAUSE, WAIT_FOR_START, WAIT_FOR_SKYSTONE, STOP_SKYSTONE_SEARCH, DRIVE_WITH_ODOMETRY, STOP1, DECIDE_SKYSTONE_POSITION, TURN_1, ODOMETRY_RESET, DRIVE_WITH_ODOMETRY_2, COLLECT_SKYSTONE_1, MOVE_ARM_UP, START_COLLECTOR, MOVE_ARM_DOWN, DRIVE_WITH_ODOMETRY_3, START_FINGER_LEFT, START_FINGER_RIGHT, STOP_COLLECTOR, STOP_RIGHT_FINGER, STOP_FINGER_LEFT, ODOMETRY_RESET_2, TURN_2, DRIVE_WITH_ODOMETRY_4, ODOMETRY_RESET_3, TURN_3, DRIVE_MINUS_X, DRIVE_PLUS_Y, DRIVE_DISTANCE_1, EXTEND_SKYSTONE, DRIVE_DISTANCE_2, DRIVE_TIMED_1, GRIPPER_READY_RETRACT, DROP_SKYSTONE, MOVE_ARM_UP_FOUNDATION, INIT_LIFT_ARM, INIT_EXT_ARM, FOUNDATION_MOVER_READY_RIGHT, FOUNDATION_MOVER_READY_LEFT, FOUNDATION_MOVER_DOWN_RIGHT, FOUNDATION_MOVER_DOWN_LEFT, MOVE_FOUNDATION_1, FOUNDATION_MOVER_UP_RIGHT, FOUNDATION_MOVER_UP_LEFT, WAIT_FOR_ARM, DRIVE_DISTANCE_3, ODOMETRY_RESET_4, DRIVE_WITH_ODOMETRY_5, TURN_4, ODOMETRY_RESET_5, DRIVE_WITH_ODOMETRY_6, DROP_SKYSTONE_WAIT, RETRACT_ARM, LINE_WITH_WALL, MOVE_ARM_DOWN_2, ODOMETRY_RESET_6, DRIVE_WITH_ODOMETRY_7, CHOOSE_DRIVE_DISTANCE, DRIVE_WITH_ODOMETRY_8, RED_ODOMETRY_RESET_6, RED_DRIVE_WITH_ODOMETRY_7, RED_MOVE_ARM_UP, RED_TURN_1, RED_START_COLLECTOR, RED_ODOMETRY_RESET, RED_DRIVE_WITH_ODOMETRY_2, RED_ODOMETRY_RESET_2, RED_DRIVE_WITH_ODOMETRY_3, RED_START_FINGER_RIGHT, RED_START_FINGER_LEFT, RED_MOVE_ARM_DOWN, RED_STOP_COLLECTOR, RED_TURN_2, RED_STOP_RIGHT_FINGER, RED_STOP_FINGER_LEFT, RED_CHOOSE_DRIVE_DISTANCE, RED_DRIVE_WITH_ODOMETRY_8, RED_TURN_3, RED_DRIVE_DISTANCE_1, RED_FOUNDATION_MOVER_READY_RIGHT, RED_FOUNDATION_MOVER_READY_LEFT, RED_DRIVE_DISTANCE_2, RED_MOVE_ARM_UP_FOUNDATION, RED_EXTEND_SKYSTONE, RED_DROP_SKYSTONE, RED_DROP_SKYSTONE_WAIT, RED_GRIPPER_READY_RETRACT, RED_DRIVE_DISTANCE_3, RED_FOUNDATION_MOVER_DOWN_RIGHT, RED_DRIVE_WITH_ODOMETRY_9, RED_DRIVE_WITH_ODOMETRY_10, DRIVE_WITH_ODOMETRY_9, DRIVE_WITH_ODOMETRY_10, RED_FOUNDATION_MOVER_DOWN_LEFT, RED_ODOMETRY_RESET_3, RED_ODOMETRY_RESET_4, RED_FOUNDATION_MOVER_UP_RIGHT, RED_FOUNDATION_MOVER_UP_LEFT, RED_TURN_4, RED_DRIVE_WITH_ODOMETRY_4, RED_DRIVE_WITH_ODOMETRY_5, RED_ODOMETRY_RESET_5, RED_DRIVE_WITH_ODOMETRY_6, RED_RETRACT_ARM, RED_LINE_WITH_WALL, RED_MOVE_ARM_DOWN_2, ODOMETRY_RESET_NAN, ODOMETRY_DRIVE_NAN, ChOOSE_DRIVE_2, RED_SKYSTONE_LEFT_2, RED_SKYSTONE_MIDDLE_2, RED_SKYSTONE_RIGHT_2, RED_DRIVE_WITH_ODOMETRY_11, RED_TURN_5, RED_ODOMETRY_RESET_11, RED_DRIVE_WITH_ODOMETRY_12, RED_ODOMETRY_RESET_12, RED_START_COLLECTOR_2, RED_DRIVE_WITH_ODOMETRY_13, RED_STOP_COLLECTOR_2, STOP
     }
 }

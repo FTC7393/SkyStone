@@ -16,6 +16,7 @@ public class LiftArmV2 {
     private final DigitalSensor lowerLimitVerticalRight;
     private final DigitalSensor lowerLimitVerticalLeft;
     private final DigitalSensor lowerLimitHorizontal;
+    private final int VerticalMaxExtensionLeft = 3600;
     private boolean isArmExtended = false;
     private LinearSlide horizontalSlide;
     private LinearSlide verticalSlideRight;
@@ -23,7 +24,7 @@ public class LiftArmV2 {
     private StateMachine stateMachine;
     private double liftCommand;
     private double WristCommand;
-    private final int VerticalMaxExtension = 3600;
+    private final int VerticalMaxExtensionRight = 3500;
     private int VerticalMinExtension = -10000;
     private final int HorizontalMaxExtension = 1850;
     private final int LiftToleranceHorizontal = 20;//DEFAULT: 5
@@ -59,19 +60,19 @@ public class LiftArmV2 {
         this.fingerLeft = fingerLeft;
         this.fingerRight = fingerRight;
 //        this.verticalSlideLeft = new LinearSlide(VerticalLeftMotor, new PIDController(0.003, 0, 0, 1),
-//                VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalLeft);
+//                VerticalMaxExtensionRight, LiftToleranceVertical, lowerLimitVerticalLeft);
 //        this.verticalSlideRight = new LinearSlide(VerticalRightMotor, new PIDController(0.003, 0, 0, 1),
-//                VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalRight);
+//                VerticalMaxExtensionRight, LiftToleranceVertical, lowerLimitVerticalRight);
 //        this.horizontalSlide = new LinearSlide(HorizontalMotor, new PIDController(0.003, 0, 0.1, 1),
 //                HorizontalMaxExtension, LiftToleranceHorizontal, lowerLimitHorizontal);
         this.horizontalSlide = new LinearSlide(HorizontalMotor, null,
                 HorizontalMaxExtension, LiftToleranceHorizontal, lowerLimitHorizontal);
         horizontalSlide.setMaxCorrectionPower(0.8);
         this.verticalSlideRight = new LinearSlide(VerticalRightMotor, null,
-                VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalRight);
+                VerticalMaxExtensionRight, LiftToleranceVertical, lowerLimitVerticalRight);
         verticalSlideRight.setMaxCorrectionPower(1.0);
         this.verticalSlideLeft = new LinearSlide(VerticalLeftMotor, null,
-                VerticalMaxExtension, LiftToleranceVertical, lowerLimitVerticalLeft);
+                VerticalMaxExtensionLeft, LiftToleranceVertical, lowerLimitVerticalLeft);
         verticalSlideLeft.setMaxCorrectionPower(1.0);
         this.lowerLimitVerticalRight = lowerLimitVerticalRight;
         this.lowerLimitVerticalLeft = lowerLimitVerticalLeft;
@@ -117,7 +118,7 @@ public class LiftArmV2 {
 
     public void setLift(int encoder){
 //        double newCommand = ((leftEnc + verticalSlideRight.getExtensionEncoder()) / 2) + liftDelta;
-        liftCommand = Math.min(Math.max(encoder, VerticalMinExtension), VerticalMaxExtension);
+        liftCommand = Math.min(Math.max(encoder, VerticalMinExtension), VerticalMaxExtensionRight);
         //if you want to contrain the lift based on the horizontal condition, here is some logic to try
 //        if (horizontalSlide.getExtensionEncoder() >= liftKeepOutInnerLimit && horizontalSlide.getExtensionEncoder() <= liftKeepOutOuterLimit) {
 //            if (liftCommand >= liftKeepOutUpperLimit && newCommand < liftKeepOutUpperLimit) {
@@ -131,7 +132,7 @@ public class LiftArmV2 {
     public void synchronizeLeftSlide() {
         double rightEnc = verticalSlideRight.getExtensionEncoder();
         double offset = calculateOffset(rightEnc);
-        double leftExtEnc = Math.min(Math.max(rightEnc-offset, VerticalMinExtension), VerticalMaxExtension);
+        double leftExtEnc = Math.min(Math.max(rightEnc-offset, VerticalMinExtension), VerticalMaxExtensionLeft);
         verticalSlideLeft.setExtension(leftExtEnc);
         staticLiftLeft = leftExtEnc;
     }
