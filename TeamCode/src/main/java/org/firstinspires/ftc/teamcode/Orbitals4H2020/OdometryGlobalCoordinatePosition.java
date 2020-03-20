@@ -27,7 +27,7 @@ public class OdometryGlobalCoordinatePosition implements Runnable{
     private double horizontalEncoderTickPerDegreeOffset;
 
     //Sleep time interval (milliseconds) for the position update thread
-    private int sleepTime;
+    private final int sleepTime;
 
     //Files to access the algorithm constants
     private File wheelBaseSeparationFile = AppUtil.getInstance().getSettingsFile("wheelBaseSeparation.txt");
@@ -134,6 +134,14 @@ public class OdometryGlobalCoordinatePosition implements Runnable{
         }
     }
 
+    private void sleep(int time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Runs the thread
      */
@@ -141,11 +149,7 @@ public class OdometryGlobalCoordinatePosition implements Runnable{
     public void run() {
         while(isRunning) {
             globalCoordinatePositionUpdate();
-            try {
-                Thread.sleep(sleepTime);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            sleep(sleepTime);
         }
     }
 }
