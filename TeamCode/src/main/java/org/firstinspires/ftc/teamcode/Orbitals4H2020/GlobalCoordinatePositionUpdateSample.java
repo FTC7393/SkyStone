@@ -4,6 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+
+import java.sql.Driver;
 
 
 /**
@@ -15,6 +18,7 @@ public class GlobalCoordinatePositionUpdateSample extends LinearOpMode {
 
     //Odometry encoder wheels
     DcMotor verticalRight, verticalLeft, horizontal, backRight;
+    Servo arm, bucket;
 
     //The amount of encoder ticks for each inch the robot moves. This will change for each robot and needs to be changed here
     final double COUNTS_PER_INCH = 307.699557;
@@ -24,6 +28,9 @@ public class GlobalCoordinatePositionUpdateSample extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        //Assign the hardware map to the arm servos(added by lincoln 3/26/2020)
+        arm = hardwareMap.servo.get("arm");
+        bucket = hardwareMap.servo.get("bucket");
 
         //Assign the hardware map to the odometry wheels
         verticalLeft = hardwareMap.dcMotor.get(verticalLeftEncoderName);
@@ -76,8 +83,8 @@ public class GlobalCoordinatePositionUpdateSample extends LinearOpMode {
         positionThread.start();
 
 
-        double X1, Y1, X2;
-        double threshold=.02;
+        double X1, Y1, X2, bucketPosition, armPosition=.5, threshold=.02, armPositionChange=.01, scaleFactor=.8;
+
         while(opModeIsActive()){
             //Display Global (x, y, theta) coordinates
             telemetry.addData("X Position", globalPositionUpdate.returnXCoordinate() / COUNTS_PER_INCH);
@@ -94,6 +101,10 @@ public class GlobalCoordinatePositionUpdateSample extends LinearOpMode {
             X1=-gamepad1.right_stick_x;
             Y1=gamepad1.right_stick_y;
             X2=-gamepad1.left_stick_x;
+
+            //joystick Scaling
+            X2=((scaleFactor*Math.pow(X2,3)+(1-scaleFactor)*X2)-((Math.abs(X2)/X2)*(scaleFactor*Math.pow(threshold,3)+(1-scaleFactor)*threshold)))/(1-(scaleFactor*Math.pow(threshold,3)+(1-scaleFactor)*threshold));
+
             //deadzones
             if(Math.abs(X1)< threshold) {
                 X1 = 0;
@@ -109,6 +120,32 @@ public class GlobalCoordinatePositionUpdateSample extends LinearOpMode {
             horizontal.setPower((Y1 + X2 - X1));
             backRight.setPower(-(Y1 - X2 + X1));
             verticalRight.setPower((Y1 - X2 - X1));
+
+            //servos
+            if(gamepad1.dpad_left){
+                bucketPosition=0;
+            }else if (gamepad1.dpad_right){
+                bucketPosition=1;
+            }else{
+                bucketPosition=.5;
+            }
+
+            if(gamepad1.x){
+                armPosition+=armPositionChange;
+            }else if(gamepad1.b){
+                armPosition-=armPositionChange;
+            }
+            if(armPosition>1){
+                armPosition=1;
+            }else if(armPosition<0){
+                armPosition=0;
+            }
+            if(gamepad1.y){
+                armPosition=.5;
+            }
+
+            arm.setPosition(armPosition);
+            bucket.setPosition(bucketPosition);
         }
 
         //Stop the thread
